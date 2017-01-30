@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/cardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/row_layout_marginBottom"
+        android:layout_marginLeft="@dimen/row_layout_marginLeft"
+        android:layout_marginRight="@dimen/row_layout_marginRight"
+        android:layout_marginTop="@dimen/row_layout_marginTop"
+        app:cardCornerRadius="@dimen/activity_vertical_margin"
+        app:cardElevation="@dimen/activity_vertical_margin"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+      <!--  <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <ImageView
+                android:id="@+id/org_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginRight="16dp" />
+
+            <TextView
+                android:id="@+id/org_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_toRightOf="@+id/org_image"
+                android:text="Title"
+                android:textColor="@color/caldroid_holo_blue_dark"
+                android:textSize="30sp" />
+
+            <TextView
+                android:id="@+id/org_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/org_title"
+                android:textColor="@color/caldroid_holo_blue_dark"
+                android:layout_toRightOf="@+id/org_image"
+                android:text="Description" />
+
+        </RelativeLayout>-->
+
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <CheckBox
+                android:id="@+id/item_chk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="10dp"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/org_image"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_toEndOf="@+id/item_chk"
+                android:padding="5dp" />
+
+            <!--    <LinearLayout android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">-->
+
+            <TextView
+                android:id="@+id/org_title"
+
+                android:layout_toEndOf="@+id/org_image"
+                android:layout_alignParentTop="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="5dp"
+                android:padding="2dp"
+                android:layout_marginBottom="5dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginStart="10dp"
+                android:textColor="@color/caldroid_black"
+                 />
+            <TextView
+                android:id="@+id/org_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/org_title"
+                android:layout_toEndOf="@+id/item_chk"
+                android:layout_marginLeft="75dp"
+                android:maxLines = "3"
+                android:minLines="1"
+                android:scrollbars = "vertical"
+                android:textColor="@color/caldroid_black"
+                />
+            <!-- </LinearLayout>-->
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+</LinearLayout>
