@@ -17,6 +17,7 @@ import com.caldroidsample.R;
  */
 public class AdFragment extends Fragment {
 
+    //image of ad in bottom of fragment
     ImageView imgAd;
     private static final String TAG_AD_IMG_ID = "img_id";
     public AdFragment() {
