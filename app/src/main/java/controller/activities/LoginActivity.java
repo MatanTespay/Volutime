@@ -42,7 +42,7 @@ import controller.caldroid.CaldroidSampleActivity;
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
     /**
-     * A dummy authentication store containing known user names and passwords.
+     * A dummy authentication store containing known user names and passwords. change it
      * TODO: remove after connecting to a real authentication system.
      */
     private static final String[] DUMMY_CREDENTIALS = new String[]{
