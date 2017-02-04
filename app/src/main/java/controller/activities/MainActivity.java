@@ -2,7 +2,6 @@ package controller.activities;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
@@ -27,11 +26,11 @@ import android.widget.Toast;
 import controller.caldroid.CaldroidSampleActivity;
 import controller.fragments.AdFragment;
 import controller.fragments.OrganizationFragment;
-import controller.fragments.MoviesFragment;
-import controller.fragments.NotificationsFragment;
+import controller.fragments.MessagesFragment;
+import controller.fragments.ProfileFragment;
 import controller.fragments.PhotosFragment;
-import controller.fragments.SettingsFragment;
 import utils.RoundedImageView;
+import utils.UserType;
 import utils.utilityClass;
 
 import com.caldroidsample.R;
@@ -45,16 +44,17 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
     private TextView txtName, txtWebsite;
     private Toolbar toolbar;
     private FloatingActionButton fab;
+    private UserType userType;
 
     // index to identify current nav menu item
     public static int navItemIndex = 0;
 
     // tags used to attach the fragments
     private static final String TAG_ORG = "ORG";
-    private static final String TAG_PHOTOS = "photos";
-    private static final String TAG_MOVIES = "movies";
-    private static final String TAG_NOTIFICATIONS = "notifications";
-    private static final String TAG_SETTINGS = "settings";
+    private static final String TAG_CALENDER = "CALENDER";
+    private static final String TAG_MESSAGES = "MESSAGES";
+    private static final String TAG_PROFILE = "PROFILE";
+
     private static final String TAG_AD = "ad";
     private static final String TAG_AD_IMG_ID = "img_id";
     public static String CURRENT_TAG = TAG_ORG;
@@ -117,6 +117,10 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
      * name, website, notifications action view (dot)
      */
     private void loadNavHeader() {
+
+        //GET USER DATA AND TYPE
+        this.userType = UserType.VOL;
+
         // name, website
         txtName.setText("Chnge Name !!!");
         txtWebsite.setText("change website !!!!");
@@ -132,7 +136,8 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
         }
 
         // showing dot next to notifications label
-        navigationView.getMenu().getItem(3).setActionView(R.layout.menu_dot);
+        navigationView.getMenu().getItem(2).setActionView(R.layout.menu_dot);
+
     }
 
     /***
@@ -210,22 +215,22 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
                 OrganizationFragment organizationFragment = new OrganizationFragment();
                 return organizationFragment;
             case 1:
-                // photos
+                // photos -- cal
                 PhotosFragment photosFragment = new PhotosFragment();
                 return photosFragment;
             case 2:
-                // movies fragment
-                MoviesFragment moviesFragment = new MoviesFragment();
-                return moviesFragment;
+                // movies fragment -- msg
+                MessagesFragment messagesFragment = new MessagesFragment();
+                return messagesFragment;
             case 3:
-                // notifications fragment
-                NotificationsFragment notificationsFragment = new NotificationsFragment();
-                return notificationsFragment;
+                // notifications fragment -- profile
+                ProfileFragment profileFragment = new ProfileFragment();
+                return profileFragment;
 
-            case 4:
+/*            case 4:
                 // settings fragment
                 SettingsFragment settingsFragment = new SettingsFragment();
-                return settingsFragment;
+                return settingsFragment;*/
             default:
                 return new OrganizationFragment();
         }
@@ -254,27 +259,20 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
                         navItemIndex = 0;
                         CURRENT_TAG = TAG_ORG;
                         break;
-                    case R.id.nav_photos:
-                        navItemIndex = 1;
-                        CURRENT_TAG = TAG_PHOTOS;
-                        break;
-                    case R.id.nav_movies:
-                        navItemIndex = 2;
-                        CURRENT_TAG = TAG_MOVIES;
-                        break;
-                    case R.id.nav_notifications:
-                        navItemIndex = 3;
-                        CURRENT_TAG = TAG_NOTIFICATIONS;
-                        break;
-                    case R.id.nav_settings:
-                        navItemIndex = 4;
-                        CURRENT_TAG = TAG_SETTINGS;
-                        break;
-                    case R.id.nav_about_us:
-                        // launch new intent instead of loading fragment
+                    case R.id.nav_calendar:
+                        //navItemIndex = 1;
+                        //CURRENT_TAG = TAG_CALENDER;
                         startActivity(new Intent(MainActivity.this, CaldroidSampleActivity.class));
                         drawer.closeDrawers();
                         return true;
+                    case R.id.nav_messages:
+                        navItemIndex = 2;
+                        CURRENT_TAG = TAG_MESSAGES;
+                        break;
+                    case R.id.nav_profile:
+                        navItemIndex = 3;
+                        CURRENT_TAG = TAG_PROFILE;
+                        break;
                     default:
                         navItemIndex = 0;
                 }
@@ -312,6 +310,7 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
         //Setting the actionbarToggle to drawer layout
         drawer.addDrawerListener(actionBarDrawerToggle);
 
+        actionBarDrawerToggle.setDrawerIndicatorEnabled(true);
         //calling sync state is necessary or else your hamburger icon wont show up
         actionBarDrawerToggle.syncState();
     }
@@ -348,9 +347,9 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
             getMenuInflater().inflate(R.menu.main, menu);
         }
 
-        // when fragment is notifications, load the menu created for notifications
-        if (navItemIndex == 3) {
-            getMenuInflater().inflate(R.menu.notifications, menu);
+        // when fragment is messages, load the menu created for notifications
+        if (navItemIndex == 2) {
+            getMenuInflater().inflate(R.menu.messages, menu);
         }
         return true;
     }
@@ -392,7 +391,19 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
     }
 
     @Override
-    public void onFragmentInteraction(Uri uri) {
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        selectNavMenu();
+        super.onResume();
+    }
+
+    @Override
+    public void onFragmentInteraction(Bundle bundle) {
+
 
     }
 }

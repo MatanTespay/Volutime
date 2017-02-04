@@ -3,7 +3,6 @@ package controller.fragments;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -17,11 +16,8 @@ import com.caldroidsample.R;
 import java.util.ArrayList;
 import java.util.List;
 
-import controller.adapters.GenericRecyclerViewAdapter;
-import controller.adapters.OrganizationAdapter;
 import controller.adapters.OrganizationListAdapter;
 import model.Organization;
-import utils.utilityClass;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -104,9 +100,10 @@ public class OrganizationFragment extends Fragment {
     }
 
     // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
+    public void onButtonPressed(Bundle bundle) {
         if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
+            //calling a method on listener - the main activity
+            mListener.onFragmentInteraction(bundle);
         }
     }
 
@@ -139,7 +136,7 @@ public class OrganizationFragment extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        void onFragmentInteraction(Bundle bundle);
     }
 
     public List<Organization> fill_with_data() {
