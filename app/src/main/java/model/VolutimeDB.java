@@ -18,7 +18,6 @@ import java.util.ArrayList;
 public class VolutimeDB extends SQLiteOpenHelper {
 
 
-
     private static final int DATABASE_VERSION =1;
     public static final String DATABASE_NAME = "VolutimeDB.db";
     ////////////////////////////////////VOLUNTEER TABLE//////////////////////////////
@@ -97,9 +96,9 @@ public class VolutimeDB extends SQLiteOpenHelper {
 
     private static final String CREATE_TABLE_VOLUNTEER = "create table if not exists " + VOLUNTEER_TABLE_NAME + " ( "
             + VOLUNTEER_COLUMN_ID+ " INTEGER PRIMARY KEY AUTOINCREMENT, "
-            + VOLUNTEER_COLUMN_EMAIL + " TEXT,"
-            + VOLUNTEER_COLUMN_PASSWORD+ " TEXT,  "
-            + VOLUNTEER_COLUMN_FNAME + " TEXT,"
+            + VOLUNTEER_COLUMN_EMAIL + " TEXT, "
+            + VOLUNTEER_COLUMN_PASSWORD+ " TEXT, "
+            + VOLUNTEER_COLUMN_FNAME + " TEXT, "
             + VOLUNTEER_COLUMN_LNAME + " TEXT, "
             + VOLUNTEER_COLUMN_ADDRESS + " TEXT, "
             + VOLUNTEER_COLUMN_DATEOFBIRTH + " TEXT, "
@@ -117,7 +116,7 @@ public class VolutimeDB extends SQLiteOpenHelper {
     private static final String CREATE_TABLE_EVENT = "create table if not exists " + EVENT_TABLE_NAME + " ( "
             + EVENT_COLUMN_ID+ " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + EVENT_COLUMN_VOLUNTEER_ID+ " INTEGER,  "
-            + " FOREIGN KEY ("+ EVENT_COLUMN_VOLUNTEER_ID +") REFERENCES "+ VOLUNTEER_TABLE_NAME+"("+VOLUNTEER_COLUMN_ID+")"
+            + " FOREIGN KEY ("+ EVENT_COLUMN_VOLUNTEER_ID +") REFERENCES "+ VOLUNTEER_TABLE_NAME+"("+VOLUNTEER_COLUMN_ID+") "
             + EVENT_COLUMN_ORG_ID+ " INTEGER,  "
             + " FOREIGN KEY ("+ EVENT_COLUMN_ORG_ID +") REFERENCES "+ ORGANIZATION_TABLE_NAME+"("+ ORGANIZATION_COLUMN_ID+")"
             + EVENT_COLUMN_DATE+ " TEXT,  "
@@ -218,6 +217,7 @@ public class VolutimeDB extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS "+USERTYPE_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS "+MESSAGE_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS "+VOL_AT_ORG_TABLE_NAME);
+
         onCreate(db);
     }
 
@@ -433,7 +433,6 @@ public class VolutimeDB extends SQLiteOpenHelper {
         //TODO check again
 
         Volunteer vol = null ;
-        Organization org = null;
         Cursor cursor = null;
         try {
             cursor = db
