@@ -3,13 +3,13 @@ package controller.activities;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
 
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 
@@ -33,13 +33,20 @@ import java.util.List;
 
 import com.caldroidsample.R;
 
-import controller.caldroid.CaldroidSampleActivity;
+import model.ManagerDB;
+import model.Organization;
+import model.UserType;
+import model.Volunteer;
+
+import static com.caldroidsample.R.id.email;
 
 
 /**
  * A login screen that offers login via email/password.
  */
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+
+    private UserType type;
 
     /**
      * A dummy authentication store containing known user names and passwords. change it
@@ -63,8 +70,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        ManagerDB.getInstance().openDataBase(this);
+
+       Long r=  ManagerDB.getInstance().addVolunteer(new Volunteer("Faina", "Bursh", "2001/10/10", "Rupin 5 K-ata", "fb@gmail.com", "1234", null));
+       r=  ManagerDB.getInstance().addOrganization(new Organization("TLV-Org", "TLV", "o@gmail.com", "1234",null));
+
         // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+        mEmailView = (AutoCompleteTextView) findViewById(email);
         populateAutoComplete();
 
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -155,12 +167,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
+
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
-        return password.length() > 4;
+        return password.length() > 0;
     }
 
     /**
@@ -242,7 +255,17 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mEmailView.setAdapter(adapter);
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        ManagerDB.getInstance().closeDataBase();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ManagerDB.getInstance().openDataBase(this);
+    }
     private interface ProfileQuery {
         String[] PROJECTION = {
                 ContactsContract.CommonDataKinds.Email.ADDRESS,
@@ -261,6 +284,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         private final String mEmail;
         private final String mPassword;
+        private UserType type;
+        private Organization org;
+        private  Volunteer vol;
 
         UserLoginTask(String email, String password) {
             mEmail = email;
@@ -268,22 +294,49 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
 
         @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+        @Override
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
 
-            try {
+/*            try {
                 // Simulate network access.
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
                 return false;
-            }
+            }*/
 
-            for (String credential : DUMMY_CREDENTIALS) {
+            /*for (String credential : DUMMY_CREDENTIALS) {
                 String[] pieces = credential.split(":");
                 if (pieces[0].equals(mEmail)) {
                     // Account exists, return true if the password matches.
                     return pieces[1].equals(mPassword);
                 }
+            }*/
+
+            try{
+                Organization orgUser;
+                Volunteer volUser = ManagerDB.getInstance().getVolunteerUser(mEmail, mPassword);
+
+                if (volUser.getId() > 0) {
+                    // Account exists, check password.
+                    this.type = UserType.volType;
+                    this.vol = volUser;
+                    return true;
+                } else {
+                    orgUser = ManagerDB.getInstance().getOrgUser(mEmail, mPassword);
+                    if (orgUser.getId() > 0){
+                        this.type = UserType.orgType;
+                        this.org = orgUser;
+                        return true;
+                    }
+                    return  false;
+                }
+            }catch (Exception e){
+                e.printStackTrace();
             }
 
             // TODO: register the new account here.
@@ -298,10 +351,20 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             if (success) {
                 //finish();
+                //set user
+                //LoginActivity.this.type = this.type;
                 Intent myIntent = new Intent(LoginActivity.this,MainActivity.class);
+                myIntent.putExtra("userType", this.type);
+                if(this.type.equals(UserType.volType)){
+                    myIntent.putExtra("userId", this.vol.getId());
+                }
+                else{
+                    myIntent.putExtra("userId", this.org.getId());
+                }
+
                 LoginActivity.this.startActivity(myIntent);
             } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
+                mPasswordView.setError(getString(R.string.error_user_exist));
                 mPasswordView.requestFocus();
             }
         }

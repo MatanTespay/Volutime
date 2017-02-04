@@ -1,10 +1,13 @@
 package controller.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatAutoCompleteTextView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,8 +19,13 @@ import com.caldroidsample.R;
 import java.util.ArrayList;
 import java.util.List;
 
+import controller.activities.MainActivity;
 import controller.adapters.OrganizationListAdapter;
+import model.ManagerDB;
 import model.Organization;
+import model.UserType;
+
+import static android.R.attr.data;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -33,6 +41,7 @@ public class OrganizationFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private Context context;
+    private UserType userType;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -140,22 +149,18 @@ public class OrganizationFragment extends Fragment {
     }
 
     public List<Organization> fill_with_data() {
-
         List<Organization> data = new ArrayList<>();
-
-        Bitmap icon = BitmapFactory.decodeResource(this.getResources(), R.drawable.ic_local_movies_black_24dp);
-        data.add(new Organization("org 1", "haifa 11", icon));
-        data.add(new Organization("org 2", "haifa 12", null));
-        data.add(new Organization("org 3", "haifa 13", icon));
-        data.add(new Organization("org 4", "haifa 14", null));
-        data.add(new Organization("org 5", "haifa 15", icon));
-        data.add(new Organization("org 6", "haifa 16", null));
-        data.add(new Organization("org 7", "haifa 17", icon));
-        data.add(new Organization("org 8", "haifa 18", null));
-        data.add(new Organization("org 9", "haifa 19", icon));
-        data.add(new Organization("org 10", "haifa 20", null));
-
-
+        MainActivity act  = (MainActivity) getActivity();
+        if(act != null){
+            int id = act.getVol().getId();
+            if(id > 0){
+                List<Integer> orgsIds = ManagerDB.getInstance().getOrgIdsOfVol(id);
+                for (Integer i :orgsIds) {
+                    Organization o = ManagerDB.getInstance().readOrganization(i);
+                    data.add(o);
+                }
+            }
+        }
 
         return data;
     }

@@ -7,7 +7,7 @@ package model;
 public enum UserType {
 
     volType ("VOL"),
-    orgtype ("ORG");
+    orgType("ORG");
 
     private final String type;
 
