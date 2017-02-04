@@ -29,11 +29,17 @@ import controller.fragments.OrganizationFragment;
 import controller.fragments.MessagesFragment;
 import controller.fragments.ProfileFragment;
 import controller.fragments.PhotosFragment;
+import model.ManagerDB;
+import model.Organization;
+import model.UserType;
+import model.Volunteer;
 import utils.RoundedImageView;
-import utils.UserType;
 import utils.utilityClass;
 
 import com.caldroidsample.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements OrganizationFragment.OnFragmentInteractionListener {
 
@@ -45,6 +51,8 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
     private Toolbar toolbar;
     private FloatingActionButton fab;
     private UserType userType;
+    private Organization org;
+    private Volunteer vol;
 
     // index to identify current nav menu item
     public static int navItemIndex = 0;
@@ -70,6 +78,8 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ManagerDB.getInstance().openDataBase(this);
+
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         utilityClass.getInstance().setContext(getApplicationContext());
@@ -111,6 +121,8 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
         }
     }
 
+
+
     /***
      * Load navigation menu header information
      * like background image, profile image
@@ -119,21 +131,50 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
     private void loadNavHeader() {
 
         //GET USER DATA AND TYPE
-        this.userType = UserType.VOL;
+        Intent intent = getIntent();
+        Bundle bd = intent.getExtras();
+        if(bd != null)
+        {
+            UserType type = (UserType) bd.get("userType");
+            int id =  bd.getInt("userId");
+            //set the activity user type
+            setUserType(type);
 
-        // name, website
-        txtName.setText("Chnge Name !!!");
-        txtWebsite.setText("change website !!!!");
+            if(getUserType().equals(UserType.volType)){
+                //get vol
+                this.vol = ManagerDB.getInstance().readVolunteer(id);
+                // name, website
+                txtName.setText(vol.getfName()+" "+vol.getlName());
+                txtWebsite.setText(vol.getEmail());
+                if(vol.getProfilePic() != null){
+                    Bitmap roundBitmap = RoundedImageView.getCroppedBitmap(vol.getProfilePic(),300);
+                    imgProfile.setImageBitmap(roundBitmap);
+                }
+
+
+            }
+            else{
+                //get org
+                navigationView.getMenu().getItem(0).setVisible(false);
+                navigationView.getMenu().getItem(1).setVisible(false);
+                this.org = ManagerDB.getInstance().readOrganization(id);
+                txtName.setText(org.getName());
+                txtWebsite.setText(org.getEmail());
+                // set temp profile from drawable - need to patch from server
+                if(org.getProfilePic() != null){
+                    Bitmap roundBitmap = RoundedImageView.getCroppedBitmap(org.getProfilePic(),300);
+                    imgProfile.setImageBitmap(roundBitmap);
+                }
+
+            }
+
+        }
+
+
+
 
         //set image of background
         imgNavHeaderBg.setImageResource(R.drawable.nav_menu_header_bg);
-
-        // set temp profile from drawable - need to patch from server
-        Bitmap icon = BitmapFactory.decodeResource(this.getResources(), R.drawable.profile);
-        if(icon != null){
-            Bitmap rouderBitmap = RoundedImageView.getCroppedBitmap(icon,300);
-            imgProfile.setImageBitmap(rouderBitmap);
-        }
 
         // showing dot next to notifications label
         navigationView.getMenu().getItem(2).setActionView(R.layout.menu_dot);
@@ -405,5 +446,29 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
     public void onFragmentInteraction(Bundle bundle) {
 
 
+    }
+
+    public UserType getUserType() {
+        return userType;
+    }
+
+    public void setUserType(UserType userType) {
+        this.userType = userType;
+    }
+
+    public Organization getOrg() {
+        return org;
+    }
+
+    public void setOrg(Organization org) {
+        this.org = org;
+    }
+
+    public Volunteer getVol() {
+        return vol;
+    }
+
+    public void setVol(Volunteer vol) {
+        this.vol = vol;
     }
 }

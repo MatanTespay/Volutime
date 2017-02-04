@@ -2,6 +2,10 @@ package model;
 
 import android.content.Context;
 
+import java.util.ArrayList;
+
+import static android.R.attr.id;
+import static com.caldroidsample.R.id.email;
 import static model.UserType.volType;
 
 /**
@@ -40,6 +44,7 @@ public class ManagerDB {
     public Context getContext() {
         return context;
     }
+
     public void openDataBase(Context context) {
         this.context = context;
         if (context != null) {
@@ -48,11 +53,14 @@ public class ManagerDB {
         }
     }
 
-
     public void closeDataBase() {
         if(db!=null){
             db.close();
         }
+    }
+
+    public long addVolunteer(Volunteer volunteer){
+        return  db.addVolunteer(volunteer);
     }
 
     public boolean registerVolunteerUser(Volunteer volunteer){
@@ -64,39 +72,62 @@ public class ManagerDB {
         return false;
     }
 
-    public void registerOrgUser(Organization organization){
-        if(db!=null && organization!=null) {
-            db.addOrganization(organization);
-            //to send a message that everything is alright
-        }
-
-    }
-    public void verifyUser(UserType type, String email, String pass) {
-        if (type != null || pass != null || email != null) {
-
-            if (type.equals(volType)) {
-                VerifyVolUser(email , pass);
-            } else{
-                VerifyOrg(email, pass);
-
-            }
-        }
+    public long addOrganization(Organization organization){
+        return db.addOrganization(organization);
     }
 
-    private Organization VerifyOrg(String email, String pass) {
+    public Volunteer readVolunteer(int id){
+        if(db!=null){
+            return  db.readVolunteer(id);
+        }
+        return  null;
+    }
+
+    public Organization readOrganization(int id){
+        if(db!=null){
+            return  db.readOrganization(id);
+        }
+        return  null;
+    }
+
+    public Organization getOrgUser(String email, String password) {
         Organization org = null;
+        if(db!=null && email!=null&& password!=null){
+            org = db.getOrgUser(email,password);
+        }
         return org;
     }
 
-    public Volunteer VerifyVolUser(String email , String password) {
+    public Long addOrgToVolunteer(int volID ,int orgID, String startDate, String endDate){
+
+        if(db != null){
+            return  db.addOrgToVolunteer(volID,orgID,startDate,endDate);
+        }
+
+        return -1L;
+    }
+
+    public ArrayList<Integer> getOrgIdsOfVol(int userID){
+        return db.getOrgIdsOfVol(userID);
+    }
+
+    public Long addEvent(VolEvent event){
+        if(db!=null)
+            return db.addEvent(event);
+        return -1L;
+    }
+
+    public Volunteer getVolunteerUser(String email , String password) {
         Volunteer vol=null;
         if(db!=null && email!=null&& password!=null){
             vol = db.getVolunteerUser(email,password);
-            if(vol!=null)
-                return vol;
-            //TODO alert all messages
-
         }
         return vol;
+    }
+
+    public void resetDB() {
+        if(db!=null){
+            db.resetDB();
+        }
     }
 }

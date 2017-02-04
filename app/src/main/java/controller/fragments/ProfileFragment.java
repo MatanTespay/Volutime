@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.caldroidsample.R;
 
@@ -41,8 +42,17 @@ public class ProfileFragment extends Fragment {
                 (CollapsingToolbarLayout) v.findViewById(R.id.collapsing_toolbar);
         collapsingToolbar.setTitle("Test the view");
 
+        // get image from dbb insted.
         Bitmap picture = BitmapFactory.decodeResource(this.getResources(), R.drawable.profile);
 
+        TextView placeVal = (TextView) v.findViewById(R.id.place_detail);
+        placeVal.setText("Some Some Some Some Some Some Some Some Some Some Some Some Some Some Some ");
+
+        TextView locVal = (TextView) v.findViewById(R.id.place_location);
+        locVal.setText("Some Some Some Some Some !!!!");
+
+
+        //set imgage of profile
         ImageView placePicutre = (ImageView) v.findViewById(R.id.image);
         placePicutre.setImageBitmap(picture);
         return v;
