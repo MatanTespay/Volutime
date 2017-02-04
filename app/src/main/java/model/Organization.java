@@ -9,7 +9,7 @@ import android.graphics.Bitmap;
 
 public class Organization {
 
-    private Long id;
+    private int id;
     private String name;
     private String address;
     private String email;
@@ -17,14 +17,14 @@ public class Organization {
     private Bitmap profilePic;
 
     public Organization(String name, String address,Bitmap profilePic){
-        this(0L,  name, address,  "",  "",  profilePic);
+        this(0,  name, address,  "",  "",  profilePic);
     }
 
     public Organization(String name, String address, String email , String password,Bitmap profilePic){
-        this(0L,  name, address,  email,  password,  profilePic);
+        this(0,  name, address,  email,  password,  profilePic);
     }
 
-    public Organization(Long id , String name, String address, String email, String password, Bitmap profilePic){
+    public Organization(int id , String name, String address, String email, String password, Bitmap profilePic){
         this.id =id;
         this.name = name;
         this.address = address;
@@ -33,11 +33,15 @@ public class Organization {
         this.profilePic =profilePic;
     }
 
-    public void setId(Long id) {
+    public Organization() {
+
+    }
+
+    public void setId(int id) {
         this.id = id;
     }
 
-    public Long getId() {
+    public int getId() {
         return id;
     }
 
