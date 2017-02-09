@@ -323,7 +323,7 @@ public class CaldroidFragment extends DialogFragment {
     }
 
     /**
-     * To let client customize month title textview
+     * To let client customize month title calendar_textview
      */
     public TextView getMonthTitleTextView() {
         return monthTitleTextView;

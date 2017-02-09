@@ -1,5 +1,7 @@
 package model;
 
+import java.util.Date;
+
 /**
  * Created by Faina0502 on 28/01/2017.
  */
@@ -10,17 +12,18 @@ public class VolEvent {
     private int volID;
     private int orgID;
     private String details;
-    private String date;
-    private int startTime;
-    private int endTime;
+    private String title;
+    private Date date;
+    private Date startTime;
+    private Date endTime;
 
-    public VolEvent(int volEventID, int orgID, String details, String date, int startTime, int endTime ,int volID) {
-        this.volEventID = volEventID;
+    public VolEvent( int orgID,int volID, String details, Date date, Date startTime, Date endTime, String title ) {
         this.details = details;
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
         this.volID = volID;
+        this.title = title;
         this.orgID=orgID;
     }
 
@@ -36,6 +39,14 @@ public class VolEvent {
         this.volEventID = volEventID;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public String getDetails() {
         return details;
     }
@@ -44,27 +55,27 @@ public class VolEvent {
         this.details = details;
     }
 
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 
-    public int getStartTime() {
+    public Date getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(int startTime) {
+    public void setStartTime(Date startTime) {
         this.startTime = startTime;
     }
 
-    public int getEndTime() {
+    public Date getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(int endTime) {
+    public void setEndTime(Date endTime) {
         this.endTime = endTime;
     }
 
