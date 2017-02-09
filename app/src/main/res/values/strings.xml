@@ -7,7 +7,7 @@
     <string name="undo">Undo</string>
     <string name="title_activity_login">Sign in</string>
 
-    <!-- Strings related to login -->
+    <!-- login -->
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
     <string name="action_sign_in">Sign in</string>
@@ -66,5 +66,24 @@
     </string>
     <string name="detail_location">"8 Rue Scribe, 75009 Paris, France"</string>
     <string name="item_title">Palais Garnier</string>
+
+    <!-- Calendar -->
+    <string name="DateStringFormat">dd MM yyyy</string>
+    <string name="LongDateStringFormat">yyyy-MM-dd HH:mm:ss</string>
+    <string name="dialog_fragment_tag">CALDROID_DIALOG_FRAGMENT</string>
+    <string name="dialog_caldroid_saved_state">DIALOG_CALDROID_SAVED_STATE</string>
+    <string name="event_start">start time</string>
+    <string name="event_end">end time</string>
+    <string name="btnEdit">Edit</string>
+    <string name="btnRemove">Remove</string>
+    <string name="btnSave">Save</string>
+    <string name="btnCancel">Cancel</string>
+
+    <!-- Event -->
+    <string name="dayEventTitle">Events for date:</string>
+    <string name="select_organization">Select organization</string>
+    <string name="select_date">SELECT DATE</string>
+    <string name="select_time">SELECT TIME</string>
+
 
 </resources>

@@ -1,7 +1,6 @@
 package controller.activities;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
@@ -37,9 +36,6 @@ import utils.RoundedImageView;
 import utils.utilityClass;
 
 import com.caldroidsample.R;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements OrganizationFragment.OnFragmentInteractionListener {
 
@@ -83,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         utilityClass.getInstance().setContext(getApplicationContext());
+        utilityClass.getInstance().setFormatter();
 
         mHandler = new Handler();
 
@@ -111,12 +108,31 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
         // load nav menu header data
         loadNavHeader();
 
+        //set the initial navItemIndex according to userType
+        if(getUserType() != null){
+            if(getUserType().equals(UserType.volType)) {
+                navItemIndex = 0;
+            }else{
+                navItemIndex = 2;
+            }
+        }
+
+
         // initializing navigation menu
         setUpNavigationView();
 
         if (savedInstanceState == null) {
-            navItemIndex = 0;
-            CURRENT_TAG = TAG_ORG;
+            if(getUserType() != null){
+                if( getUserType().equals(UserType.volType)){
+                    navItemIndex = 0;
+                    CURRENT_TAG = TAG_ORG;
+                }
+                else{
+                    navItemIndex = 2;
+                    CURRENT_TAG = TAG_MESSAGES;
+                }
+            }
+
             loadHomeFragment();
         }
     }
@@ -141,9 +157,9 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
             setUserType(type);
 
             if(getUserType().equals(UserType.volType)){
-                //get vol
+                //get vol data
                 this.vol = ManagerDB.getInstance().readVolunteer(id);
-                // name, website
+                // name, email
                 txtName.setText(vol.getfName()+" "+vol.getlName());
                 txtWebsite.setText(vol.getEmail());
                 if(vol.getProfilePic() != null){
@@ -154,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
 
             }
             else{
-                //get org
+                //get org data
                 navigationView.getMenu().getItem(0).setVisible(false);
                 navigationView.getMenu().getItem(1).setVisible(false);
                 this.org = ManagerDB.getInstance().readOrganization(id);
@@ -173,9 +189,10 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
 
 
 
-        //set image of background
+        //set image of nav menu background
         imgNavHeaderBg.setImageResource(R.drawable.nav_menu_header_bg);
 
+        // TODO set this icon if new dates arrived
         // showing dot next to notifications label
         navigationView.getMenu().getItem(2).setActionView(R.layout.menu_dot);
 
@@ -220,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
                 else
                     bundle.putInt(TAG_AD_IMG_ID , R.drawable.ad_dog_volu);
 
-                Fragment fragment = getHomeFragment();
+                Fragment fragment = getCurrentFragment();
                 Fragment fragmentAd = new AdFragment();
 
                 fragmentAd.setArguments(bundle);
@@ -249,10 +266,15 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
         invalidateOptionsMenu();
     }
 
-    private Fragment getHomeFragment() {
+    /**
+     * get the current Fragment by navItemIndex
+     * @return Fragment
+     */
+    private Fragment getCurrentFragment() {
         switch (navItemIndex) {
             case 0:
                 // home
+
                 OrganizationFragment organizationFragment = new OrganizationFragment();
                 return organizationFragment;
             case 1:
@@ -260,7 +282,7 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
                 PhotosFragment photosFragment = new PhotosFragment();
                 return photosFragment;
             case 2:
-                // movies fragment -- msg
+                // fragment -- msg
                 MessagesFragment messagesFragment = new MessagesFragment();
                 return messagesFragment;
             case 3:
@@ -303,7 +325,11 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
                     case R.id.nav_calendar:
                         //navItemIndex = 1;
                         //CURRENT_TAG = TAG_CALENDER;
-                        startActivity(new Intent(MainActivity.this, CaldroidSampleActivity.class));
+                        Intent cal = new Intent(new Intent(MainActivity.this, CaldroidSampleActivity.class));
+                        if(getVol() != null){
+                            cal.putExtra("userID",getVol().getId());
+                            startActivity(cal);
+                        }
                         drawer.closeDrawers();
                         return true;
                     case R.id.nav_messages:
@@ -368,11 +394,24 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
         if (shouldLoadHomeFragOnBackPress) {
             // checking if user is on other navigation menu
             // rather than home
-            if (navItemIndex != 0) {
-                navItemIndex = 0;
-                CURRENT_TAG = TAG_ORG;
-                loadHomeFragment();
-                return;
+            if(getUserType() != null){
+                if(getUserType().equals(UserType.volType)) {
+                    //home fragment for volunteer
+                    if (navItemIndex != 0) {
+                        navItemIndex = 0;
+                        CURRENT_TAG = TAG_ORG;
+                        loadHomeFragment();
+                        return;
+                    }
+                }else{
+                    //home fragment for org
+                    if (navItemIndex != 2) {
+                        navItemIndex = 2;
+                        CURRENT_TAG = TAG_MESSAGES;
+                        loadHomeFragment();
+                        return;
+                    }
+                }
             }
         }
 

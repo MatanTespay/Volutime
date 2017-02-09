@@ -3,6 +3,7 @@ package model;
 import android.content.Context;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static android.R.attr.id;
 import static com.caldroidsample.R.id.email;
@@ -115,6 +116,13 @@ public class ManagerDB {
         if(db!=null)
             return db.addEvent(event);
         return -1L;
+    }
+
+    public List<VolEvent> readEventsForUserByMonth(int month , int userId){
+        if(db!=null)
+            return db.readEventsForUserByMonth(month, userId);
+
+        return null;
     }
 
     public Volunteer getVolunteerUser(String email , String password) {

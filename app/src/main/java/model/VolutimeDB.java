@@ -10,6 +10,9 @@ import android.graphics.BitmapFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.List;
+
+import utils.utilityClass;
 
 /**
  * Created by Faina0502 on 21/01/2017.
@@ -20,10 +23,13 @@ public class VolutimeDB extends SQLiteOpenHelper {
 
 
     private static final int DATABASE_VERSION =1;
-    public static final String DATABASE_NAME = "VolutimeDB.db";
-    ////////////////////////////////////VOLUNTEER TABLE//////////////////////////////
-    public static final String VOLUNTEER_TABLE_NAME = "volunteer";
 
+    public static final String DATABASE_NAME = "VolutimeDB.db";
+
+    private SQLiteDatabase db = null;
+
+    //region VOLUNTEER
+    public static final String VOLUNTEER_TABLE_NAME = "volunteer";
     public static final String VOLUNTEER_COLUMN_ID  = "volunteerID";
     public static final String VOLUNTEER_COLUMN_EMAIL  = "email";
     public static final String VOLUNTEER_COLUMN_PASSWORD= "password";
@@ -36,7 +42,19 @@ public class VolutimeDB extends SQLiteOpenHelper {
     private static final String[] TABLE_VOLUNTEER_COLUMNS = {VOLUNTEER_COLUMN_ID, VOLUNTEER_COLUMN_EMAIL,
             VOLUNTEER_COLUMN_PASSWORD, VOLUNTEER_COLUMN_FNAME, VOLUNTEER_COLUMN_LNAME, VOLUNTEER_COLUMN_ADDRESS,VOLUNTEER_COLUMN_DATEOFBIRTH
             ,VOLUNTEER_COLUMN_VOLUPIC};
-    ////////////////////////////////////ORGANIZATION TABLE//////////////////////////////
+
+    private static final String CREATE_TABLE_VOLUNTEER = "create table if not exists " + VOLUNTEER_TABLE_NAME + " ( "
+            + VOLUNTEER_COLUMN_ID+ " INTEGER PRIMARY KEY AUTOINCREMENT, "
+            + VOLUNTEER_COLUMN_EMAIL + " TEXT, "
+            + VOLUNTEER_COLUMN_PASSWORD+ " TEXT,  "
+            + VOLUNTEER_COLUMN_FNAME + " TEXT, "
+            + VOLUNTEER_COLUMN_LNAME + " TEXT, "
+            + VOLUNTEER_COLUMN_ADDRESS + " TEXT, "
+            + VOLUNTEER_COLUMN_DATEOFBIRTH + " TEXT, "
+            + VOLUNTEER_COLUMN_VOLUPIC + " BLOB)";
+    // endregion
+
+    //region ORGANIZATION
     public static final String ORGANIZATION_TABLE_NAME = "organization";
 
     public static final String ORGANIZATION_COLUMN_ID  = "organizationID";
@@ -49,7 +67,16 @@ public class VolutimeDB extends SQLiteOpenHelper {
             ORGANIZATION_COLUMN_EMAIL, ORGANIZATION_COLUMN_PASSWORD, ORGANIZATION_COLUMN_ADDRESS,
             ORGANIZATION_COLUMN_PIC};
 
-    ///////////////////////////// VOUNTEER_ACTIVITY //////////////////////////////////
+    private static final String CREATE_TABLE_ORGANIZATION = "create table if not exists " + ORGANIZATION_TABLE_NAME + " ( "
+            + ORGANIZATION_COLUMN_ID+ " INTEGER PRIMARY KEY AUTOINCREMENT, "
+            + ORGANIZATION_COLUMN_NAME+ " TEXT, "
+            + ORGANIZATION_COLUMN_ADDRESS + " TEXT, "
+            + ORGANIZATION_COLUMN_EMAIL+ " TEXT, "
+            + ORGANIZATION_COLUMN_PASSWORD + " TEXT, "
+            + ORGANIZATION_COLUMN_PIC + " BLOB) ";
+    // endregion
+
+    //region EVENT
     public static final String EVENT_TABLE_NAME = "volunteer_event";
 
     public static final String EVENT_COLUMN_ID  = "eventID";
@@ -59,10 +86,26 @@ public class VolutimeDB extends SQLiteOpenHelper {
     public static final String EVENT_COLUMN_START_TIME= "startTime";
     public static final String EVENT_COLUMN_END_TIME= "endTime";
     public static final String EVENT_COLUMN_DETAILS= "details";
+    public static final String EVENT_COLUMN_TITLE= "title";
+
     private static final String[] TABLE_EVENT_COLUMNS = {EVENT_COLUMN_ID, EVENT_COLUMN_VOLUNTEER_ID,
-            EVENT_COLUMN_ORG_ID, EVENT_COLUMN_DATE, EVENT_COLUMN_START_TIME, EVENT_COLUMN_END_TIME,
-            ORGANIZATION_COLUMN_PIC};
-    //////////////////////////////////VOLUNTEER_ORG//////////////////////////////
+            EVENT_COLUMN_ORG_ID, EVENT_COLUMN_DATE, EVENT_COLUMN_START_TIME, EVENT_COLUMN_END_TIME, EVENT_COLUMN_DETAILS, EVENT_COLUMN_TITLE};
+
+    private static final String CREATE_TABLE_EVENT = "create table if not exists " + EVENT_TABLE_NAME + " ( "
+            + EVENT_COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+            + EVENT_COLUMN_VOLUNTEER_ID + " INTEGER, "
+            + EVENT_COLUMN_ORG_ID+ " INTEGER, "
+            + EVENT_COLUMN_DATE+ " TEXT, "
+            + EVENT_COLUMN_START_TIME+ " TEXT, "
+            + EVENT_COLUMN_END_TIME + " TEXT, "
+            + EVENT_COLUMN_DETAILS + " TEXT, "
+            + EVENT_COLUMN_TITLE + " TEXT, "
+            + " FOREIGN KEY ("+ EVENT_COLUMN_VOLUNTEER_ID +") REFERENCES "+ VOLUNTEER_TABLE_NAME+"("+VOLUNTEER_COLUMN_ID+"), "
+            + " FOREIGN KEY ("+ EVENT_COLUMN_ORG_ID +") REFERENCES "+ ORGANIZATION_TABLE_NAME+"("+ ORGANIZATION_COLUMN_ID+") "
+            + ")";
+    // endregion
+
+    //region VOL_AT_ORG
     public static final String VOL_AT_ORG_TABLE_NAME = "volunteer_at_org";
 
     public static final String VOL_AT_ORG_ID  = "ID";
@@ -72,7 +115,31 @@ public class VolutimeDB extends SQLiteOpenHelper {
     public static final String VOL_AT_ORG_COLUMN_END_DATE= "endDate";
     private static final String[] TABLE_VOL_AT_ORG_COLUMNS = {VOL_AT_ORG_COLUMN_VOLUNTEER_ID, VOL_AT_ORG_COLUMN_ORG_ID,
             VOL_AT_ORG_COLUMN_START_DATE, VOL_AT_ORG_COLUMN_END_DATE};
-    //////////////////////////////////MESSAGE///////////////////////////////
+
+    private static final String CREATE_TABLE_VOLUNTEER_ORG = "create table if not exists " + VOL_AT_ORG_TABLE_NAME + " ( "
+            + VOL_AT_ORG_ID + " INTEGER PRIMARY KEY,  "
+            + VOL_AT_ORG_COLUMN_VOLUNTEER_ID + " INTEGER ,  "
+            + VOL_AT_ORG_COLUMN_ORG_ID  + " INTEGER ,  "
+            + VOL_AT_ORG_COLUMN_START_DATE+ " TEXT, "
+            + VOL_AT_ORG_COLUMN_END_DATE+ " TEXT,"
+            + " FOREIGN KEY ("+ VOL_AT_ORG_COLUMN_ORG_ID +") REFERENCES "+ ORGANIZATION_TABLE_NAME+ "("+ ORGANIZATION_COLUMN_ID+"), "
+            + " FOREIGN KEY ("+ VOL_AT_ORG_COLUMN_VOLUNTEER_ID +") REFERENCES "+ VOLUNTEER_TABLE_NAME+ " ("+VOLUNTEER_COLUMN_ID+" )"
+            + ")";
+    // endregion
+
+    //region USERTYPE
+    public static final String USERTYPE_TABLE_NAME = "userType";
+    public static final String USERTYPE_COLUMN_ID  = "typeID";
+    public static final String USERTYPE_COLUMN_TYPE = "userType";
+
+    private static final String CREATE_TABLE_USERTYPE = "create table if not exists " + USERTYPE_TABLE_NAME + " ( "
+            + USERTYPE_COLUMN_ID+ " INTEGER PRIMARY KEY AUTOINCREMENT, "
+            + USERTYPE_COLUMN_TYPE+ " INTEGER)";
+
+    private static final String[] TABLE_USERTYPE_COLUMNS = {USERTYPE_COLUMN_ID, USERTYPE_COLUMN_TYPE};
+    // endregion
+
+    //region MESSAGE
     public static final String MESSAGE_TABLE_NAME = "message";
 
     public static final String MESSAGE_COLUMN_MESSAGE_ID  = "messageID";
@@ -86,64 +153,6 @@ public class VolutimeDB extends SQLiteOpenHelper {
     private static final String[] TABLE_MESSAGE_COLUMNS = {MESSAGE_COLUMN_MESSAGE_ID, MESSAGE_COLUMN_SENDER_ID,
             MESSAGE_COLUMN_RECEIVE_ID, MESSAGE_COLUMN_USERTYPE, MESSAGE_COLUMN_DATE, MESSAGE_COLUMN_TIME
             , MESSAGE_COLUMN_CONTENT, MESSAGE_COLUMN_PARENT_ID};
-    ///////////////////////////////USERTYPE////////////////////////////////
-    public static final String USERTYPE_TABLE_NAME = "userType";
-
-    public static final String USERTYPE_COLUMN_ID  = "typeID";
-    public static final String USERTYPE_COLUMN_TYPE = "userType";
-
-    private static final String[] TABLE_USERTYPE_COLUMNS = {USERTYPE_COLUMN_ID, USERTYPE_COLUMN_TYPE};
-    // private static final HashMap hp;
-    private SQLiteDatabase db = null;
-
-    private static final String CREATE_TABLE_VOLUNTEER = "create table if not exists " + VOLUNTEER_TABLE_NAME + " ( "
-            + VOLUNTEER_COLUMN_ID+ " INTEGER PRIMARY KEY AUTOINCREMENT, "
-            + VOLUNTEER_COLUMN_EMAIL + " TEXT, "
-            + VOLUNTEER_COLUMN_PASSWORD+ " TEXT,  "
-            + VOLUNTEER_COLUMN_FNAME + " TEXT, "
-            + VOLUNTEER_COLUMN_LNAME + " TEXT, "
-            + VOLUNTEER_COLUMN_ADDRESS + " TEXT, "
-            + VOLUNTEER_COLUMN_DATEOFBIRTH + " TEXT, "
-            + VOLUNTEER_COLUMN_VOLUPIC + " BLOB)";
-
-    private static final String CREATE_TABLE_ORGANIZATION = "create table if not exists " + ORGANIZATION_TABLE_NAME + " ( "
-            + ORGANIZATION_COLUMN_ID+ " INTEGER PRIMARY KEY AUTOINCREMENT, "
-            + ORGANIZATION_COLUMN_NAME+ " TEXT, "
-            + ORGANIZATION_COLUMN_ADDRESS + " TEXT, "
-            + ORGANIZATION_COLUMN_EMAIL+ " TEXT, "
-            + ORGANIZATION_COLUMN_PASSWORD + " TEXT, "
-            + ORGANIZATION_COLUMN_PIC + " BLOB) ";
-
-
-    private static final String CREATE_TABLE_EVENT = "create table if not exists " + EVENT_TABLE_NAME + " ( "
-            + EVENT_COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-            + EVENT_COLUMN_VOLUNTEER_ID + " INTEGER, "
-            + EVENT_COLUMN_ORG_ID+ " INTEGER, "
-            + EVENT_COLUMN_DATE+ " TEXT, "
-            + EVENT_COLUMN_START_TIME+ " TEXT, "
-            + EVENT_COLUMN_END_TIME + " TEXT, "
-            + EVENT_COLUMN_DETAILS + " TEXT, "
-            + " FOREIGN KEY ("+ EVENT_COLUMN_VOLUNTEER_ID +") REFERENCES "+ VOLUNTEER_TABLE_NAME+"("+VOLUNTEER_COLUMN_ID+"), "
-            + " FOREIGN KEY ("+ EVENT_COLUMN_ORG_ID +") REFERENCES "+ ORGANIZATION_TABLE_NAME+"("+ ORGANIZATION_COLUMN_ID+") "
-            + ")";
-
-
-    private static final String CREATE_TABLE_VOLUNTEER_ORG = "create table if not exists " + VOL_AT_ORG_TABLE_NAME + " ( "
-            + VOL_AT_ORG_ID + " INTEGER PRIMARY KEY,  "
-            + VOL_AT_ORG_COLUMN_VOLUNTEER_ID + " INTEGER ,  "
-            + VOL_AT_ORG_COLUMN_ORG_ID  + " INTEGER ,  "
-            + VOL_AT_ORG_COLUMN_START_DATE+ " TEXT, "
-            + VOL_AT_ORG_COLUMN_END_DATE+ " TEXT,"
-            + " FOREIGN KEY ("+ VOL_AT_ORG_COLUMN_ORG_ID +") REFERENCES "+ ORGANIZATION_TABLE_NAME+ "("+ ORGANIZATION_COLUMN_ID+"), "
-            + " FOREIGN KEY ("+ VOL_AT_ORG_COLUMN_VOLUNTEER_ID +") REFERENCES "+ VOLUNTEER_TABLE_NAME+ " ("+VOLUNTEER_COLUMN_ID+" )"
-            + ")";
-
-
-    private static final String CREATE_TABLE_USERTYPE = "create table if not exists " + USERTYPE_TABLE_NAME + " ( "
-
-            + USERTYPE_COLUMN_ID+ " INTEGER PRIMARY KEY AUTOINCREMENT, "
-            + USERTYPE_COLUMN_TYPE+ " INTEGER)";
-
 
     private static final String CREATE_TABLE_MESSAGE = "create table if not exists " + MESSAGE_TABLE_NAME + " ( "
 
@@ -158,6 +167,8 @@ public class VolutimeDB extends SQLiteOpenHelper {
             + " FOREIGN KEY("+ MESSAGE_COLUMN_PARENT_ID +") REFERENCES "+ MESSAGE_TABLE_NAME+"("+ MESSAGE_COLUMN_MESSAGE_ID+"), "
             + " FOREIGN KEY("+ MESSAGE_COLUMN_USERTYPE +") REFERENCES "+ USERTYPE_TABLE_NAME+"("+ USERTYPE_COLUMN_ID+")" +
             ")";
+    // endregion
+
 
     public VolutimeDB(Context context) {
         super(context, DATABASE_NAME, null, 1);
@@ -226,8 +237,16 @@ public class VolutimeDB extends SQLiteOpenHelper {
     }
 
     public void resetDB(){
-        this.onUpgrade(db,db.getVersion(),db.getVersion()+1);
+        try {
+            db.execSQL("DROP TABLE IF EXISTS "+EVENT_TABLE_NAME);
+            // SQL statement to create VOLUNTEER ACTIVITY
+            db.execSQL(CREATE_TABLE_EVENT);
+
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
     }
+
     public long addVolunteer(Volunteer volunteer) {
        // Add Volunteer To DB
         long result=-1;
@@ -302,10 +321,11 @@ public class VolutimeDB extends SQLiteOpenHelper {
             //add all fields
             values.put(EVENT_COLUMN_VOLUNTEER_ID, event.getVolID());
             values.put(EVENT_COLUMN_ORG_ID, event.getOrgID());
-            values.put(EVENT_COLUMN_DATE, event.getDate());
-            values.put(EVENT_COLUMN_START_TIME, event.getStartTime());
-            values.put(EVENT_COLUMN_END_TIME, event.getEndTime());
+            values.put(EVENT_COLUMN_DATE, utilityClass.getInstance().getStringFromDateTime(event.getDate()));
+            values.put(EVENT_COLUMN_START_TIME, utilityClass.getInstance().getStringFromDateTime(event.getStartTime()) );
+            values.put(EVENT_COLUMN_END_TIME, utilityClass.getInstance().getStringFromDateTime(event.getEndTime()) );
             values.put(EVENT_COLUMN_DETAILS, event.getDetails());
+            values.put(EVENT_COLUMN_TITLE, event.getTitle());
 
             // insert org
            result = db.insert(EVENT_TABLE_NAME, null, values);
@@ -619,6 +639,54 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return msg;
     }
 
+    public List<VolEvent> readEventsForUserByMonth(int month , int userId){
+
+        List<VolEvent> events = new ArrayList<>();
+
+        Cursor cursor = null;
+        String where  = "strftime('%m', "+EVENT_COLUMN_DATE+") = ?";
+        String m = "";
+        if(month < 10){
+            m =  0 + String.valueOf( month);
+        }
+        else{
+            m =  String.valueOf(month);
+        }
+        try {
+            cursor = db.query(EVENT_TABLE_NAME, TABLE_EVENT_COLUMNS, where,
+                    new String[]{   m },
+                    null, null, null);
+
+
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                VolEvent event = new VolEvent();
+
+                event.setVolEventID(Integer.parseInt(cursor.getString(cursor.getColumnIndex(EVENT_COLUMN_ID))));
+                event.setVolID(Integer.parseInt(cursor.getString(cursor.getColumnIndex(EVENT_COLUMN_VOLUNTEER_ID))));
+                event.setOrgID(Integer.parseInt(cursor.getString(cursor.getColumnIndex(EVENT_COLUMN_ORG_ID))));
+                event.setDate(utilityClass.getInstance().getDateTimeFromString(cursor.getString(cursor.getColumnIndex(EVENT_COLUMN_DATE))));
+                event.setStartTime(utilityClass.getInstance().getDateTimeFromString(cursor.getString(cursor.getColumnIndex(EVENT_COLUMN_START_TIME))));
+                event.setEndTime(utilityClass.getInstance().getDateTimeFromString(cursor.getString(cursor.getColumnIndex(EVENT_COLUMN_END_TIME))));
+                event.setDetails(cursor.getString(cursor.getColumnIndex(EVENT_COLUMN_DETAILS)));
+                event.setTitle(cursor.getString(cursor.getColumnIndex(EVENT_COLUMN_TITLE)));
+
+
+                events.add(event);
+                cursor.moveToNext();
+            }
+
+        } catch (Throwable t) {
+            t.printStackTrace();
+        } finally {
+            // make sure to close the cursor
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return  events;
+    }
+
     public VolEvent readEvent(int id) {
 
         VolEvent event = null ;
@@ -640,10 +708,11 @@ public class VolutimeDB extends SQLiteOpenHelper {
                 event.setVolEventID(Integer.parseInt(cursor.getString(cursor.getColumnIndex(EVENT_COLUMN_ID))));
                 event.setVolID(Integer.parseInt(cursor.getString(cursor.getColumnIndex(EVENT_COLUMN_VOLUNTEER_ID))));
                 event.setOrgID(Integer.parseInt(cursor.getString(cursor.getColumnIndex(EVENT_COLUMN_ORG_ID))));
-                event.setDate(cursor.getString(cursor.getColumnIndex(EVENT_COLUMN_DATE)));
-                event.setStartTime(Integer.parseInt(cursor.getString(cursor.getColumnIndex(EVENT_COLUMN_START_TIME))));
-                event.setEndTime(Integer.parseInt(cursor.getString(cursor.getColumnIndex(EVENT_COLUMN_END_TIME))));
+                event.setDate(utilityClass.getInstance().getDateTimeFromString(cursor.getString(cursor.getColumnIndex(EVENT_COLUMN_DATE))));
+                event.setStartTime(utilityClass.getInstance().getDateTimeFromString(cursor.getString(cursor.getColumnIndex(EVENT_COLUMN_START_TIME))));
+                event.setEndTime(utilityClass.getInstance().getDateTimeFromString(cursor.getString(cursor.getColumnIndex(EVENT_COLUMN_END_TIME))));
                 event.setDetails(cursor.getString(cursor.getColumnIndex(EVENT_COLUMN_DETAILS)));
+                event.setTitle(cursor.getString(cursor.getColumnIndex(EVENT_COLUMN_TITLE)));
 
 
             }
@@ -785,7 +854,7 @@ public class VolutimeDB extends SQLiteOpenHelper {
                             null, null);
 
             // if results !=null, parse the first one
-            if (cursor != null || cursor.getCount() >= 0) {
+            if (cursor != null || cursor.getCount() > 0) {
 
                 cursor.moveToFirst();
                 orgsInt.add(Integer.parseInt(cursor.getString(cursor.getColumnIndex(VOL_AT_ORG_COLUMN_ORG_ID))));
@@ -809,11 +878,11 @@ public class VolutimeDB extends SQLiteOpenHelper {
 
             // make values to be inserted
             ContentValues values = new ContentValues();
-            values.put(EVENT_COLUMN_DATE, event.getDate());
-            values.put(EVENT_COLUMN_START_TIME, event.getStartTime());
-            values.put(EVENT_COLUMN_END_TIME, event.getEndTime());
+            values.put(EVENT_COLUMN_DATE, utilityClass.getInstance().getStringFromDateTime(event.getDate()));
+            values.put(EVENT_COLUMN_START_TIME, utilityClass.getInstance().getStringFromDateTime(event.getStartTime()));
+            values.put(EVENT_COLUMN_END_TIME, utilityClass.getInstance().getStringFromDateTime(event.getEndTime()));
             values.put(EVENT_COLUMN_DETAILS, event.getDetails());
-
+            values.put(EVENT_COLUMN_TITLE, event.getTitle());
 
             // update
             cnt = db.update(EVENT_TABLE_NAME, values, EVENT_COLUMN_ID + " = ?",

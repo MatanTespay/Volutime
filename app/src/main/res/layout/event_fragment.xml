@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+
+    //TITLE
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal" android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/titleLayout">
+        <TextView
+            android:id="@+id/lblTitle"
+            android:text="Title"
+            android:layout_height="wrap_content"
+            android:layout_width="110dp" />
+
+        <EditText
+            android:id="@+id/event_title"
+            android:layout_width="match_parent"  android:layout_height="wrap_content"
+            android:inputType="text"
+            android:imeOptions="actionDone" />
+    </LinearLayout>
+    //ORG
+    <LinearLayout
+
+        android:layout_alignParentStart="true"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/OrgLayout"
+        android:layout_marginTop="5dp">
+
+        <TextView
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/lblOrg"
+            android:text="@string/select_organization"
+            android:layout_weight="1" />
+
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/orgSpin"
+            android:layout_weight="1"
+            android:layout_marginTop="10dp"
+            />
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical" android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:orientation="vertical" android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/DateTimeLayout_s">
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <EditText
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/in_date_s"
+                    android:layout_marginTop="5dp"
+
+                    android:text="start date" />
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/select_date"
+                    android:id="@+id/btn_date_s"
+                    />
+            </LinearLayout>
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:orientation="horizontal" android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/in_time_s"
+                    android:text="start time" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/select_time"
+                    android:id="@+id/btn_time_s" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal" android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <EditText
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/in_date_e"
+                    android:layout_marginTop="5dp"
+
+                    android:text="end date" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/select_date"
+                    android:id="@+id/btn_date_e"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal" android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <EditText
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/in_time_e"
+
+                    android:text="end time" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/select_time"
+                    android:id="@+id/btn_time_e"
+
+                    />
+
+            </LinearLayout>
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    //DETAILS
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/DetailsLayout">
+
+        <TextView
+            android:text="Details"
+            android:layout_height="wrap_content"
+            android:id="@+id/lblDetails"
+            android:layout_weight="1"
+            android:layout_width="110dp" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="120dp"
+            android:inputType="textMultiLine"
+            android:ems="10"
+            android:id="@+id/event_details"
+            android:layout_weight="21.89" />
+
+    </LinearLayout>
+
+    //BUTTONS
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/buttonsLayout">
+
+        <Button
+            android:text="@string/btnEdit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnEditEvent"
+            android:layout_weight="1"
+            />
+
+        <Button
+            android:text="@string/btnRemove"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnRemoveEvent"
+            android:layout_weight="1"
+            />
+
+    </LinearLayout>
+
+</LinearLayout>

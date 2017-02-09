@@ -1,13 +1,8 @@
 package controller.fragments;
 
-import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatAutoCompleteTextView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -25,7 +20,7 @@ import model.ManagerDB;
 import model.Organization;
 import model.UserType;
 
-import static android.R.attr.data;
+import static android.R.attr.id;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -42,12 +37,14 @@ public class OrganizationFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
     private Context context;
     private UserType userType;
+    List<Organization> items;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+    private ArrayList<Organization> searchResult;
 
     public OrganizationFragment() {
         // Required empty public constructor
@@ -87,14 +84,14 @@ public class OrganizationFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_organization, container, false);
         context = view.getContext();
-        List<Organization> data = fill_with_data();
+        items = fill_with_data();
 
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recyclerview);
-        /*OrganizationAdapter orgAdapter = new OrganizationAdapter(context, data);
+        /*OrganizationAdapter orgAdapter = new OrganizationAdapter(context, items);
         recyclerView.setAdapter(orgAdapter);*/
 
-        OrganizationListAdapter adapter = new OrganizationListAdapter( getActivity().getApplication(), null);
-        adapter.setList(data);
+        OrganizationListAdapter adapter = new OrganizationListAdapter( getActivity(), null);
+        adapter.setList(items);
 
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
@@ -106,6 +103,16 @@ public class OrganizationFragment extends Fragment {
         recyclerView.setItemAnimator(itemAnimator);
 
         return view;
+    }
+
+    /**
+     * get data from DB
+     */
+    private void getData(){
+        items = fill_with_data();
+        searchResult =   new ArrayList<>();
+        searchResult.addAll(items);
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -153,6 +160,7 @@ public class OrganizationFragment extends Fragment {
         MainActivity act  = (MainActivity) getActivity();
         if(act != null){
             int id = act.getVol().getId();
+           // int id = 1;
             if(id > 0){
                 List<Integer> orgsIds = ManagerDB.getInstance().getOrgIdsOfVol(id);
                 for (Integer i :orgsIds) {

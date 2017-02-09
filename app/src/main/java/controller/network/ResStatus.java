@@ -1,4 +1,4 @@
-package utils;
+package controller.network;
 
 public enum ResStatus {
     SUCCESS,
