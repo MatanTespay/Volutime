@@ -40,6 +40,8 @@ public class AllOrgsDialogFragment extends DialogFragment {
     private Spinner orgSpin;
     Button btnSave,btnRemove, btnDate_s, btnDate_e;
     EditText txtDate_s, txtDate_e;
+
+    Boolean isEditState = false;
     List<Organization> orgs = new ArrayList<>();
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -47,6 +49,7 @@ public class AllOrgsDialogFragment extends DialogFragment {
         // Inflate the layout for this fragment
 
         view = inflater.inflate(R.layout.dialog_fragment_all_orgs, container, false);
+
         dialog = this;
         btnSave = (Button) view.findViewById(R.id.btnSaveOrg);
         btnRemove = (Button) view.findViewById(R.id.btnRemove);
@@ -58,30 +61,41 @@ public class AllOrgsDialogFragment extends DialogFragment {
         Bundle args = getArguments();
         if(args != null) {
             userId = args.getInt("volID");
-            orgs = fill_with_data();
-            if (orgs.size() > 0) {
-                for (Organization o : orgs) {
-                    orgsLables.add(o.getName());
+            isEditState = args.getBoolean("isEditState");
+            if(!isEditState)
+            {
+                btnRemove.setText("Remove");
+                btnSave.setText("Edit");
+            }
+            else{
+                // want
+                btnRemove.setText("Cancel");
+                btnSave.setText("Save");
+
+                orgs = fill_with_data();
+                if (orgs.size() > 0) {
+                    for (Organization o : orgs) {
+                        orgsLables.add(o.getName());
+                    }
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, orgsLables);
+                    orgSpin.setAdapter(adapter);
+                    orgSpin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+                        public void onItemSelected(AdapterView<?> parentView,
+                                                   View selectedItemView, int position, long id) {
+                            // Object item = parentView.getItemAtPosition(position);
+
+                            int pos = orgSpin.getSelectedItemPosition();
+                            setSelectedPos(pos);
+
+                        }
+
+                        public void onNothingSelected(AdapterView<?> arg0) {// do nothing
+                        }
+
+                    });
+                    setListener();
                 }
-                ArrayAdapter<String> adapter=new ArrayAdapter<>( getActivity(), android.R.layout.simple_list_item_1,orgsLables);
-                 orgSpin.setAdapter(adapter);
-                orgSpin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
-                    public void onItemSelected(AdapterView<?> parentView,
-                                               View selectedItemView, int position, long id) {
-                        // Object item = parentView.getItemAtPosition(position);
-
-                        int pos = orgSpin.getSelectedItemPosition();
-                        //int pos = orgSpin.getSelectedItemPosition() + 1;
-                        setSelectedPos(pos);
-
-                    }
-
-                    public void onNothingSelected(AdapterView<?> arg0) {// do nothing
-                    }
-
-                });
-                setListener();
             }
 
         }
@@ -113,6 +127,18 @@ public class AllOrgsDialogFragment extends DialogFragment {
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
        //todo
+               Organization selectedOrg = orgs.get(orgSpin.getSelectedItemPosition());
+                if(checkDates()){
+                    String startDate = utilityClass.getInstance().getStringFromDateTime(start);
+                    String endDate = utilityClass.getInstance().getStringFromDateTime(end);
+
+
+                    ManagerDB.getInstance().addOrgToVolunteer(userId,selectedOrg.getId(),startDate,endDate);
+                }
+                else{
+                    utilityClass.getInstance().showToast(R.string.checkDatesOnly,new Object[]{});
+                }
+
 
             }
 
@@ -124,7 +150,7 @@ public class AllOrgsDialogFragment extends DialogFragment {
             }
 
         });
-        btnDate_e.setOnClickListener(new View.OnClickListener() {
+        btnDate_s.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 final Calendar c = Calendar.getInstance();
                 int sYear,sMonth,sDay;
@@ -178,12 +204,15 @@ public class AllOrgsDialogFragment extends DialogFragment {
 
 
     }
+
+
     private void setDateStart(int year, int monthOfYear, int dayOfMonth) {
         Calendar c = Calendar.getInstance();
         s_Year = year;
         s_Month = monthOfYear;
         s_Day = dayOfMonth;
         c.set(s_Year, s_Month,s_Day);
+        this.start = c.getTime();
 
     }
     private void setDateEnd(int year, int monthOfYear, int dayOfMonth)
@@ -193,7 +222,7 @@ public class AllOrgsDialogFragment extends DialogFragment {
         e_Month = monthOfYear;
         e_Day = dayOfMonth;
         c.set(e_Year, e_Month,e_Day);
-
+        this.end = c.getTime();
 
     }
 

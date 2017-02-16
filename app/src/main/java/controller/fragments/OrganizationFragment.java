@@ -142,6 +142,7 @@ public class OrganizationFragment extends Fragment {
         android.app.FragmentManager fm = getActivity().getFragmentManager();
         AllOrgsDialogFragment orgsDialog = new AllOrgsDialogFragment();
         args.putInt("volID", this.userID);
+        args.putBoolean("isEditState", true);
         orgsDialog.setArguments(args);
         orgsDialog.show(fm,"orgsDialog");
 
