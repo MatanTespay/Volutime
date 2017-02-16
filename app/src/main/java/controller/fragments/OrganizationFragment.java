@@ -1,8 +1,12 @@
 package controller.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,6 +17,7 @@ import com.caldroidsample.R;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import controller.activities.MainActivity;
 import controller.adapters.OrganizationListAdapter;
@@ -20,6 +25,7 @@ import model.ManagerDB;
 import model.Organization;
 import model.UserType;
 
+import static android.R.attr.button;
 import static android.R.attr.id;
 
 /**
@@ -36,8 +42,10 @@ public class OrganizationFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private Context context;
+    public int userID;
     private UserType userType;
     List<Organization> items;
+
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -74,6 +82,7 @@ public class OrganizationFragment extends Fragment {
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
+
         }
 
     }
@@ -85,7 +94,11 @@ public class OrganizationFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_organization, container, false);
         context = view.getContext();
         items = fill_with_data();
+        Bundle args = getArguments();
+        if(args != null) {
+            userID = args.getInt("volID");
 
+        }
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recyclerview);
         /*OrganizationAdapter orgAdapter = new OrganizationAdapter(context, items);
         recyclerView.setAdapter(orgAdapter);*/
@@ -102,7 +115,37 @@ public class OrganizationFragment extends Fragment {
         itemAnimator.setRemoveDuration(1000);
         recyclerView.setItemAnimator(itemAnimator);
 
+       //  Set Action listener for click fab button to add organization
+        Activity act = this.getActivity();
+        if(act instanceof  MainActivity) {
+            ((MainActivity) act).getFab().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    openDialogFragment();
+
+                }
+            });
+        }
+
+
         return view;
+    }
+
+    /**
+     * opens a dialog Fragment for volunteer to add his org.
+     * sends as argument userID
+     */
+    private void openDialogFragment() {
+        //open dialog fragment to add org.
+        Bundle args = new Bundle();
+        android.app.FragmentManager fm = getActivity().getFragmentManager();
+        AllOrgsDialogFragment orgsDialog = new AllOrgsDialogFragment();
+        args.putInt("volID", this.userID);
+        orgsDialog.setArguments(args);
+        orgsDialog.show(fm,"orgsDialog");
+
+
     }
 
     /**

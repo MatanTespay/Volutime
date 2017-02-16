@@ -111,6 +111,13 @@ public class ManagerDB {
     public ArrayList<Integer> getOrgIdsOfVol(int userID){
         return db.getOrgIdsOfVol(userID);
     }
+    public List<Organization> getAllOrgs(){
+        if(db!=null)
+        {
+           return db.getAllOrgs();
+        }
+        return null;
+    }
 
     public Long addEvent(VolEvent event){
         if(db!=null)

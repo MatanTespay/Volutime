@@ -8,7 +8,10 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,8 +20,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.caldroidsample.R;
 
+import controller.fragments.OrgProfileFragment;
 import model.Organization;
 import utils.RoundedImageView;
+
+import static controller.activities.MainActivity.CURRENT_TAG;
 
 /**
  * Created by Plumillon Forge.
@@ -37,14 +43,24 @@ public class OrganizationListAdapter extends GenericRecyclerViewAdapter<Organiza
                 if(getList() != null) {
                     //show a dialog on item click
                     if(OrganizationListAdapter.this.getContext() instanceof  FragmentActivity){
+
+                        Organization selectedOrg = getItem(position);
                         //get the FragmentManager from the context (the activity that extends FragmentActivity)
                         FragmentActivity frag = (FragmentActivity)OrganizationListAdapter.this.getContext();
-                        android.app.FragmentManager fm = frag.getFragmentManager();
-                        //create the dialog
-                        // ...
-
+                        FragmentManager fm = frag.getSupportFragmentManager();
+                        //create the screen
+                        Fragment orgFrag= new OrgProfileFragment();
                         //give some params for the dialog and Show it
                         Bundle args = new Bundle();
+                        args.putInt("orgID", selectedOrg.getId());
+                        orgFrag.setArguments(args);
+                        FragmentTransaction fragmentTransaction = fm.beginTransaction();
+                        fragmentTransaction.setCustomAnimations(android.R.anim.fade_in,
+                                android.R.anim.fade_out);
+                        fragmentTransaction.replace(R.id.frame, orgFrag, "PROFILE");
+                        fragmentTransaction.commitAllowingStateLoss();
+
+
                         // ...
                     }
 
