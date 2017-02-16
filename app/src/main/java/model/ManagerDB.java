@@ -109,7 +109,10 @@ public class ManagerDB {
     }
 
     public ArrayList<Integer> getOrgIdsOfVol(int userID){
-        return db.getOrgIdsOfVol(userID);
+        if(db!=null){
+            return  db.getOrgIdsOfVol(userID);
+        }
+        return null;
     }
     public List<Organization> getAllOrgs(){
         if(db!=null)
@@ -123,6 +126,12 @@ public class ManagerDB {
         if(db!=null)
             return db.addEvent(event);
         return -1L;
+    }
+
+    public VolEvent readEvent(int id){
+        if(db!=null)
+            return db.readEvent(id);
+        return null;
     }
 
     public List<VolEvent> readEventsForUserByMonth(int month , int userId){

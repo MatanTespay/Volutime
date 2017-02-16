@@ -847,18 +847,18 @@ public class VolutimeDB extends SQLiteOpenHelper {
         ArrayList<Integer> orgsInt=new ArrayList<>();
         Cursor cursor = null;
         try {
+
+
             cursor = db
                     .query(VOL_AT_ORG_TABLE_NAME,
                             TABLE_VOL_AT_ORG_COLUMNS, VOL_AT_ORG_COLUMN_VOLUNTEER_ID + " = ? " ,
                             new String[]{String.valueOf(userID) }, null, null,
                             null, null);
 
-            // if results !=null, parse the first one
-            if (cursor != null || cursor.getCount() > 0) {
-
-                cursor.moveToFirst();
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
                 orgsInt.add(Integer.parseInt(cursor.getString(cursor.getColumnIndex(VOL_AT_ORG_COLUMN_ORG_ID))));
-
+                cursor.moveToNext();
             }
 
         } catch (Throwable t) {

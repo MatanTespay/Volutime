@@ -35,10 +35,12 @@ import model.ManagerDB;
 import model.VolEvent;
 import utils.utilityClass;
 
+import static android.R.attr.id;
 import static android.media.CamcorderProfile.get;
 
 @SuppressLint("SimpleDateFormat")
-public class CaldroidSampleActivity extends AppCompatActivity implements FragmentDates.OnFragmentInteractionListener {
+public class CaldroidSampleActivity extends AppCompatActivity implements FragmentDates.OnFragmentInteractionListener ,
+         EventFragment.OnEventInteractionListener {
     private boolean undo = false;
     private CaldroidFragment caldroidFragment;
     private CaldroidFragment dialogCaldroidFragment;
@@ -354,8 +356,19 @@ public class CaldroidSampleActivity extends AppCompatActivity implements Fragmen
     }
 
     @Override
-    public void onFragmentInteraction(Bundle bundle) {
+    public void onEventItemSelected(Bundle bundle) {
 
 
+    }
+
+    @Override
+    public void onEventCreated(Bundle args) {
+
+        if(args != null){
+            Long eId = args.getLong("newEventID");
+            int intId = eId.intValue();
+            VolEvent e = ManagerDB.getInstance().readEvent(intId);
+
+        }
     }
 }
