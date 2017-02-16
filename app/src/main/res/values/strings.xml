@@ -91,6 +91,7 @@
     <string name="checkDates">Invalid Dates , check date and time</string>
     <string name="select_start">Choose volunteer start date</string>
     <string name="select_end">Choose end volunteer date</string>
+    <string name="errorOnSave">There was an error on save, please try again</string>
 
 
 </resources>

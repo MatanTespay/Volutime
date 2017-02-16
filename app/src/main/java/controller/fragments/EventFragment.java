@@ -1,6 +1,7 @@
 package controller.fragments;
 
 
+import android.app.Activity;
 import android.app.DialogFragment;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,6 +18,7 @@ import com.caldroidsample.R;
  */
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -48,7 +50,7 @@ public class EventFragment extends DialogFragment {
     //initial number to the popup
     private int sYear, sMonth, sDay, sHour, sMinute;
     private int eYear, eMonth, eDay, eHour, eMinute;
-
+    private int selectedPos= -1;
     //the numbers that will create the user selected dates
     private int s_Year, s_Month, s_Day, s_Hour = -1, s_Minute = -1; // start time and date values
     private int e_Year, e_Month, e_Day, e_Hour = -1, e_Minute= -1; // end time and date values
@@ -61,7 +63,7 @@ public class EventFragment extends DialogFragment {
     View view;
     private Spinner orgSpin;
     Button btnEdit,btnRemove,btnDate_s,btnTime_s,btnDate_e,btnTime_e;
-
+    Activity parentAct = null;
     public EventFragment() {
         // Required empty public constructor
     }
@@ -71,7 +73,8 @@ public class EventFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        dialog = this;
+         dialog = this;
+        parentAct = getActivity();
          view = inflater.inflate(R.layout.event_fragment, container, false);
          btnEdit  = (Button) view.findViewById(R.id.btnEditEvent);
          btnRemove  = (Button) view.findViewById(R.id.btnRemoveEvent);
@@ -114,14 +117,28 @@ public class EventFragment extends DialogFragment {
 
             orgs = fill_with_data();
             if(orgs.size() > 0){
-                for (Organization o: orgs
-                     ) {
+                for (Organization o: orgs ) {
                     orgsLables.add(o.getName());
                 }
             }
 
             if(orgsLables.size() > 0){
 
+                ArrayAdapter<String> adapter=new ArrayAdapter<>( getActivity(), android.R.layout.simple_list_item_1,orgsLables);
+                orgSpin.setAdapter(adapter);
+                orgSpin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+                    public void onItemSelected(AdapterView<?> parentView,
+                                               View selectedItemView, int position, long id) {
+                        int pos = orgSpin.getSelectedItemPosition();
+                        setSelectedPos(pos);
+
+                    }
+
+                    public void onNothingSelected(AdapterView<?> arg0) {// do nothing
+                    }
+
+                });
             }
 
             setListener();
@@ -206,13 +223,33 @@ public class EventFragment extends DialogFragment {
                     SetFieldsState(isEditState);
                 }else {
                     // on edit mode save changes and switch to read mode
-                    if(!checkDates())
+                    if(!checkDates()){
+                        utilityClass.getInstance().showToast(R.string.checkDates,new Object[]{});
                         return;
+                    }
 
                     btnRemove.setText(getResources().getString(R.string.btnRemove));
                     btnEdit.setText(getResources().getString(R.string.btnEdit));
                     isEditState = false;
                     SetFieldsState(isEditState);
+
+                    //save event and then notify calendar activity
+                    VolEvent newEvent = new VolEvent();
+                    newEvent.setVolID(userId);
+                    Organization o = orgs.get(selectedPos);
+                    newEvent.setOrgID(o.getId());
+                    newEvent.setStartTime(start);
+                    newEvent.setEndTime(start);
+                    newEvent.setDetails(txtDetails.getText().toString());
+                    newEvent.setTitle(txtTitle.getText().toString());
+                    Long newId = ManagerDB.getInstance().addEvent(newEvent);
+                    if(newId > 0){
+                        notifyActivity(newId);
+                    }
+                    else{
+                        utilityClass.getInstance().showToast(R.string.errorOnSave,new Object[]{});
+                    }
+
                 }
             }
 
@@ -329,6 +366,19 @@ public class EventFragment extends DialogFragment {
         });
     }
 
+    private void notifyActivity(Long id) {
+
+        OnEventInteractionListener mListener = null;
+
+        if(parentAct != null && parentAct  instanceof  OnEventInteractionListener ){
+            mListener = (OnEventInteractionListener) parentAct;
+            Bundle args = new Bundle();
+            args.putLong("newEventID", id);
+            mListener.onEventCreated(args);
+
+        }
+    }
+
 
     private void fillDataOfEvent() {
         isEditState = false;
@@ -364,6 +414,7 @@ public class EventFragment extends DialogFragment {
     }
 
     public List<Organization> fill_with_data() {
+
         List<Organization> data = new ArrayList<>();
         if(userId > 0){
             List<Integer> orgsIds = ManagerDB.getInstance().getOrgIdsOfVol(userId);
@@ -382,6 +433,10 @@ public class EventFragment extends DialogFragment {
         if (bundle != null) {
 
         }
+    }
+
+    public void setSelectedPos(int selectedPos) {
+        this.selectedPos = selectedPos;
     }
 
     public interface OnEventInteractionListener {

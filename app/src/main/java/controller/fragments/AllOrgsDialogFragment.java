@@ -71,7 +71,8 @@ public class AllOrgsDialogFragment extends DialogFragment {
                                                View selectedItemView, int position, long id) {
                         // Object item = parentView.getItemAtPosition(position);
 
-                        int pos = orgSpin.getSelectedItemPosition() + 1;
+                        int pos = orgSpin.getSelectedItemPosition();
+                        //int pos = orgSpin.getSelectedItemPosition() + 1;
                         setSelectedPos(pos);
 
                     }
