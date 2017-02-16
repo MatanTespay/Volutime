@@ -17,6 +17,7 @@ import com.caldroidsample.R;
  */
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -24,6 +25,7 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -33,12 +35,16 @@ import model.Organization;
 import model.VolEvent;
 import utils.utilityClass;
 
+import static android.R.id.list;
 import static com.caldroidsample.R.string.checkDates;
+import static java.lang.Character.UnicodeBlock.of;
 
 public class EventFragment extends DialogFragment {
 
     EditText txtDate_s, txtTime_s,txtDate_e, txtTime_e, txtTitle, txtDetails;
     List<Organization> orgs = new ArrayList<>();
+    List<String> orgsLables = new ArrayList<>();
+    ArrayAdapter<String> adapter;
     //initial number to the popup
     private int sYear, sMonth, sDay, sHour, sMinute;
     private int eYear, eMonth, eDay, eHour, eMinute;
@@ -107,13 +113,27 @@ public class EventFragment extends DialogFragment {
             }
 
             orgs = fill_with_data();
+            if(orgs.size() > 0){
+                for (Organization o: orgs
+                     ) {
+                    orgsLables.add(o.getName());
+                }
+            }
+
+            if(orgsLables.size() > 0){
+
+            }
+
             setListener();
         }
 
         return view;
 
     }
+    public void onBtnEdit_click(View v){
+        //TODO
 
+    }
     private void setTimeStart(int H, int M){
         Calendar c = Calendar.getInstance();
         s_Hour = H;

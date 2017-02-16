@@ -2,6 +2,7 @@ package controller.activities;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Handler;
@@ -24,6 +25,8 @@ import android.widget.Toast;
 
 import controller.caldroid.CaldroidSampleActivity;
 import controller.fragments.AdFragment;
+import controller.fragments.EventFragment;
+import controller.fragments.OrgProfileFragment;
 import controller.fragments.OrganizationFragment;
 import controller.fragments.MessagesFragment;
 import controller.fragments.ProfileFragment;
@@ -36,6 +39,12 @@ import utils.RoundedImageView;
 import utils.utilityClass;
 
 import com.caldroidsample.R;
+
+import static android.R.attr.handle;
+import static android.R.attr.id;
+import static android.R.id.icon2;
+import static com.caldroidsample.R.id.fab;
+import static com.caldroidsample.R.id.image;
 
 public class MainActivity extends AppCompatActivity implements OrganizationFragment.OnFragmentInteractionListener {
 
@@ -100,8 +109,17 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+
+                //if the Fragment is OrganizationFragment
+                //Add organization to Volunteer
+
+
+                //if the Fragment is OrgProfileFragment
+                //Edit profile
+
+
+                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                //        .setAction("Action", null).show();
             }
         });
 
@@ -138,6 +156,13 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
     }
 
 
+    public FloatingActionButton getFab() {
+        return fab;
+    }
+
+    public void setFab(FloatingActionButton fab) {
+        this.fab = fab;
+    }
 
     /***
      * Load navigation menu header information
@@ -214,8 +239,8 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
         if (getSupportFragmentManager().findFragmentByTag(CURRENT_TAG) != null) {
             drawer.closeDrawers();
 
-            // show or hide the fab button
-            toggleFab();
+            // show fab with add_icon or hide button
+            toggleFab(navItemIndex == 0 ,android.R.drawable.ic_input_add );
             return;
         }
 
@@ -256,8 +281,8 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
             mHandler.post(mPendingRunnable);
         }
 
-        // show or hide the fab button
-        toggleFab();
+        // show fab button with add icon or hide
+        toggleFab(navItemIndex == 0 , android.R.drawable.ic_input_add);
 
         //Closing drawer on item click
         drawer.closeDrawers();
@@ -276,6 +301,11 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
                 // home
 
                 OrganizationFragment organizationFragment = new OrganizationFragment();
+                Bundle args1 = new Bundle();
+                if(getVol()!=null){
+                    args1.putInt("volID", this.getVol().getId());
+                }
+                organizationFragment.setArguments(args1);
                 return organizationFragment;
             case 1:
                 // photos -- cal
@@ -286,9 +316,21 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
                 MessagesFragment messagesFragment = new MessagesFragment();
                 return messagesFragment;
             case 3:
-                // notifications fragment -- profile
-                ProfileFragment profileFragment = new ProfileFragment();
-                return profileFragment;
+                // notifications fragment --
+                //check the profile to send back
+                Fragment frag;
+                Bundle args = new Bundle();
+                if(getOrg() != null){
+                    // user is org.
+                    frag = new OrgProfileFragment();
+                    args.putInt("orgID", this.org.getId());
+                }else {
+                    // user is vol
+                    frag = new ProfileFragment();
+                    args.putInt("volID", this.org.getId());
+                }
+                frag.setArguments(args);
+                return frag;
 
 /*            case 4:
                 // settings fragment
@@ -307,6 +349,7 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
         navigationView.getMenu().getItem(navItemIndex).setChecked(true);
     }
 
+    // set the select item of navigation
     private void setUpNavigationView() {
         //Setting Navigation View Item Selected Listener to handle the item click of the navigation menu
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -463,11 +506,27 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
     }
 
     // show or hide the fab
-    private void toggleFab() {
-        if (navItemIndex == 0)
+
+    /**
+     * Method checks if show fab or not and which icon to show if state true
+     * @param state
+     * @param imageCode
+     */
+    public void toggleFab(boolean state ,int imageCode) {
+        if (state ){
             fab.show();
+            //android.R.drawable.ic_input_add
+
+            fab.setImageDrawable(ContextCompat.getDrawable(this,imageCode));
+        }
         else
             fab.hide();
+    }
+
+    /**
+     */
+    public void toggleFabListiner(View.OnClickListener handler) {
+        fab.setOnClickListener(handler);
     }
 
     @Override
