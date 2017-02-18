@@ -2,7 +2,9 @@ package controller.fragments;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -27,7 +29,6 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -37,10 +38,6 @@ import model.Organization;
 import model.VolEvent;
 import utils.utilityClass;
 
-import static android.R.attr.action;
-import static android.R.id.list;
-import static com.caldroidsample.R.id.OrgLayout;
-import static com.caldroidsample.R.string.checkDates;
 import static java.lang.Character.UnicodeBlock.of;
 
 public class EventFragment extends DialogFragment {
@@ -58,7 +55,8 @@ public class EventFragment extends DialogFragment {
     final private int ACTION_NEW = 1 ;
     final private int ACTION_UPDATE = 2 ;
     final private int ACTION_REMOVE = 3 ;
-    EventFragment dialog;
+    EventFragment dialogFrag;
+    AlertDialog alert;
     ArrayAdapter<String> adapter;
     int userId;
     VolEvent event;
@@ -81,7 +79,8 @@ public class EventFragment extends DialogFragment {
 
         //region Inflate the layout for this fragment
 
-        parentAct = getActivity();
+         parentAct = getActivity();
+         alert = AskOption();
          view = inflater.inflate(R.layout.event_fragment, container, false);
          orgLayout = view.findViewById(R.id.OrgLayout);
          btnEdit  = (Button) view.findViewById(R.id.btnEditEvent);
@@ -90,7 +89,7 @@ public class EventFragment extends DialogFragment {
          btnTime_s  = (Button) view.findViewById(R.id.btn_time_s);
          btnDate_e = (Button) view.findViewById(R.id.btn_date_e);
          btnTime_e  = (Button) view.findViewById(R.id.btn_time_e);
-         dialog = this;
+         dialogFrag = this;
         txtTitle  = (EditText) view.findViewById(R.id.event_title);
         txtDetails  = (EditText) view.findViewById(R.id.event_details);
 
@@ -108,12 +107,14 @@ public class EventFragment extends DialogFragment {
 
         Bundle args = getArguments();
 
-        //region check params and set dialog state and values for controls
+        //region check params and set dialogFrag state and values for controls
         if(args != null){
 
             userId = args.getInt("userID");
             isEditState = args.getBoolean("isEditState");
             isNew = args.getBoolean("isNew");
+
+            //set buttons on start
             if(!isEditState){
                 btnRemove.setText(getResources().getString(R.string.btnRemove));
                 btnEdit.setText(getResources().getString(R.string.btnEdit));
@@ -123,6 +124,8 @@ public class EventFragment extends DialogFragment {
             }
 
             if(!isNew){
+                //existing event
+                //get data from db
                 orgLayout.setVisibility(View.GONE);
                 int eventId = args.getInt("currentEventID");
                 if(eventId > 0){
@@ -133,6 +136,7 @@ public class EventFragment extends DialogFragment {
                     }
                 }
             }else{
+                //new event
                 orgLayout.setVisibility(View.VISIBLE);
                 orgs = fill_with_data();
                 if(orgs.size() > 0){
@@ -245,8 +249,19 @@ public class EventFragment extends DialogFragment {
 
     }
 
+    private void delete(){
+        int effectedRows = ManagerDB.getInstance().deleteEvent(event);
+        if(effectedRows > 0){
+
+            notifyActivity(0L, 3);
+            dialogFrag.dismiss();
+            utilityClass.getInstance().showToast(R.string.successOnDelete,new Object[]{});
+        }else{
+            utilityClass.getInstance().showToast(R.string.errorOnDelete,new Object[]{});
+        }
+    }
     /**
-     * set listeners for controls in dialog
+     * set listeners for controls in dialogFrag
      */
     private void setListener() {
 
@@ -281,7 +296,7 @@ public class EventFragment extends DialogFragment {
                         Long newId = ManagerDB.getInstance().addEvent(newEvent);
                         if(newId > 0){
 
-                            // change dialog state
+                            // change dialogFrag state
                             btnRemove.setText(getResources().getString(R.string.btnRemove));
                             btnEdit.setText(getResources().getString(R.string.btnEdit));
                             isEditState = false;
@@ -290,7 +305,7 @@ public class EventFragment extends DialogFragment {
                             //event saved - go notify
                             notifyActivity(newId,1);
                             utilityClass.getInstance().showToast(R.string.successOnSave,new Object[]{});
-                            dialog.dismiss();
+                            dialogFrag.dismiss();
 
                         }
                         else{
@@ -308,14 +323,14 @@ public class EventFragment extends DialogFragment {
 
                         int effectedRows = ManagerDB.getInstance().updateEvent(event);
                         if(effectedRows > 0){
-                            // change dialog state
+                            // change dialogFrag state
                             btnRemove.setText(getResources().getString(R.string.btnRemove));
                             btnEdit.setText(getResources().getString(R.string.btnEdit));
                             isEditState = false;
                             Long tempId = new Long(event.getVolEventID());
                             SetFieldsState(isEditState);
                             notifyActivity(tempId,2);
-                            dialog.dismiss();
+                            dialogFrag.dismiss();
                             utilityClass.getInstance().showToast(R.string.successOnSave,new Object[]{});
                         }
                         else{
@@ -330,21 +345,13 @@ public class EventFragment extends DialogFragment {
             @Override public void onClick(View view) {
                 if(!isEditState){
                     // on read mode - remove item
-                    int effectedRows = ManagerDB.getInstance().deleteEvent(event);
-                    if(effectedRows > 0){
-
-                        notifyActivity(0L, 3);
-                        dialog.dismiss();
-                        utilityClass.getInstance().showToast(R.string.successOnDelete,new Object[]{});
-                    }else{
-                        utilityClass.getInstance().showToast(R.string.errorOnDelete,new Object[]{});
-                    }
+                    alert.show();
                 }else {
                     // on edit mode
                     if(isNew){
                         //discard new changes and close popup
                         isEditState = false;
-                        dialog.dismiss();
+                        dialogFrag.dismiss();
                     }
                     else{
                         //discard changes and reset to old values
@@ -492,7 +499,7 @@ public class EventFragment extends DialogFragment {
     }
 
     /**
-     * fill event data in dialog
+     * fill event data in dialogFrag
      */
     private void fillDataOfEvent() {
 
@@ -524,7 +531,7 @@ public class EventFragment extends DialogFragment {
     }
 
     /**
-     * set state of fields in dialog
+     * set state of fields in dialogFrag
      * @param state - true : enable, false : disable
      */
     public void SetFieldsState(boolean state){
@@ -584,5 +591,36 @@ public class EventFragment extends DialogFragment {
          * @param bundle args to send to activity.
          */
         void onEventCreated(Bundle bundle);
+    }
+
+    /**
+     * This function construct the alert AlertDialog
+     * @return {@link AlertDialog} an alert AlertDialog
+     */
+    private AlertDialog AskOption()
+    {
+        AlertDialog myQuittingDialogBox = new AlertDialog.Builder(getActivity())
+                //set message, title, and icon
+                .setTitle(R.string.alertPopTitle)
+                .setMessage(R.string.alertPopMsg)
+                .setIcon(R.drawable.attention_48)
+                .setPositiveButton(R.string.alertLblPositive, new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        //delete event
+                        delete();
+                    }
+
+                })
+                .setNegativeButton(R.string.alertLblNegative, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        dialog.dismiss();
+
+                    }
+                })
+                .create();
+        return myQuittingDialogBox;
+
     }
 }
