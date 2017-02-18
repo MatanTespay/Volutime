@@ -20,8 +20,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.caldroidsample.R;
 
+import controller.activities.MainActivity;
+import controller.fragments.AllOrgsDialogFragment;
 import controller.fragments.OrgProfileFragment;
 import model.Organization;
+import model.Volunteer;
 import utils.RoundedImageView;
 
 import static controller.activities.MainActivity.CURRENT_TAG;
@@ -44,21 +47,41 @@ public class OrganizationListAdapter extends GenericRecyclerViewAdapter<Organiza
                     //show a dialog on item click
                     if(OrganizationListAdapter.this.getContext() instanceof  FragmentActivity){
 
-                        Organization selectedOrg = getItem(position);
-                        //get the FragmentManager from the context (the activity that extends FragmentActivity)
-                        FragmentActivity frag = (FragmentActivity)OrganizationListAdapter.this.getContext();
-                        FragmentManager fm = frag.getSupportFragmentManager();
-                        //create the screen
-                        Fragment orgFrag= new OrgProfileFragment();
-                        //give some params for the dialog and Show it
-                        Bundle args = new Bundle();
-                        args.putInt("orgID", selectedOrg.getId());
-                        orgFrag.setArguments(args);
-                        FragmentTransaction fragmentTransaction = fm.beginTransaction();
+                        if (OrganizationListAdapter.this.getContext() instanceof  MainActivity) {
+
+                            //get volunteer from activity
+                            MainActivity act = (MainActivity) OrganizationListAdapter.this.getContext();
+                            Volunteer vol = act.getVol();
+                            //get selected orgnization
+                            Organization selectedOrg = getItem(position);
+
+                            //get the FragmentManager from the context (the activity that extends FragmentActivity)
+                            FragmentActivity frag = (FragmentActivity)OrganizationListAdapter.this.getContext();
+                            android.app.FragmentManager fm = frag.getFragmentManager();
+                            //create the screen
+                            //Fragment orgFrag= new OrgProfileFragment();
+                            //give some params for the dialog and Show it
+                            Bundle args = new Bundle();
+                            args.putInt("orgID", selectedOrg.getId());
+                            //orgFrag.setArguments(args);
+                        /*FragmentTransaction fragmentTransaction = fm.beginTransaction();
                         fragmentTransaction.setCustomAnimations(android.R.anim.fade_in,
                                 android.R.anim.fade_out);
                         fragmentTransaction.replace(R.id.frame, orgFrag, "PROFILE");
-                        fragmentTransaction.commitAllowingStateLoss();
+                        fragmentTransaction.commitAllowingStateLoss();*/
+                            AllOrgsDialogFragment orgsDialog = new AllOrgsDialogFragment();
+                            args.putInt("volID", vol.getId());
+                            args.putBoolean("isEditState", false);
+                            args.putBoolean("isNew", false);
+                            args.putInt("OrgID",selectedOrg.getId() );
+                            orgsDialog.setArguments(args);
+
+                            orgsDialog.show(fm, "orgsDialog");
+                        }
+                        // not sending an org id
+
+
+
 
 
                         // ...

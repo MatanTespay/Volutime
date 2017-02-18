@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import controller.caldroid.CaldroidSampleActivity;
 import controller.fragments.AdFragment;
+import controller.fragments.AllOrgsDialogFragment;
 import controller.fragments.EventFragment;
 import controller.fragments.OrgProfileFragment;
 import controller.fragments.OrganizationFragment;
@@ -46,7 +47,8 @@ import static android.R.id.icon2;
 import static com.caldroidsample.R.id.fab;
 import static com.caldroidsample.R.id.image;
 
-public class MainActivity extends AppCompatActivity implements OrganizationFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements OrganizationFragment.OnFragmentInteractionListener,
+         AllOrgsDialogFragment.OnVolAtOrgInteractionListener{
 
     private NavigationView navigationView;
     private DrawerLayout drawer;
@@ -544,6 +546,22 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
     public void onFragmentInteraction(Bundle bundle) {
 
 
+    }
+
+    /**
+     * implement interface from AllOrg...
+     * @param bundle args to send to activity.
+     */
+    @Override
+    public void onVolAtOrgAction(Bundle bundle) {
+
+        if(bundle != null){
+            //get reference to frag.
+            Fragment orgsFrag = getSupportFragmentManager().findFragmentByTag(CURRENT_TAG);
+            if(orgsFrag != null){
+                ((OrganizationFragment)orgsFrag).loadDataToAdapter();
+            }
+        }
     }
 
     public UserType getUserType() {

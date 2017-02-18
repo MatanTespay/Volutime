@@ -36,7 +36,7 @@ import static android.R.attr.id;
  * Use the {@link OrganizationFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class OrganizationFragment extends Fragment {
+public class OrganizationFragment extends Fragment  {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -45,7 +45,8 @@ public class OrganizationFragment extends Fragment {
     public int userID;
     private UserType userType;
     List<Organization> items;
-
+    OrganizationListAdapter adapter;
+    RecyclerView recyclerView;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -93,20 +94,23 @@ public class OrganizationFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_organization, container, false);
         context = view.getContext();
-        items = fill_with_data();
+        //items = fill_with_data();
         Bundle args = getArguments();
         if(args != null) {
             userID = args.getInt("volID");
 
         }
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recyclerview);
+
+         recyclerView = (RecyclerView) view.findViewById(R.id.recyclerview);
         /*OrganizationAdapter orgAdapter = new OrganizationAdapter(context, items);
         recyclerView.setAdapter(orgAdapter);*/
 
-        OrganizationListAdapter adapter = new OrganizationListAdapter( getActivity(), null);
-        adapter.setList(items);
+       // adapter = new OrganizationListAdapter( getActivity(), null);
+        // adapter.setList(items);
 
-        recyclerView.setAdapter(adapter);
+       // recyclerView.setAdapter(adapter);
+        loadDataToAdapter();
+
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
 
 
@@ -133,6 +137,15 @@ public class OrganizationFragment extends Fragment {
     }
 
     /**
+     *
+     */
+    public void loadDataToAdapter(){
+        items = fill_with_data();
+        adapter = new OrganizationListAdapter( getActivity(), null);
+        adapter.setList(items);
+        recyclerView.setAdapter(adapter);
+    }
+    /**
      * opens a dialogFrag Fragment for volunteer to add his org.
      * sends as argument userID
      */
@@ -143,8 +156,10 @@ public class OrganizationFragment extends Fragment {
         AllOrgsDialogFragment orgsDialog = new AllOrgsDialogFragment();
         args.putInt("volID", this.userID);
         args.putBoolean("isEditState", true);
+        args.putBoolean("isNew", true);
         orgsDialog.setArguments(args);
         orgsDialog.show(fm,"orgsDialog");
+        // not sending an org id
 
     }
 
@@ -182,6 +197,7 @@ public class OrganizationFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
+
 
     /**
      * This interface must be implemented by activities that contain this
