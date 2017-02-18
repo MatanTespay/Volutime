@@ -102,5 +102,6 @@
     <string name="alertPopTitle">Delete</string>
     <string name="alertLblPositive">Delete</string>
     <string name="alertLblNegative">Cancel</string>
+    <string name="zone">Israel</string>
 
 </resources>

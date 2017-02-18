@@ -55,8 +55,8 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
     // set color to specific dates
     private void fillEventsInCalendar(Calendar cal) {
 
-        Calendar c = cal;
-        getEventsForCurrentMonth(c.get(Calendar.MONTH));
+        //Calendar c = cal;
+        getEventsForCurrentMonth(cal.get(Calendar.MONTH));
 
         Map<Date, Drawable> map = new HashMap<>();
 
@@ -138,7 +138,7 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
 
             caldroidFragment.setArguments(args);
 
-            fillEventsInCalendar(cal);
+            //fillEventsInCalendar(cal);
         }
 
 
@@ -293,21 +293,23 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
         }
     }
 
+    /**
+     * get events by month number
+     * @param month
+     */
     private void getEventsForCurrentMonth(int month) {
 
-        //ManagerDB.getInstance().resetDB();
-
-
+        // get events
         int lastDayOfMonth = Calendar.getInstance().getActualMaximum(Calendar.DAY_OF_MONTH);
 
-        Calendar cal = Calendar.getInstance();
-        cal.getInstance(TimeZone.getTimeZone("Israel"));
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(getResources().getString(R.string.zone)));
 
         List<VolEvent> events = new ArrayList<>();
 
         events = ManagerDB.getInstance().readEventsForUserByMonth(month, userID);
         monthEvents = new HashMap<>();
 
+        //sort events by date
         Collections.sort(events, new Comparator<VolEvent>() {
             public int compare(VolEvent o1, VolEvent o2) {
                 if (o1.getStartTime() == null || o2.getStartTime() == null)
@@ -316,6 +318,7 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
             }
         });
 
+        //group events by day
         for (int i = 1; i < lastDayOfMonth; i++) {
             List<VolEvent> eventsOfDay = new ArrayList<>();
 
@@ -399,8 +402,8 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
                 //on new or update in current month
                 if((e.getStartTime().getMonth() +1) == caldroidFragment.getMonth()){
                     c = Calendar.getInstance();
-                    c.setTime(e.getStartTime());
-
+                    //c.setTime(e.getStartTime());
+                    c.set(e.getStartTime().getYear(),(e.getStartTime().getMonth()+1),1);
                     fillEventsInCalendar(c);
                     caldroidFragment.refreshView();
                 }
@@ -408,7 +411,7 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
             }else{
                 //on remove on current month
                 c = Calendar.getInstance();
-                c.setTime(selectedDate);
+                c.set( selectedDate.getYear(),(selectedDate.getMonth()+1),1);
                 fillEventsInCalendar(c);
                 caldroidFragment.refreshView();
             }

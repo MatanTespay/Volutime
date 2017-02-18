@@ -146,7 +146,6 @@ public class OrganizationFragment extends Fragment {
         orgsDialog.setArguments(args);
         orgsDialog.show(fm,"orgsDialog");
 
-
     }
 
     /**
