@@ -97,7 +97,7 @@ public class CaldroidSampleCustomAdapter extends CaldroidGridAdapter {
 		}
 
 		tv1.setText("" + dateTime.getDay());
-		tv2.setText("Hi");
+		//tv2.setText("Hi");
 
 		// Somehow after setBackgroundResource, the padding collapse.
 		// This is to recover the padding

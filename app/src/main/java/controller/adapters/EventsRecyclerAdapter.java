@@ -15,6 +15,8 @@ import android.widget.TextView;
 
 import com.caldroidsample.R;
 
+import controller.caldroid.CaldroidSampleActivity;
+import controller.fragments.EventFragment;
 import model.Organization;
 import model.VolEvent;
 import utils.utilityClass;
@@ -24,6 +26,7 @@ import utils.utilityClass;
  */
 public class EventsRecyclerAdapter extends GenericRecyclerViewAdapter<VolEvent> {
 
+    private int selectedPosition=-1;
     public EventsRecyclerAdapter(Context context, OnViewHolderClick listener) {
         super(context, listener);
 
@@ -40,17 +43,24 @@ public class EventsRecyclerAdapter extends GenericRecyclerViewAdapter<VolEvent> 
                         FragmentActivity frag = (FragmentActivity)EventsRecyclerAdapter.this.getContext();
                         android.app.FragmentManager fm = frag.getFragmentManager();
                         //create the dialog
-                        // ...
-
-                        //give some params for the dialog and Show it
+                        EventFragment datesDialog = new EventFragment();
                         Bundle args = new Bundle();
-                        // ...
+                        VolEvent e = getList().get(position);
+                        selectedPosition = position;
+
+                        if(EventsRecyclerAdapter.this.getContext() instanceof CaldroidSampleActivity){
+
+                            int userId = ((CaldroidSampleActivity)EventsRecyclerAdapter.this.getContext()).getUserID();
+                            args.putInt("currentEventID", e.getVolEventID());
+                            args.putInt("userID", userId);
+                            args.putBoolean("isEditState", false);
+                            args.putBoolean("isNew", false);
+
+                            datesDialog.setArguments(args);
+                            datesDialog.show(fm, frag.getResources().getResourceName(R.layout.fragment_event_list));
+
+                        }
                     }
-
-                    VolEvent e = getList().get(position);
-                    String name = e.getDetails();
-                    utilityClass.getInstance().showToast(R.string.item_clicked, new Object[]{name});
-
                 }
             }
         };
@@ -86,10 +96,22 @@ public class EventsRecyclerAdapter extends GenericRecyclerViewAdapter<VolEvent> 
 
             viewHolder.itemView.setLayoutParams(normalLayoutParams);
 
-
-
         }
     }
 
+    public void removeItem(){
+        super.remove(getList().get(selectedPosition));
+    }
+
+    public void updateItem(VolEvent item){
+        getList().set(selectedPosition, item);
+        super.notifyItemChanged(selectedPosition);
+    }
+
+    public void addItem(VolEvent newItem){
+        super.insert(0, newItem);
+       /* getList().add(0, newItem);
+        super.notifyDataSetChanged();*/
+    }
 
 }

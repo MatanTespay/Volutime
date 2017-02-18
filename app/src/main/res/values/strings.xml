@@ -93,6 +93,10 @@
     <string name="select_start">Choose volunteer start date</string>
     <string name="select_end">Choose end volunteer date</string>
     <string name="errorOnSave">There was an error on save, please try again</string>
+    <string name="successOnSave">Changes saved successfully</string>
+    <string name="errorOnDelete">There was an error on remove, please try again</string>
+    <string name="successOnDelete">Remove was successfully</string>
+    <string name="add_new_event">New Event</string>
 
 
 </resources>
