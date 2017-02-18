@@ -164,6 +164,19 @@ public class ManagerDB {
         return null;
     }
 
+    public int updateEvent(VolEvent event){
+        if(db!=null){
+            return  db.updateEvent(event);
+        }
+        return  -1;
+    }
+    public int deleteEvent(VolEvent event){
+        if(db!=null){
+           return db.deleteEvent(event);
+        }
+        return  -1;
+    }
+
     public Volunteer getVolunteerUser(String email , String password) {
         Volunteer vol=null;
         if(db!=null && email!=null&& password!=null){

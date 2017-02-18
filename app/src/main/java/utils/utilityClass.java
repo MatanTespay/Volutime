@@ -7,8 +7,11 @@ import android.widget.Toast;
 import com.caldroidsample.R;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
 
 import static android.os.Build.VERSION_CODES.M;
 
@@ -47,6 +50,7 @@ public class utilityClass {
     public Date getDateTimeFromString(String dateString){
         Date date = null;
         try {
+                if(!dateString.equals(""))
                 date = longformatter.parse(dateString);
         }catch(Throwable t) {
             t.printStackTrace();
@@ -58,6 +62,7 @@ public class utilityClass {
     public String getStringFromDateTime(Date date){
         String str= "";
         try {
+            if(date != null)
             str = longformatter.format(date);
         }catch(Throwable t) {
             t.printStackTrace();
@@ -69,6 +74,7 @@ public class utilityClass {
     public String getSortStringFromDateTime(Date date){
         String str= "";
         try {
+            if(date != null)
             str = sortformatter.format(date);
         }catch(Throwable t) {
             t.printStackTrace();
@@ -104,4 +110,18 @@ public class utilityClass {
         return  result;
     }
 
+    public static List<Date> getDaysBetweenDates(Date startdate, Date enddate)
+    {
+        List<Date> dates = new ArrayList<Date>();
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(startdate);
+
+        while (calendar.getTime().getTime() <= enddate.getTime())
+        {
+            Date result = calendar.getTime();
+            dates.add(result);
+            calendar.add(Calendar.DATE, 1);
+        }
+        return dates;
+    }
 }

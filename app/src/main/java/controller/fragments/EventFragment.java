@@ -2,7 +2,9 @@ package controller.fragments;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -27,7 +29,6 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -37,8 +38,6 @@ import model.Organization;
 import model.VolEvent;
 import utils.utilityClass;
 
-import static android.R.id.list;
-import static com.caldroidsample.R.string.checkDates;
 import static java.lang.Character.UnicodeBlock.of;
 
 public class EventFragment extends DialogFragment {
@@ -46,7 +45,6 @@ public class EventFragment extends DialogFragment {
     EditText txtDate_s, txtTime_s,txtDate_e, txtTime_e, txtTitle, txtDetails;
     List<Organization> orgs = new ArrayList<>();
     List<String> orgsLables = new ArrayList<>();
-    ArrayAdapter<String> adapter;
     //initial number to the popup
     private int sYear, sMonth, sDay, sHour, sMinute;
     private int eYear, eMonth, eDay, eHour, eMinute;
@@ -54,16 +52,22 @@ public class EventFragment extends DialogFragment {
     //the numbers that will create the user selected dates
     private int s_Year, s_Month, s_Day, s_Hour = -1, s_Minute = -1; // start time and date values
     private int e_Year, e_Month, e_Day, e_Hour = -1, e_Minute= -1; // end time and date values
-
-    EventFragment dialog;
+    final private int ACTION_NEW = 1 ;
+    final private int ACTION_UPDATE = 2 ;
+    final private int ACTION_REMOVE = 3 ;
+    EventFragment dialogFrag;
+    AlertDialog alert;
+    ArrayAdapter<String> adapter;
     int userId;
     VolEvent event;
-    Boolean isEditState = false;
+    Boolean isNew , isEditState = false;
     Date start, end;
     View view;
     private Spinner orgSpin;
     Button btnEdit,btnRemove,btnDate_s,btnTime_s,btnDate_e,btnTime_e;
     Activity parentAct = null;
+    private View orgLayout;
+
     public EventFragment() {
         // Required empty public constructor
     }
@@ -72,17 +76,20 @@ public class EventFragment extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-         dialog = this;
-        parentAct = getActivity();
+
+        //region Inflate the layout for this fragment
+
+         parentAct = getActivity();
+         alert = AskOption();
          view = inflater.inflate(R.layout.event_fragment, container, false);
+         orgLayout = view.findViewById(R.id.OrgLayout);
          btnEdit  = (Button) view.findViewById(R.id.btnEditEvent);
          btnRemove  = (Button) view.findViewById(R.id.btnRemoveEvent);
          btnDate_s = (Button) view.findViewById(R.id.btn_date_s);
          btnTime_s  = (Button) view.findViewById(R.id.btn_time_s);
          btnDate_e = (Button) view.findViewById(R.id.btn_date_e);
          btnTime_e  = (Button) view.findViewById(R.id.btn_time_e);
-
+         dialogFrag = this;
         txtTitle  = (EditText) view.findViewById(R.id.event_title);
         txtDetails  = (EditText) view.findViewById(R.id.event_details);
 
@@ -96,11 +103,18 @@ public class EventFragment extends DialogFragment {
         txtTime_s.setVisibility(View.VISIBLE);
         txtDate_e.setVisibility(View.VISIBLE);
         txtDate_e.setVisibility(View.VISIBLE);
+        //endregion
+
         Bundle args = getArguments();
+
+        //region check params and set dialogFrag state and values for controls
         if(args != null){
 
             userId = args.getInt("userID");
             isEditState = args.getBoolean("isEditState");
+            isNew = args.getBoolean("isNew");
+
+            //set buttons on start
             if(!isEditState){
                 btnRemove.setText(getResources().getString(R.string.btnRemove));
                 btnEdit.setText(getResources().getString(R.string.btnEdit));
@@ -109,48 +123,59 @@ public class EventFragment extends DialogFragment {
                 btnEdit.setText(getResources().getString(R.string.btnSave));
             }
 
-            event = (VolEvent) args.getSerializable("eventData");
-            if(event!= null){
-                fillDataOfEvent();
+            if(!isNew){
+                //existing event
+                //get data from db
+                orgLayout.setVisibility(View.GONE);
+                int eventId = args.getInt("currentEventID");
+                if(eventId > 0){
+                    event = ManagerDB.getInstance().readEvent(eventId);
+                    if(event!= null){
+                        fillDataOfEvent();
 
-            }
-
-            orgs = fill_with_data();
-            if(orgs.size() > 0){
-                for (Organization o: orgs ) {
-                    orgsLables.add(o.getName());
+                    }
                 }
-            }
-
-            if(orgsLables.size() > 0){
-
-                ArrayAdapter<String> adapter=new ArrayAdapter<>( getActivity(), android.R.layout.simple_list_item_1,orgsLables);
-                orgSpin.setAdapter(adapter);
-                orgSpin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
-                    public void onItemSelected(AdapterView<?> parentView,
-                                               View selectedItemView, int position, long id) {
-                        int pos = orgSpin.getSelectedItemPosition();
-                        setSelectedPos(pos);
-
+            }else{
+                //new event
+                orgLayout.setVisibility(View.VISIBLE);
+                orgs = fill_with_data();
+                if(orgs.size() > 0){
+                    for (Organization o: orgs ) {
+                        orgsLables.add(o.getName());
                     }
+                }
 
-                    public void onNothingSelected(AdapterView<?> arg0) {// do nothing
-                    }
+                if(orgsLables.size() > 0){
 
-                });
+                    adapter =new ArrayAdapter<>( getActivity(), android.R.layout.simple_list_item_1,orgsLables);
+                    orgSpin.setAdapter(adapter);
+                    orgSpin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+                        public void onItemSelected(AdapterView<?> parentView,
+                                                   View selectedItemView, int position, long id) {
+                            int pos = orgSpin.getSelectedItemPosition();
+                            setSelectedPos(pos);
+
+                        }
+
+                        public void onNothingSelected(AdapterView<?> arg0) {// do nothing
+                        }
+
+                    });
+                }
             }
 
             setListener();
         }
+        //endregion
 
         return view;
 
     }
-    public void onBtnEdit_click(View v){
-        //TODO
 
-    }
+    /**
+     * set time for start
+     */
     private void setTimeStart(int H, int M){
         Calendar c = Calendar.getInstance();
         s_Hour = H;
@@ -160,6 +185,9 @@ public class EventFragment extends DialogFragment {
         this.start = c.getTime();
 
     }
+    /**
+     * set time for end
+     */
     private void setTimeEnd(int H, int M){
         Calendar c = Calendar.getInstance();
         e_Hour = H;
@@ -169,6 +197,9 @@ public class EventFragment extends DialogFragment {
         this.end = c.getTime();
 
     }
+    /**
+     * set date for start
+     */
     private void setDateStart(int year, int monthOfYear, int dayOfMonth) {
         Calendar c = Calendar.getInstance();
         s_Year = year;
@@ -178,8 +209,10 @@ public class EventFragment extends DialogFragment {
         this.start = c.getTime();
 
     }
-    private void setDateEnd(int year, int monthOfYear, int dayOfMonth)
-    {
+    /**
+     * set date for end
+     */
+    private void setDateEnd(int year, int monthOfYear, int dayOfMonth) {
         Calendar c = Calendar.getInstance();
         e_Year = year;
         e_Month = monthOfYear;
@@ -190,6 +223,10 @@ public class EventFragment extends DialogFragment {
 
     }
 
+    /**
+     * check if dates and time are valid
+     * @return return boolean - true if ok , false otherwise
+     */
     private boolean checkDates(){
         if(start == null || end  == null)
             return false;
@@ -211,6 +248,21 @@ public class EventFragment extends DialogFragment {
         }
 
     }
+
+    private void delete(){
+        int effectedRows = ManagerDB.getInstance().deleteEvent(event);
+        if(effectedRows > 0){
+
+            notifyActivity(0L, 3);
+            dialogFrag.dismiss();
+            utilityClass.getInstance().showToast(R.string.successOnDelete,new Object[]{});
+        }else{
+            utilityClass.getInstance().showToast(R.string.errorOnDelete,new Object[]{});
+        }
+    }
+    /**
+     * set listeners for controls in dialogFrag
+     */
     private void setListener() {
 
         btnEdit.setOnClickListener(new View.OnClickListener() {
@@ -221,35 +273,70 @@ public class EventFragment extends DialogFragment {
                     btnEdit.setText(getResources().getString(R.string.btnSave));
                     isEditState = true;
                     SetFieldsState(isEditState);
+
                 }else {
                     // on edit mode save changes and switch to read mode
+                    //check if dates are ok
                     if(!checkDates()){
                         utilityClass.getInstance().showToast(R.string.checkDates,new Object[]{});
                         return;
                     }
 
-                    btnRemove.setText(getResources().getString(R.string.btnRemove));
-                    btnEdit.setText(getResources().getString(R.string.btnEdit));
-                    isEditState = false;
-                    SetFieldsState(isEditState);
+                    if(isNew){
+                        //save event and then notify calendar activity
+                        VolEvent newEvent = new VolEvent();
+                        newEvent.setVolID(userId);
+                        Organization o = orgs.get(selectedPos);
+                        newEvent.setOrgID(o.getId());
+                        newEvent.setStartTime(start);
+                        newEvent.setEndTime(end);
+                        newEvent.setDetails(txtDetails.getText().toString());
+                        newEvent.setTitle(txtTitle.getText().toString());
 
-                    //save event and then notify calendar activity
-                    VolEvent newEvent = new VolEvent();
-                    newEvent.setVolID(userId);
-                    Organization o = orgs.get(selectedPos);
-                    newEvent.setOrgID(o.getId());
-                    newEvent.setStartTime(start);
-                    newEvent.setEndTime(start);
-                    newEvent.setDetails(txtDetails.getText().toString());
-                    newEvent.setTitle(txtTitle.getText().toString());
-                    Long newId = ManagerDB.getInstance().addEvent(newEvent);
-                    if(newId > 0){
-                        notifyActivity(newId);
-                    }
-                    else{
-                        utilityClass.getInstance().showToast(R.string.errorOnSave,new Object[]{});
-                    }
+                        Long newId = ManagerDB.getInstance().addEvent(newEvent);
+                        if(newId > 0){
 
+                            // change dialogFrag state
+                            btnRemove.setText(getResources().getString(R.string.btnRemove));
+                            btnEdit.setText(getResources().getString(R.string.btnEdit));
+                            isEditState = false;
+                            SetFieldsState(isEditState);
+
+                            //event saved - go notify
+                            notifyActivity(newId,1);
+                            utilityClass.getInstance().showToast(R.string.successOnSave,new Object[]{});
+                            dialogFrag.dismiss();
+
+                        }
+                        else{
+                            //notify on error
+                            utilityClass.getInstance().showToast(R.string.errorOnSave,new Object[]{});
+                        }
+                    }else{
+                        //update event
+
+                        event.setVolID(userId);
+                        event.setStartTime(start);
+                        event.setEndTime(end);
+                        event.setDetails(txtDetails.getText().toString());
+                        event.setTitle(txtTitle.getText().toString());
+
+                        int effectedRows = ManagerDB.getInstance().updateEvent(event);
+                        if(effectedRows > 0){
+                            // change dialogFrag state
+                            btnRemove.setText(getResources().getString(R.string.btnRemove));
+                            btnEdit.setText(getResources().getString(R.string.btnEdit));
+                            isEditState = false;
+                            Long tempId = new Long(event.getVolEventID());
+                            SetFieldsState(isEditState);
+                            notifyActivity(tempId,2);
+                            dialogFrag.dismiss();
+                            utilityClass.getInstance().showToast(R.string.successOnSave,new Object[]{});
+                        }
+                        else{
+                            utilityClass.getInstance().showToast(R.string.errorOnSave,new Object[]{});
+                        }
+                    }
                 }
             }
 
@@ -258,13 +345,24 @@ public class EventFragment extends DialogFragment {
             @Override public void onClick(View view) {
                 if(!isEditState){
                     // on read mode - remove item
-
+                    alert.show();
                 }else {
-                    // on edit mode - cancel changes
-                    btnRemove.setText(getResources().getString(R.string.btnRemove));
-                    btnEdit.setText(getResources().getString(R.string.btnEdit));
-                    isEditState = false;
-                    SetFieldsState(isEditState);
+                    // on edit mode
+                    if(isNew){
+                        //discard new changes and close popup
+                        isEditState = false;
+                        dialogFrag.dismiss();
+                    }
+                    else{
+                        //discard changes and reset to old values
+                        btnRemove.setText(getResources().getString(R.string.btnRemove));
+                        btnEdit.setText(getResources().getString(R.string.btnEdit));
+                        isEditState = false;
+                        SetFieldsState(isEditState);
+                        if(event != null){
+                            fillDataOfEvent();
+                        }
+                    }
                 }
             }
 
@@ -307,7 +405,7 @@ public class EventFragment extends DialogFragment {
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay,
                                                   int minute) {
-                                txtTime_s.setText(hourOfDay + ":" + ((minute == 0) ? "00" : minute));
+                                txtTime_s.setText(hourOfDay + ":" + ((minute < 10) ? "0" + minute : minute));
                                 setTimeStart(hourOfDay, minute);
 
                             }
@@ -354,7 +452,7 @@ public class EventFragment extends DialogFragment {
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay,
                                                   int minute) {
-                                txtTime_e.setText(hourOfDay + ":" + ((minute == 0) ? "00" : minute));
+                                txtTime_e.setText(hourOfDay + ":" + ((minute < 10) ? "0" + minute : minute));
                                 setTimeEnd(hourOfDay, minute);
 
                             }
@@ -364,43 +462,78 @@ public class EventFragment extends DialogFragment {
             }
 
         });
+
+        if(orgsLables.size() > 0){
+            orgSpin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+                public void onItemSelected(AdapterView<?> parentView,
+                                           View selectedItemView, int position, long id) {
+                    int pos = orgSpin.getSelectedItemPosition();
+                    setSelectedPos(pos);
+
+                }
+
+                public void onNothingSelected(AdapterView<?> arg0) {// do nothing
+                }
+
+            });
+        }
     }
 
-    private void notifyActivity(Long id) {
+    /**
+     * send result of insertion to calander activity ro process the result
+     * @param id new event id
+     */
+    private void notifyActivity(Long id, int action) {
 
         OnEventInteractionListener mListener = null;
 
         if(parentAct != null && parentAct  instanceof  OnEventInteractionListener ){
             mListener = (OnEventInteractionListener) parentAct;
             Bundle args = new Bundle();
-            args.putLong("newEventID", id);
+            args.putLong("currentEventID", id);
+            args.putInt("action", action);
             mListener.onEventCreated(args);
 
         }
     }
 
-
+    /**
+     * fill event data in dialogFrag
+     */
     private void fillDataOfEvent() {
+
         isEditState = false;
         //fill data
         txtTitle.setText(event.getTitle());
         txtDetails.setText(event.getDetails());
         Calendar cal = Calendar.getInstance();
-        cal.setTime(event.getStartTime());
 
+        cal.setTime(event.getStartTime());
         String time = cal.get((Calendar.HOUR_OF_DAY)) + ":"+ cal.get((Calendar.MINUTE)) + ":"+ cal.get((Calendar.SECOND)) ;
+
         txtTime_s.setText(time);
+        setDateStart(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH),cal.get(Calendar.DAY_OF_MONTH));
+        setTimeStart(cal.get((Calendar.HOUR_OF_DAY)),cal.get((Calendar.MINUTE)));
+
         cal.setTime(event.getEndTime());
         time = cal.get((Calendar.HOUR_OF_DAY)) + ":"+ cal.get((Calendar.MINUTE)) + ":"+ cal.get((Calendar.SECOND)) ;
         txtTime_e.setText(time);
-
+        setDateEnd(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH),cal.get(Calendar.DAY_OF_MONTH));
+        setTimeEnd(cal.get((Calendar.HOUR_OF_DAY)),cal.get((Calendar.MINUTE)));
         txtDate_e.setText(utilityClass.getInstance().getSortStringFromDateTime(event.getEndTime()));
         txtDate_s.setText(utilityClass.getInstance().getSortStringFromDateTime(event.getStartTime()));
 
         //disable
         SetFieldsState(isEditState);
+
+
     }
 
+    /**
+     * set state of fields in dialogFrag
+     * @param state - true : enable, false : disable
+     */
     public void SetFieldsState(boolean state){
 
         txtTitle.setEnabled(state);
@@ -413,6 +546,10 @@ public class EventFragment extends DialogFragment {
 
     }
 
+    /**
+     * get object data from DB
+     * @return
+     */
     public List<Organization> fill_with_data() {
 
         List<Organization> data = new ArrayList<>();
@@ -435,12 +572,55 @@ public class EventFragment extends DialogFragment {
         }
     }
 
+    /**
+     * savwe selected position of spinner
+     * @param selectedPos
+     */
     public void setSelectedPos(int selectedPos) {
         this.selectedPos = selectedPos;
     }
 
+    /**
+     * interface for interaction with parent activity
+     */
     public interface OnEventInteractionListener {
         // TODO: Update argument type and name
+
+        /**
+         * on new event creation
+         * @param bundle args to send to activity.
+         */
         void onEventCreated(Bundle bundle);
+    }
+
+    /**
+     * This function construct the alert AlertDialog
+     * @return {@link AlertDialog} an alert AlertDialog
+     */
+    private AlertDialog AskOption()
+    {
+        AlertDialog myQuittingDialogBox = new AlertDialog.Builder(getActivity())
+                //set message, title, and icon
+                .setTitle(R.string.alertPopTitle)
+                .setMessage(R.string.alertPopMsg)
+                .setIcon(R.drawable.attention_48)
+                .setPositiveButton(R.string.alertLblPositive, new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        //delete event
+                        delete();
+                    }
+
+                })
+                .setNegativeButton(R.string.alertLblNegative, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        dialog.dismiss();
+
+                    }
+                })
+                .create();
+        return myQuittingDialogBox;
+
     }
 }

@@ -190,6 +190,7 @@ public class AllOrgsDialogFragment extends DialogFragment {
 
         return data;
     }
+
     private boolean checkDates(){
         if(start == null || end  == null)
             return false;
@@ -200,6 +201,7 @@ public class AllOrgsDialogFragment extends DialogFragment {
         }
     return  true;
     }
+
     private void setListener() {
         btnRemove.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {

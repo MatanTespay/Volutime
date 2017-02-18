@@ -2,10 +2,12 @@ package controller.caldroid;
 
 import android.annotation.SuppressLint;
 
+import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -30,16 +32,17 @@ import java.util.TimeZone;
 import caldroid.CaldroidFragment;
 import caldroid.CaldroidListener;
 import controller.fragments.EventFragment;
-import controller.fragments.FragmentDates;
+import controller.fragments.EventListFragment;
 import model.ManagerDB;
 import model.VolEvent;
 import utils.utilityClass;
 
-import static android.R.attr.id;
+import static android.R.attr.action;
 import static android.media.CamcorderProfile.get;
+import static com.caldroidsample.R.id.fab;
 
 @SuppressLint("SimpleDateFormat")
-public class CaldroidSampleActivity extends AppCompatActivity implements FragmentDates.OnFragmentInteractionListener ,
+public class CaldroidSampleActivity extends AppCompatActivity implements EventListFragment.OnFragmentInteractionListener ,
          EventFragment.OnEventInteractionListener {
     private boolean undo = false;
     private CaldroidFragment caldroidFragment;
@@ -47,42 +50,44 @@ public class CaldroidSampleActivity extends AppCompatActivity implements Fragmen
     Map<Date, List<VolEvent>> monthEvents;
     SimpleDateFormat formatter ;
     int userID;
+    private FloatingActionButton btnNewEvent;
+    private Date selectedDate;
     // set color to specific dates
-    private void setCustomResourceForDates() {
+    private void fillEventsInCalendar(Calendar cal) {
 
-        getEventsForCurrentMonth(1);
+        Calendar c = cal;
+        getEventsForCurrentMonth(c.get(Calendar.MONTH));
 
         Map<Date, Drawable> map = new HashMap<>();
 
-        ColorDrawable myColor = new ColorDrawable(getResources().getColor(R.color.caldroid_light_red));
+        ColorDrawable startEventColor = new ColorDrawable(getResources().getColor(R.color.caldroid_dark_red));
+        ColorDrawable continuousBgColor = new ColorDrawable(getResources().getColor(R.color.caldroid_light_red));
         for (Map.Entry<Date, List<VolEvent>> entry : monthEvents.entrySet()) {
-            System.out.println(entry.getKey() + "/" + entry.getValue());
-            map.put(entry.getKey(), myColor);
+
+            //check all event of this the date.
+            for (VolEvent event: entry.getValue()) {
+                //if the event is on couple of days
+                if(event.getStartTime().getTime() < event.getEndTime().getTime()){
+                    List<Date> duration = utilityClass.getDaysBetweenDates(event.getStartTime(), event.getEndTime());
+                    for (int i = 0; i < duration.size(); i++) {
+                        if( i == 0){
+                            map.put(duration.get(i), startEventColor);
+                        }else{
+                            map.put(duration.get(i), continuousBgColor);
+                        }
+                    }
+                }
+                else{
+                    map.put(event.getStartTime(), startEventColor);
+                }
+            }
+
+
+            //map.put(entry.getKey(), bgColor);
 
         }
 
         caldroidFragment.setBackgroundDrawableForDates(map);
-
-
-        Calendar cal = Calendar.getInstance();
-
-        // Min date is last 7 days
-        cal.add(Calendar.DATE, -7);
-        Date blueDate = cal.getTime();
-
-        // Max date is next 7 days
-        cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, 7);
-        Date greenDate = cal.getTime();
-
-        if (caldroidFragment != null) {
-           /* ColorDrawable blue = new ColorDrawable(getResources().getColor(R.color.blue));
-            ColorDrawable green = new ColorDrawable(getResources().getColor(R.color.mash));
-            caldroidFragment.setBackgroundDrawableForDate(blue, blueDate);
-            caldroidFragment.setBackgroundDrawableForDate(green, greenDate);
-            caldroidFragment.setTextColorForDate(R.color.white, blueDate);
-            caldroidFragment.setTextColorForDate(R.color.white, greenDate);*/
-        }
     }
 
     @Override
@@ -132,9 +137,11 @@ public class CaldroidSampleActivity extends AppCompatActivity implements Fragmen
             args.putInt(CaldroidFragment.THEME_RESOURCE, com.caldroidsample.R.style.CaldroidDefaultDark);
 
             caldroidFragment.setArguments(args);
+
+            fillEventsInCalendar(cal);
         }
 
-        setCustomResourceForDates();
+
 
         // Attach to the activity
         FragmentTransaction t = getSupportFragmentManager().beginTransaction();
@@ -146,23 +153,27 @@ public class CaldroidSampleActivity extends AppCompatActivity implements Fragmen
 
             @Override
             public void onSelectDate(Date date, View view) {
-                Toast.makeText(getApplicationContext(), formatter.format(date),
-                        Toast.LENGTH_SHORT).show();
+                /*Toast.makeText(getApplicationContext(), formatter.format(date),
+                        Toast.LENGTH_SHORT).show();*/
             }
 
             @Override
             public void onChangeMonth(int month, int year) {
-                String text = "month: " + month + " year: " + year;
+                /*String text = "month: " + month + " year: " + year;
                 Toast.makeText(getApplicationContext(), text,
-                        Toast.LENGTH_SHORT).show();
+                        Toast.LENGTH_SHORT).show();*/
+                Calendar cal = Calendar.getInstance();
+                cal.set(year,month,1);
+                fillEventsInCalendar(cal);
+                caldroidFragment.refreshView();
             }
 
             @Override
             public void onLongClickDate(Date date, View view) {
-                Toast.makeText(getApplicationContext(),
+             /*   Toast.makeText(getApplicationContext(),
                         "Long click " + formatter.format(date),
-                        Toast.LENGTH_SHORT).show();
-
+                        Toast.LENGTH_SHORT).show();*/
+                selectedDate = date;
                 showDialogDates(date);
                 return;
 
@@ -183,12 +194,12 @@ public class CaldroidSampleActivity extends AppCompatActivity implements Fragmen
         // Setup Caldroid
         caldroidFragment.setCaldroidListener(listener);
 
-        final TextView calendar_textview = (TextView) findViewById(R.id.calendar_textview);
 
-        final Button btnAddEvent = (Button) findViewById(R.id.btnAdd);
+        btnNewEvent = (FloatingActionButton) findViewById(R.id.addNew);
+
 
         // Customize the calendar
-        btnAddEvent.setOnClickListener(new OnClickListener() {
+        btnNewEvent.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -197,40 +208,7 @@ public class CaldroidSampleActivity extends AppCompatActivity implements Fragmen
             }
         });
 
-        Button showDialogButton = (Button) findViewById(R.id.show_dialog_button);
 
-        final Bundle state = savedInstanceState;
-        showDialogButton.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-
-                // Setup caldroid to use as dialog
-                dialogCaldroidFragment = new CaldroidFragment();
-                dialogCaldroidFragment.setCaldroidListener(listener);
-
-                // If activity is recovered from rotation
-                final String dialogTag = getResources().getString(R.string.dialog_fragment_tag);
-                if (state != null) {
-                    dialogCaldroidFragment.restoreDialogStatesFromKey(
-                            getSupportFragmentManager(), state,
-                            getResources().getString(R.string.dialog_caldroid_saved_state), dialogTag);
-                    Bundle args = dialogCaldroidFragment.getArguments();
-                    if (args == null) {
-                        args = new Bundle();
-                        dialogCaldroidFragment.setArguments(args);
-                    }
-                } else {
-                    // Setup arguments
-                    Bundle bundle = new Bundle();
-                    // Setup dialogTitle
-                    dialogCaldroidFragment.setArguments(bundle);
-                }
-
-                dialogCaldroidFragment.show(getSupportFragmentManager(),
-                        dialogTag);
-            }
-        });
     }
 
     private void openNewEvent() {
@@ -241,9 +219,10 @@ public class CaldroidSampleActivity extends AppCompatActivity implements Fragmen
 
         args.putInt("userID", this.userID);
         args.putBoolean("isEditState", true);
+        args.putBoolean("isNew", true);
 
         datesDialog.setArguments(args);
-        datesDialog.show(fm, getResources().getResourceName(R.layout.dates_fragment));
+        datesDialog.show(fm, getResources().getResourceName(R.layout.fragment_event_list));
     }
 
     private void showDialogDates(Date day) {
@@ -277,7 +256,7 @@ public class CaldroidSampleActivity extends AppCompatActivity implements Fragmen
         //show dialog for dates with events
         if(events.size() > 0){
             android.app.FragmentManager fm = this.getFragmentManager();
-            FragmentDates datesDialog = new FragmentDates();
+            EventListFragment datesDialog = new EventListFragment();
 
             Bundle args = new Bundle();
 
@@ -286,7 +265,7 @@ public class CaldroidSampleActivity extends AppCompatActivity implements Fragmen
 
 
             datesDialog.setArguments(args);
-            datesDialog.show(fm, getResources().getResourceName(R.layout.dates_fragment));
+            datesDialog.show(fm, getResources().getResourceName(R.id.fragment_event_list));
         }
 
 
@@ -318,6 +297,7 @@ public class CaldroidSampleActivity extends AppCompatActivity implements Fragmen
 
         //ManagerDB.getInstance().resetDB();
 
+
         int lastDayOfMonth = Calendar.getInstance().getActualMaximum(Calendar.DAY_OF_MONTH);
 
         Calendar cal = Calendar.getInstance();
@@ -325,7 +305,8 @@ public class CaldroidSampleActivity extends AppCompatActivity implements Fragmen
 
         List<VolEvent> events = new ArrayList<>();
 
-        events = ManagerDB.getInstance().readEventsForUserByMonth(2, 1);
+        events = ManagerDB.getInstance().readEventsForUserByMonth(month, userID);
+        monthEvents = new HashMap<>();
 
         Collections.sort(events, new Comparator<VolEvent>() {
             public int compare(VolEvent o1, VolEvent o2) {
@@ -361,13 +342,78 @@ public class CaldroidSampleActivity extends AppCompatActivity implements Fragmen
 
     }
 
+    /**
+     * interface method - after event (create/update/remove)
+     * @param args
+     */
     @Override
     public void onEventCreated(Bundle args) {
 
         if(args != null){
-            Long eId = args.getLong("newEventID");
+
+            Long eId = args.getLong("currentEventID");
+            int action = args.getInt("action");
+            VolEvent e = null;
             int intId = eId.intValue();
-            VolEvent e = ManagerDB.getInstance().readEvent(intId);
+            if (intId > 0) {
+                // get the event created or updated
+                e = ManagerDB.getInstance().readEvent(intId);
+/*
+                if(e != null){
+
+                    fillEventsInCalendar();
+
+                    caldroidFragment.refreshView();
+                    utilityClass.getInstance().showToast(R.string.successOnSave,new Object[]{});
+
+                }*/
+            }
+
+            //update the list_event_dialog for changes
+            Fragment event_list_dialog = getFragmentManager().findFragmentByTag(getResources().getResourceName(R.id.fragment_event_list));
+            if(event_list_dialog != null ){
+                if(action == 1){ // new
+                    if(e != null){
+                        //update recycler with new
+                        ((EventListFragment)event_list_dialog).getAdapter().addItem(e);
+                    }
+                }
+                else if(action == 2){ // update
+                    if(e != null){
+                        ((EventListFragment)event_list_dialog).getAdapter().updateItem(e);
+                    }
+                }
+                else if(action == 3){ //remove
+                    if(event_list_dialog != null ){
+                        ((EventListFragment)event_list_dialog).getAdapter().removeItem();
+                        int count = ((EventListFragment)event_list_dialog).getAdapter().getList().size();
+                        if(count == 0){
+                            ((EventListFragment)event_list_dialog).dismiss();
+                        }
+                    }
+                }
+            }
+
+            Calendar c = null;
+            if(e != null){
+                //on new or update in current month
+                if((e.getStartTime().getMonth() +1) == caldroidFragment.getMonth()){
+                    c = Calendar.getInstance();
+                    c.setTime(e.getStartTime());
+
+                    fillEventsInCalendar(c);
+                    caldroidFragment.refreshView();
+                }
+
+            }else{
+                //on remove on current month
+                c = Calendar.getInstance();
+                c.setTime(selectedDate);
+                fillEventsInCalendar(c);
+                caldroidFragment.refreshView();
+            }
+
+
 
         }
     }

@@ -238,9 +238,7 @@ public class VolutimeDB extends SQLiteOpenHelper {
 
     public void resetDB(){
         try {
-            db.execSQL("DROP TABLE IF EXISTS "+EVENT_TABLE_NAME);
-            // SQL statement to create VOLUNTEER ACTIVITY
-            db.execSQL(CREATE_TABLE_EVENT);
+            db.execSQL("DELETE FROM "+EVENT_TABLE_NAME);
 
         } catch (Throwable t) {
             t.printStackTrace();
@@ -361,7 +359,6 @@ public class VolutimeDB extends SQLiteOpenHelper {
 
         return result;
     }
-
 
     public void addType(String userType) {
         // Add Type To DB
@@ -630,7 +627,7 @@ public class VolutimeDB extends SQLiteOpenHelper {
         List<VolEvent> events = new ArrayList<>();
 
         Cursor cursor = null;
-        String where  = "strftime('%m', "+EVENT_COLUMN_DATE+") = ?";
+        String where  = "strftime('%m', "+EVENT_COLUMN_START_TIME+") = ? AND " + EVENT_COLUMN_VOLUNTEER_ID + " = ?";
         String m = "";
         if(month < 10){
             m =  0 + String.valueOf( month);
@@ -640,13 +637,19 @@ public class VolutimeDB extends SQLiteOpenHelper {
         }
         try {
             cursor = db.query(EVENT_TABLE_NAME, TABLE_EVENT_COLUMNS, where,
-                    new String[]{   m },
+                    new String[]{   m , String.valueOf(userId) },
                     null, null, null);
-
+           /* cursor = db.query(EVENT_TABLE_NAME, TABLE_EVENT_COLUMNS, null,
+                    null,
+                    null, null, null);*/
 
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
                 VolEvent event = new VolEvent();
+
+                String d = cursor.getString(cursor.getColumnIndex(EVENT_COLUMN_DATE));
+                String s = cursor.getString(cursor.getColumnIndex(EVENT_COLUMN_START_TIME));
+                String e = cursor.getString(cursor.getColumnIndex(EVENT_COLUMN_END_TIME));
 
                 event.setVolEventID(Integer.parseInt(cursor.getString(cursor.getColumnIndex(EVENT_COLUMN_ID))));
                 event.setVolID(Integer.parseInt(cursor.getString(cursor.getColumnIndex(EVENT_COLUMN_VOLUNTEER_ID))));
@@ -902,15 +905,17 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return cnt;
     }
 
-    public void deleteEvent(VolEvent event) {
-
+    public int deleteEvent(VolEvent event) {
+        int count = -1;
         try {
             // delete item
-            db.delete(EVENT_TABLE_NAME, EVENT_COLUMN_ID + " = ?",
+            count  = db.delete(EVENT_TABLE_NAME, EVENT_COLUMN_ID + " = ?",
                     new String[]{String.valueOf(event.getVolEventID())});
         } catch (Throwable t) {
             t.printStackTrace();
         }
+
+        return  count;
     }
     public int deleteVolAtOrg(VolAtOrg volAtOrg) {
 

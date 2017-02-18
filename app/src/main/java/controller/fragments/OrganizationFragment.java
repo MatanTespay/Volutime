@@ -133,11 +133,11 @@ public class OrganizationFragment extends Fragment {
     }
 
     /**
-     * opens a dialog Fragment for volunteer to add his org.
+     * opens a dialogFrag Fragment for volunteer to add his org.
      * sends as argument userID
      */
     private void openDialogFragment() {
-        //open dialog fragment to add org.
+        //open dialogFrag fragment to add org.
         Bundle args = new Bundle();
         android.app.FragmentManager fm = getActivity().getFragmentManager();
         AllOrgsDialogFragment orgsDialog = new AllOrgsDialogFragment();

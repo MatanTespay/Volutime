@@ -56,7 +56,7 @@
     <string name="item_clicked">"you have clicked on : %1$s"</string>
     <string name="hello_blank_fragment">Hello blank Fragment</string>
 
-<!-- test values -->
+    <!-- test values -->
      <string name="detail_desc">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
         eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
         nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute
@@ -93,6 +93,14 @@
     <string name="select_start">Choose start date</string>
     <string name="select_end">Choose end date</string>
     <string name="errorOnSave">There was an error on save, please try again</string>
+    <string name="successOnSave">Changes saved successfully</string>
+    <string name="errorOnDelete">There was an error on remove, please try again</string>
+    <string name="successOnDelete">Remove was successfully</string>
+    <string name="add_new_event">New Event</string>
 
+    <string name="alertPopMsg">Are you sure you want to delete?</string>
+    <string name="alertPopTitle">Delete</string>
+    <string name="alertLblPositive">Delete</string>
+    <string name="alertLblNegative">Cancel</string>
 
 </resources>

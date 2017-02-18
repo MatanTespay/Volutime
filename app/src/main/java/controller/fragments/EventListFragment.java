@@ -13,31 +13,30 @@ import android.widget.TextView;
 
 import com.caldroidsample.R;
 
-import java.util.HashMap;
 import java.util.List;
 
 import controller.adapters.EventsRecyclerAdapter;
-import controller.adapters.OrganizationListAdapter;
-import model.Organization;
+import model.ManagerDB;
 import model.VolEvent;
-
-import static android.R.attr.data;
 
 
 /**
  * Created by Matan on 08/02/2017.
  */
 
-public class FragmentDates extends DialogFragment {
+public class EventListFragment extends DialogFragment {
     private Context context;
     List<VolEvent> items;
     String title = null;
     private OnFragmentInteractionListener mListener;
+    private EventsRecyclerAdapter adapter;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.dates_fragment, container);
+        View view = inflater.inflate(R.layout.fragment_event_list, container);
         context = view.getContext();
+        //ManagerDB.getInstance().resetDB();
+
         if (getArguments() != null) {
 
             items = (List<VolEvent>) getArguments().getSerializable("events");
@@ -45,7 +44,7 @@ public class FragmentDates extends DialogFragment {
             RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_events);
             TextView titleTextView = (TextView) view.findViewById(R.id.titleOfDay);
             titleTextView.setText(title);
-            EventsRecyclerAdapter adapter = new EventsRecyclerAdapter( getActivity(), null);
+            adapter = new EventsRecyclerAdapter( getActivity(), null);
             adapter.setList(items);
             recyclerView.setAdapter(adapter);
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
@@ -56,6 +55,7 @@ public class FragmentDates extends DialogFragment {
 
         }
 
+        getDialog().getWindow().setBackgroundDrawableResource(R.drawable.layout_bg);
         return view;
     }
 
@@ -68,8 +68,8 @@ public class FragmentDates extends DialogFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof FragmentDates.OnFragmentInteractionListener) {
-            mListener = (FragmentDates.OnFragmentInteractionListener) context;
+        if (context instanceof EventListFragment.OnFragmentInteractionListener) {
+            mListener = (EventListFragment.OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -83,8 +83,6 @@ public class FragmentDates extends DialogFragment {
         if(args != null){
 
         }
-
-
     }
 
     public interface OnFragmentInteractionListener {
@@ -92,4 +90,7 @@ public class FragmentDates extends DialogFragment {
         void onEventItemSelected(Bundle bundle);
     }
 
+    public EventsRecyclerAdapter getAdapter() {
+        return adapter;
+    }
 }

@@ -4,10 +4,24 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
+    android:background="@drawable/layout_bg"
     >
 
+    <android.support.v7.widget.CardView
+        android:id="@+id/cardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/row_layout_marginBottom"
+        android:layout_marginLeft="@dimen/row_layout_marginLeft"
+        android:layout_marginRight="@dimen/row_layout_marginRight"
+        android:layout_marginTop="@dimen/row_layout_marginTop"
+        app:cardCornerRadius="@dimen/activity_vertical_margin"
+        app:cardElevation="@dimen/activity_vertical_margin"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
 
-        <LinearLayout android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:id="@+id/readMode">
@@ -24,6 +38,7 @@
                     android:maxLines = "3"
                     android:minLines="1"
                     android:scrollbars = "vertical"
+                    android:textColor="@color/caldroid_black"
                     tools:ignore="RtlHardcoded" />
                 <TextView
                     android:id="@+id/description"
@@ -33,6 +48,7 @@
                     android:maxLines = "3"
                     android:minLines="1"
                     android:scrollbars = "vertical"
+                    android:textColor="@color/caldroid_black"
                     tools:ignore="RtlHardcoded" />
 
                 <LinearLayout android:layout_width="match_parent"
@@ -47,6 +63,7 @@
                         android:minLines="1"
                         android:text="@string/event_start"
                         android:scrollbars = "vertical"
+                        android:textColor="@color/caldroid_black"
                         tools:ignore="RtlHardcoded" />
 
                     <TextView
@@ -57,6 +74,7 @@
                         android:maxLines = "3"
                         android:minLines="1"
                         android:scrollbars = "vertical"
+                        android:textColor="@color/caldroid_black"
                         tools:ignore="RtlHardcoded" />
                 </LinearLayout>
                 <LinearLayout android:layout_width="match_parent"
@@ -72,6 +90,7 @@
                         android:layout_marginBottom="5dp"
                         android:scrollbars = "vertical"
                         android:text="@string/event_end"
+                        android:textColor="@color/caldroid_black"
                         tools:ignore="RtlHardcoded" />
 
                     <TextView
@@ -83,11 +102,16 @@
                         android:maxLines = "3"
                         android:minLines="1"
                         android:scrollbars = "vertical"
+                        android:textColor="@color/caldroid_black"
                         tools:ignore="RtlHardcoded" />
                 </LinearLayout>
 
             </LinearLayout>
         </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+
 
 
 </LinearLayout>
