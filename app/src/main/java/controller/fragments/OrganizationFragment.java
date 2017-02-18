@@ -143,8 +143,10 @@ public class OrganizationFragment extends Fragment {
         AllOrgsDialogFragment orgsDialog = new AllOrgsDialogFragment();
         args.putInt("volID", this.userID);
         args.putBoolean("isEditState", true);
+        args.putBoolean("isNew", true);
         orgsDialog.setArguments(args);
         orgsDialog.show(fm,"orgsDialog");
+        // not sending an org id
 
 
     }

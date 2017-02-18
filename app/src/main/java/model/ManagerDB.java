@@ -122,6 +122,29 @@ public class ManagerDB {
         return null;
     }
 
+    /**
+     * gets the vol and the org ids and returns the dates that the volunteer started the volunteering activity
+     * in the organization and the date the volunteer stopped
+     * if the stopped date is unknown equals NULL
+     * @param volId
+     * @param orgID
+     * @return
+     */
+    public VolAtOrg getVolAtOrg(int volId, int orgID){
+        if(db!=null)
+        {
+            return db.getVolAtOrg(volId,orgID);
+        }
+        return null;
+    }
+    public int deleteVolAtOrg(VolAtOrg volAtOrg){
+        if(db!=null)
+        {
+            return db.deleteVolAtOrg(volAtOrg);
+        }
+        return -1;
+    }
+
     public Long addEvent(VolEvent event){
         if(db!=null)
             return db.addEvent(event);
