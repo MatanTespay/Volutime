@@ -1,12 +1,18 @@
 package controller.fragments;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.DatePickerDialog;
-import android.app.DialogFragment;
+import android.content.DialogInterface;
+import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
+import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -18,14 +24,13 @@ import android.widget.TextView;
 import com.caldroidsample.R;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import controller.activities.MainActivity;
 import model.ManagerDB;
 import model.Organization;
 import model.VolAtOrg;
+import model.VolEvent;
 import utils.utilityClass;
 
 
@@ -42,7 +47,9 @@ public class AllOrgsDialogFragment extends DialogFragment {
     int orgToShow = -1;
     Date start, end;
     VolAtOrg result=null;
+    Activity parentAct = null;
     View view;
+    AlertDialog alert;
     private int selectedPos;
     List<String> orgsLables = new ArrayList<>();
     AllOrgsDialogFragment dialog;
@@ -52,6 +59,8 @@ public class AllOrgsDialogFragment extends DialogFragment {
     boolean isNew = true;
     Boolean isEditState = false;
     List<Organization> orgs = new ArrayList<>();
+    private View orgLayout;
+    TextView lblSpinner;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -60,6 +69,8 @@ public class AllOrgsDialogFragment extends DialogFragment {
         view = inflater.inflate(R.layout.dialog_fragment_all_orgs, container, false);
 
         dialog = this;
+        alert = AskOption() ;
+        parentAct = getActivity();
         btnSave = (Button) view.findViewById(R.id.btnSaveOrg);
         btnRemove = (Button) view.findViewById(R.id.btnRemove);
         btnDate_s = (Button) view.findViewById(R.id.btn_date_s);
@@ -68,7 +79,8 @@ public class AllOrgsDialogFragment extends DialogFragment {
         txtDate_e  = (EditText) view.findViewById(R.id.in_date_e);
         txtDate_s  = (EditText) view.findViewById(R.id.in_date_s);
         orgSpin =(Spinner) view.findViewById(R.id.orgSpin);
-
+        lblSpinner = (TextView) view.findViewById(R.id.lblOrg);
+        orgLayout = view.findViewById(R.id.OrgLayout);
         Bundle args = getArguments();
         setListener();
         if(args != null) {
@@ -85,88 +97,87 @@ public class AllOrgsDialogFragment extends DialogFragment {
                 btnDate_s.setEnabled(false);
             }
             else {
+                //write mode
                 btnRemove.setText(getResources().getString(R.string.btnCancel));
                 btnSave.setText(getResources().getString(R.string.btnSave));
+                btnDate_e.setEnabled(true);
+                btnDate_s.setEnabled(true);
             }
-
+            if (!isNew) {
                     //change visibility
-                    TextView lblSpinner = (TextView) view.findViewById(R.id.lblOrg);
+                    //object exist in
                     lblSpinner.setVisibility(View.GONE);
                     orgSpin.setVisibility(View.GONE);
+                    orgLayout.setVisibility(View.GONE);
                     txtOrgName.setVisibility(View.VISIBLE);
+                // the name of the org is not updated
+                    txtOrgName.setEnabled(false);
                     // get All data from db and show it on the Dialog frag.
-
                     // get the object and set as a class object
-                    result = ManagerDB.getInstance().getVolAtOrg(userId, orgToShow);
-                    Organization org = ManagerDB.getInstance().readOrganization(result.getOrgID());
-                    txtOrgName.setText(org.getName());
-                    if (result != null) {
+                    fillDataOfVolAtOrg();
+            } else {
+                //is new
+                //edit or add a new org to vol mode
+                // add new organization to volunteer
+                btnRemove.setText(getResources().getString(R.string.btnCancel));
+                btnSave.setText(getResources().getString(R.string.btnSave));
+                //show the spinner
+                orgSpin.setVisibility(View.VISIBLE);
+                lblSpinner.setVisibility(View.VISIBLE);
+                //hide the edit
+                orgLayout.setVisibility(View.VISIBLE);
 
-                        txtDate_s.setText(utilityClass.getInstance().getSortStringFromDateTime(result.getStartDate()));
-                        txtDate_e.setText(utilityClass.getInstance().getSortStringFromDateTime(result.getEndDate()));
-
-                    } else {
-                        txtDate_s.setText(" ");
-                        txtDate_e.setText(" ");
+                txtOrgName.setVisibility(View.GONE);
+                //fill the spinner data
+                orgs = getAllOrgs();
+                orgs.removeAll(getOrgsOfVol());
+                if (orgs.size() > 0) {
+                    for (Organization o : orgs) {
+                        orgsLables.add(o.getName());
                     }
-                }
-            else {
-                    //edit or add a new org to vol mode
-                    if (isNew) {
-                        // add new organization to volunteer
-                        btnRemove.setText("Cancel");
-                        btnSave.setText("Save");
-                        //show the spinner
-                        orgSpin.setVisibility(View.VISIBLE);
-                        //hide the txtView
-                        txtOrgName.setVisibility(View.GONE);
-                        //fill the spinner data
-                        orgs = getAllOrgs();
-                        orgs.removeAll(getOrgsOfVol());
+                    if (orgsLables.size() > 0) {
+                        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, orgsLables);
+                        orgSpin.setAdapter(adapter);
+                        // spinner contain data
+                        orgSpin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            // set selected org to spinner
+                            public void onItemSelected(AdapterView<?> parentView,
+                                                       View selectedItemView, int position, long id) {
 
-                        if (orgs.size() > 0) {
-                            for (Organization o : orgs) {
-                                orgsLables.add(o.getName());
+                                int pos = orgSpin.getSelectedItemPosition();
+                                setSelectedPos(pos);
+
                             }
-                            ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, orgsLables);
-                            orgSpin.setAdapter(adapter);
-                            // spinner contain data
-                            orgSpin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                                // set selected org to spinner
-                                public void onItemSelected(AdapterView<?> parentView,
-                                                           View selectedItemView, int position, long id) {
 
-                                    int pos = orgSpin.getSelectedItemPosition();
-                                    setSelectedPos(pos);
+                            public void onNothingSelected(AdapterView<?> arg0) {
+                                //do nothing ,checks later
 
-                                }
+                            }
 
-                                public void onNothingSelected(AdapterView<?> arg0) {
-                                    //do nothing ,checks later
-
-                                }
-
-                            });
-
-                        }
-                    }
-                    else {
-                        //isNew is false, get data from DB already done
-                        orgSpin.setVisibility(View.INVISIBLE);
-                        txtOrgName.setVisibility(View.VISIBLE);
-                        btnDate_e.setEnabled(true);
-                        btnDate_s.setEnabled(true);
+                        });
                     }
                 }
+            }
 
 
 
+            }
+            setListener();
+
+//end on create
         return view;
     }
 
-
+    /**
+     * Dialog constructor
+     */
     public AllOrgsDialogFragment(){
     }
+
+    /**
+     * gets all organization from db
+     * @return list of orgs
+     */
     public List<Organization> getAllOrgs() {
         List<Organization> data = new ArrayList<>();
         if(userId > 0){
@@ -176,6 +187,10 @@ public class AllOrgsDialogFragment extends DialogFragment {
         return data;
     }
 
+    /**
+     * gets all organization connected to volunteer
+     * @return list of orgs
+     */
     public List<Organization> getOrgsOfVol() {
         List<Organization> data = new ArrayList<>();
 
@@ -191,6 +206,10 @@ public class AllOrgsDialogFragment extends DialogFragment {
         return data;
     }
 
+    /**
+     * check that start date is earlier then end date
+     * @return true if check is alright and false otherwise
+     */
     private boolean checkDates(){
         if(start == null || end  == null)
             return false;
@@ -202,75 +221,108 @@ public class AllOrgsDialogFragment extends DialogFragment {
     return  true;
     }
 
+    /**
+     * all listeners in dialog
+     */
     private void setListener() {
         btnRemove.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
 
-            if(isNew || isEditState)
-            {
-                //cancel
+                if(!isEditState){
+                    // on read mode - remove item
+                    //  show the alert - the remove will be done in the Ask... method
+                    alert.show();
+                    utilityClass.getInstance().showToast(R.string.successOnDelete,new Object[]{});
 
-                //Alert
-            }
-            if(!isEditState){
-                //remove
-                removeVolAtOrgObj();
-                //exit from dialog
-
-            }
-
+                }else {
+                    // on edit mode
+                    if(isNew){
+                        //discard new changes and close popup
+                        isEditState = false;
+                        dialog.dismiss();
+                    }
+                    else{
+                        //discard changes and reset to old values
+                        btnRemove.setText(getResources().getString(R.string.btnRemove));
+                        btnSave.setText(getResources().getString(R.string.btnEdit));
+                        btnDate_e.setEnabled(false);
+                        btnDate_s.setEnabled(false);
+                        isEditState = false;
+                        if(result != null){
+                            fillDataOfVolAtOrg();
+                        }
+                    }
+                }
             }
         });
 
 
         btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View view) {
-       //todo
+           @Override
+           public void onClick(View view) {
+               //todo
 
-                if(isNew) {
-                    Organization selectedOrg = orgs.get(orgSpin.getSelectedItemPosition());
-                    if (checkDates()) {
-                        String startDate = utilityClass.getInstance().getStringFromDateTime(start);
-                        String endDate = utilityClass.getInstance().getStringFromDateTime(end);
-                        long r = ManagerDB.getInstance().addOrgToVolunteer(userId, selectedOrg.getId(), startDate, endDate);
-                        System.out.print(r);
-
-                    } else {
-                        utilityClass.getInstance().showToast(R.string.checkDatesOnly, new Object[]{});
-                    }
-                }
-
-                if(!isEditState){
-                    //read mode , means remove and edit
-                    //click on edit button
-                    btnSave.setText("Save");
-                    btnRemove.setText("Cancel");
-                    btnDate_s.setEnabled(true);
-                    btnDate_e.setEnabled(true);
+               if (!isEditState) {
+                   //read mode , change button from remove and edit
+                   //click on edit button
+                   btnSave.setText("Save");
+                   btnRemove.setText("Cancel");
+                   btnDate_s.setEnabled(true);
+                   btnDate_e.setEnabled(true);
+                   isEditState=true;
 
 
+               } else {
+                   // on edit mode save changes and switch to read mode
+                   //check if dates are ok
+                   if (!checkDates()) {
+                       utilityClass.getInstance().showToast(R.string.checkDates, new Object[]{});
+                       return;
+                   }
+
+                   if (isNew) {
+                       Organization selectedOrg = orgs.get(orgSpin.getSelectedItemPosition());
+                       if (checkDates()) {
+                           String startDate = utilityClass.getInstance().getStringFromDateTime(start);
+                           String endDate = utilityClass.getInstance().getStringFromDateTime(end);
+                           long r = ManagerDB.getInstance().addOrgToVolunteer(userId, selectedOrg.getId(), startDate, endDate);
+                           if (r > 0) {
+                               isEditState = false;
+                               utilityClass.getInstance().showToast(R.string.successOnSave, new Object[]{});
+                               dialog.dismiss();
+                               notifyActivity();
+
+                           } else {
+                               utilityClass.getInstance().showToast(R.string.errorOnSave, new Object[]{});
+                           }
+
+                       }
+                   }else {
+                           //update result object from on Create View
+                           result.setStartDate(start);
+                           result.setEndDate(end);
+                           int effectedRows = ManagerDB.getInstance().updateVolAtOrg(result);
+                           if (effectedRows > 0) {
+                               // change dialogFrag state
+                               btnRemove.setText(getResources().getString(R.string.btnRemove));
+                               btnSave.setText(getResources().getString(R.string.btnEdit));
+                               isEditState = false;
+                               dialog.dismiss();
+                               utilityClass.getInstance().showToast(R.string.successOnSave, new Object[]{});
+
+                               notifyActivity();
+
+                           } else {
+                               utilityClass.getInstance().showToast(R.string.errorOnSave, new Object[]{});
+                           }
+                   }
 
 
 
-                    isEditState=false;
-                }
-                else{
-              //  !
+               }
+           }
+       });
 
-                }
-
-
-
-            }
-
-        });
-        btnRemove.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View view) {
-                //todo
-
-            }
-
-        });
         btnDate_s.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 final Calendar c = Calendar.getInstance();
@@ -326,12 +378,55 @@ public class AllOrgsDialogFragment extends DialogFragment {
 
     }
 
+    /**
+     *
+     * update the parent
+     */
+    public interface OnVolAtOrgInteractionListener {
+        // TODO: Update argument type and name
+
+        /**
+         * on new event creation
+         * @param bundle args to send to activity.
+         */
+        void onVolAtOrgAction(Bundle bundle);
+    }
+
+    /**
+     * send result of insertion to calender activity ro process the result
+     */
+    private void notifyActivity() {
+
+        OnVolAtOrgInteractionListener mListener = null;
+
+        if(parentAct != null && parentAct  instanceof  OnVolAtOrgInteractionListener ){
+            mListener = (OnVolAtOrgInteractionListener) parentAct;
+            Bundle args = new Bundle();
+
+            mListener.onVolAtOrgAction(args);
+
+        }
+    }
+    private void fillDataOfVolAtOrg() {
+        result = ManagerDB.getInstance().getVolAtOrg(userId, orgToShow);
+        Organization org = ManagerDB.getInstance().readOrganization(result.getOrgID());
+        txtOrgName.setText(org.getName());
+        if (result != null) {
+
+            txtDate_s.setText(utilityClass.getInstance().getSortStringFromDateTime(result.getStartDate()));
+            txtDate_e.setText(utilityClass.getInstance().getSortStringFromDateTime(result.getEndDate()));
+
+        }
+    }
+
+
     private void removeVolAtOrgObj() {
         if(result!=null){
            int r= ManagerDB.getInstance().deleteVolAtOrg(result);
             if(r!= -1)
             {
                 //Toast delete was successfull
+                notifyActivity();
             }
         }
     }
@@ -360,10 +455,38 @@ public class AllOrgsDialogFragment extends DialogFragment {
     public void setSelectedPos(int selectedPos) {
         this.selectedPos = selectedPos;
     }
+    /**
+     * This function construct the alert AlertDialog
+     * @return {@link AlertDialog} an alert AlertDialog
+     */
+    private AlertDialog AskOption()
+    {
+        AlertDialog myQuittingDialogBox = new AlertDialog.Builder(getActivity())
+                //set message, title, and icon
+                .setTitle(R.string.alertPopTitle)
+                .setMessage(R.string.alertPopMsg)
+                .setIcon(R.drawable.attention_48)
+                .setPositiveButton(R.string.alertLblPositive, new DialogInterface.OnClickListener() {
 
-    public Spinner getOrgSpin() {
-        return orgSpin;
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        //delete
+                        removeVolAtOrgObj();
+                        //toast
+                   }
+
+                })
+                .setNegativeButton(R.string.alertLblNegative, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        dialog.dismiss();
+
+                    }
+                })
+                .create();
+        return myQuittingDialogBox;
+
     }
+
 }
 
 

@@ -24,7 +24,7 @@ public class utilityClass {
 
     private static utilityClass instance = null;
     private SimpleDateFormat longformatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private SimpleDateFormat sortformatter = new SimpleDateFormat("dd MMM yyyy");
+    private SimpleDateFormat sortformatter = new SimpleDateFormat("dd-MM-yyyy");
     static private Context context;
 
     public static utilityClass getInstance() {

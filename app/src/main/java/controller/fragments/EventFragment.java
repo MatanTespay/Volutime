@@ -481,7 +481,7 @@ public class EventFragment extends DialogFragment {
     }
 
     /**
-     * send result of insertion to calander activity ro process the result
+     * send result of insertion to calender activity ro process the result
      * @param id new event id
      */
     private void notifyActivity(Long id, int action) {

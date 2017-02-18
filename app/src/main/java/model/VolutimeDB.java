@@ -883,21 +883,19 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return cnt;
     }
 
-    public int updateVolAtOrg(int volID ,int orgID, String startDate, String endDate) {
+    public int updateVolAtOrg(VolAtOrg volAtOrg) {
         int cnt = 0;
        try {
-
             // make values to be inserted
             ContentValues values = new ContentValues();
 
-            values.put(EVENT_COLUMN_END_TIME,startDate);
-            values.put(EVENT_COLUMN_DETAILS, endDate);
-
+            values.put(VOL_AT_ORG_COLUMN_START_DATE, utilityClass.getInstance().getStringFromDateTime(volAtOrg.getStartDate()));
+            values.put(VOL_AT_ORG_COLUMN_END_DATE, utilityClass.getInstance().getStringFromDateTime(volAtOrg.getEndDate()));
 
             // update
-            cnt = db.update(VOL_AT_ORG_TABLE_NAME, values, VOL_AT_ORG_COLUMN_VOLUNTEER_ID + " = ?"
-                    + VOL_AT_ORG_COLUMN_ORG_ID +"=?" ,
-                    new String[]{String.valueOf(volID), String.valueOf(orgID)});
+            cnt = db.update(VOL_AT_ORG_TABLE_NAME, values, VOL_AT_ORG_COLUMN_VOLUNTEER_ID + " = ? AND "
+                    + VOL_AT_ORG_COLUMN_ORG_ID +" = ? " ,
+                    new String[]{String.valueOf(volAtOrg.getVolID()), String.valueOf(volAtOrg.getOrgID())});
         } catch (Throwable t) {
             t.printStackTrace();
         }
@@ -917,6 +915,7 @@ public class VolutimeDB extends SQLiteOpenHelper {
 
         return  count;
     }
+
     public int deleteVolAtOrg(VolAtOrg volAtOrg) {
 
         try {
@@ -928,6 +927,7 @@ public class VolutimeDB extends SQLiteOpenHelper {
         }
         return -1;
     }
+
     public Volunteer getVolunteerUser(String email, String password) {
         //select the volunteer
         //TODO check again

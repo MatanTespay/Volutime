@@ -144,6 +144,13 @@ public class ManagerDB {
         }
         return -1;
     }
+    public int updateVolAtOrg(VolAtOrg volAtOrg){
+        if(db!=null){
+            return  db.updateVolAtOrg(volAtOrg);
+        }
+        return  -1;
+    }
+
 
     public Long addEvent(VolEvent event){
         if(db!=null)
