@@ -20,8 +20,11 @@
             android:layout_width="match_parent"
             android:hapticFeedbackEnabled="false"
             android:height="30dp"
+            android:clickable="true"
             tools:textSize="18sp"
-            android:layout_weight="0.8" />
+            android:background="#C62828"
+            android:gravity="center"
+            tools:text="Organization" />
 
     </LinearLayout>
 

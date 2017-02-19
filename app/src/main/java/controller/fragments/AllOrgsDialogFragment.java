@@ -4,9 +4,13 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.DatePickerDialog;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +31,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import controller.adapters.OrganizationListAdapter;
 import model.ManagerDB;
 import model.Organization;
 import model.VolAtOrg;
@@ -174,6 +179,9 @@ public class AllOrgsDialogFragment extends DialogFragment {
     public AllOrgsDialogFragment(){
     }
 
+
+
+
     /**
      * gets all organization from db
      * @return list of orgs
@@ -225,6 +233,21 @@ public class AllOrgsDialogFragment extends DialogFragment {
      * all listeners in dialog
      */
     private void setListener() {
+        /*
+        txtOrgName.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View view) {
+            /*    FragmentActivity frag = (FragmentActivity)AllOrgsDialogFragment;
+                Fragment orgFrag =new OrgProfileFragment()  ;
+                android.app.FragmentManager fm = frag.getFragmentManager();
+                FragmentTransaction fragmentTransaction = fm.beginTransaction();
+                fragmentTransaction.setCustomAnimations(android.R.anim.fade_in,
+                        android.R.anim.fade_out);
+                fragmentTransaction.replace(R.id.frame, orgFrag, "PROFILE");
+                fragmentTransaction.commitAllowingStateLoss();
+
+            }
+        });
+        */
         btnRemove.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
 
@@ -232,7 +255,7 @@ public class AllOrgsDialogFragment extends DialogFragment {
                     // on read mode - remove item
                     //  show the alert - the remove will be done in the Ask... method
                     alert.show();
-                    utilityClass.getInstance().showToast(R.string.successOnDelete,new Object[]{});
+                   // utilityClass.getInstance().showToast(R.string.successOnDelete,new Object[]{});
 
                 }else {
                     // on edit mode
@@ -471,7 +494,7 @@ public class AllOrgsDialogFragment extends DialogFragment {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         //delete
                         removeVolAtOrgObj();
-                        //toast
+
                    }
 
                 })
@@ -486,6 +509,7 @@ public class AllOrgsDialogFragment extends DialogFragment {
         return myQuittingDialogBox;
 
     }
+
 
 }
 

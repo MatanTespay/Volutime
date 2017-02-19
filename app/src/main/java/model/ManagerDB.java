@@ -151,6 +151,18 @@ public class ManagerDB {
         return  -1;
     }
 
+    /**
+     *
+     * @param org
+     * @return
+     */
+    public  long updateOrg(Organization org){
+        if(db!=null){
+            return  db.updateOrg(org);
+        }
+        return  -1;
+    }
+
 
     public Long addEvent(VolEvent event){
         if(db!=null)
