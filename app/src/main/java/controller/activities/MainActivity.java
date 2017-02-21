@@ -329,7 +329,7 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
                 }else {
                     // user is vol
                     frag = new ProfileFragment();
-                    args.putInt("volID", this.org.getId());
+                    args.putInt("volID", this.vol.getId());
                 }
                 frag.setArguments(args);
                 return frag;

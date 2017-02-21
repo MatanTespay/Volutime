@@ -103,5 +103,10 @@
     <string name="alertLblPositive">Delete</string>
     <string name="alertLblNegative">Cancel</string>
     <string name="zone">Israel</string>
+    <string name="no_orgs">Please add organization to you profile before continuing.</string>
+    <string name="no_events">No events for this day</string>
+    <string name="notify_Title">New Notification</string>
+    <string name="notify_Text">You have new event coming up</string>
+
 
 </resources>

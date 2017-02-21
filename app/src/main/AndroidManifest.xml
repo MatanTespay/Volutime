@@ -16,7 +16,8 @@
         android:theme="@style/AppTheme">
         <activity
             android:name="controller.caldroid.CaldroidSampleActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:launchMode="singleTask">
 
         </activity>
         <activity
@@ -31,6 +32,9 @@
         <activity android:name="controller.activities.MainActivity">
 
         </activity>
+        <!-- services -->
+        <service android:name="controller.notification.ScheduleService" />
+        <service android:name="controller.notification.NotifyService" />
     </application>
 
 </manifest>

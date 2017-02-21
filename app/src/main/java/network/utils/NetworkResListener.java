@@ -1,4 +1,4 @@
-package controller.network;
+package network.utils;
 
 /**
  * NetworkResListener interface

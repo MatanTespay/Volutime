@@ -50,7 +50,7 @@ public class utilityClass {
     public Date getDateTimeFromString(String dateString){
         Date date = null;
         try {
-                if(!dateString.equals(""))
+                if(dateString != null && !dateString.equals(""))
                 date = longformatter.parse(dateString);
         }catch(Throwable t) {
             t.printStackTrace();
@@ -87,7 +87,13 @@ public class utilityClass {
         this.context = context;
     }
 
-    public void showToast(int StringId,  Object... args){
+    /**
+     * show a Toast
+     * @param StringId string id to show
+     * @param length Short or Long Toast
+     * @param args params if needed to the string pattern
+     */
+    public void showToast(int StringId, int length,  Object... args){
         Resources res = this.context.getResources();
         String text;
         if(args != null)
@@ -95,7 +101,7 @@ public class utilityClass {
         else
             text = res.getString(StringId);
 
-        Toast.makeText(this.context ,text , Toast.LENGTH_SHORT).show();
+        Toast.makeText(this.context ,text , length).show();
 
     }
 

@@ -143,26 +143,33 @@ public class EventFragment extends DialogFragment {
                     for (Organization o: orgs ) {
                         orgsLables.add(o.getName());
                     }
+
+                    if(orgsLables.size() > 0){
+
+                        adapter =new ArrayAdapter<>( getActivity(), android.R.layout.simple_list_item_1,orgsLables);
+                        orgSpin.setAdapter(adapter);
+                        orgSpin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+                            public void onItemSelected(AdapterView<?> parentView,
+                                                       View selectedItemView, int position, long id) {
+                                int pos = orgSpin.getSelectedItemPosition();
+                                setSelectedPos(pos);
+
+                            }
+
+                            public void onNothingSelected(AdapterView<?> arg0) {// do nothing
+                            }
+
+                        });
+                    }
+                }else{
+                    // the user dosent have organization - need to add organization in OrganizationFragment
+                    utilityClass.getInstance().showToast(R.string.no_orgs,1,new Object[]{});
+                    SetFieldsState(false);
+                    btnEdit.setEnabled(false);
                 }
 
-                if(orgsLables.size() > 0){
 
-                    adapter =new ArrayAdapter<>( getActivity(), android.R.layout.simple_list_item_1,orgsLables);
-                    orgSpin.setAdapter(adapter);
-                    orgSpin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
-                        public void onItemSelected(AdapterView<?> parentView,
-                                                   View selectedItemView, int position, long id) {
-                            int pos = orgSpin.getSelectedItemPosition();
-                            setSelectedPos(pos);
-
-                        }
-
-                        public void onNothingSelected(AdapterView<?> arg0) {// do nothing
-                        }
-
-                    });
-                }
             }
 
             setListener();
@@ -232,14 +239,14 @@ public class EventFragment extends DialogFragment {
             return false;
 
         if(s_Hour == -1 || e_Hour == -1 || s_Minute == -1 || e_Minute == -1 ){
-            utilityClass.getInstance().showToast(R.string.checkDates,new Object[]{});
+            utilityClass.getInstance().showToast(R.string.checkDates,0,new Object[]{});
             return  false;
         }
 
 
         if(start.after(end)){
 
-            utilityClass.getInstance().showToast(R.string.checkDates,new Object[]{});
+            utilityClass.getInstance().showToast(R.string.checkDates,0,new Object[]{});
             return false;
         }
         else{
@@ -255,9 +262,9 @@ public class EventFragment extends DialogFragment {
 
             notifyActivity(0L, 3);
             dialogFrag.dismiss();
-            utilityClass.getInstance().showToast(R.string.successOnDelete,new Object[]{});
+            utilityClass.getInstance().showToast(R.string.successOnDelete,0,new Object[]{});
         }else{
-            utilityClass.getInstance().showToast(R.string.errorOnDelete,new Object[]{});
+            utilityClass.getInstance().showToast(R.string.errorOnDelete,0,new Object[]{});
         }
     }
     /**
@@ -278,7 +285,7 @@ public class EventFragment extends DialogFragment {
                     // on edit mode save changes and switch to read mode
                     //check if dates are ok
                     if(!checkDates()){
-                        utilityClass.getInstance().showToast(R.string.checkDates,new Object[]{});
+                        utilityClass.getInstance().showToast(R.string.checkDates,0,new Object[]{});
                         return;
                     }
 
@@ -304,13 +311,13 @@ public class EventFragment extends DialogFragment {
 
                             //event saved - go notify
                             notifyActivity(newId,1);
-                            utilityClass.getInstance().showToast(R.string.successOnSave,new Object[]{});
+                            utilityClass.getInstance().showToast(R.string.successOnSave,0,new Object[]{});
                             dialogFrag.dismiss();
 
                         }
                         else{
                             //notify on error
-                            utilityClass.getInstance().showToast(R.string.errorOnSave,new Object[]{});
+                            utilityClass.getInstance().showToast(R.string.errorOnSave,0,new Object[]{});
                         }
                     }else{
                         //update event
@@ -331,10 +338,10 @@ public class EventFragment extends DialogFragment {
                             SetFieldsState(isEditState);
                             notifyActivity(tempId,2);
                             dialogFrag.dismiss();
-                            utilityClass.getInstance().showToast(R.string.successOnSave,new Object[]{});
+                            utilityClass.getInstance().showToast(R.string.successOnSave,0,new Object[]{});
                         }
                         else{
-                            utilityClass.getInstance().showToast(R.string.errorOnSave,new Object[]{});
+                            utilityClass.getInstance().showToast(R.string.errorOnSave,0,new Object[]{});
                         }
                     }
                 }

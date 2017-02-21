@@ -12,8 +12,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.caldroidsample.R;
@@ -27,19 +25,17 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import caldroid.CaldroidFragment;
 import caldroid.CaldroidListener;
 import controller.fragments.EventFragment;
 import controller.fragments.EventListFragment;
+import controller.notification.ScheduleClient;
 import model.ManagerDB;
 import model.VolEvent;
 import utils.utilityClass;
 
-import static android.R.attr.action;
 import static android.media.CamcorderProfile.get;
-import static com.caldroidsample.R.id.fab;
 
 @SuppressLint("SimpleDateFormat")
 public class CaldroidSampleActivity extends AppCompatActivity implements EventListFragment.OnFragmentInteractionListener ,
@@ -52,6 +48,8 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
     int userID;
     private FloatingActionButton btnNewEvent;
     private Date selectedDate;
+    private ScheduleClient scheduleClient;
+
     // set color to specific dates
     private void fillEventsInCalendar(Calendar cal) {
 
@@ -209,6 +207,11 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
         });
 
 
+        // Create a new service client and bind our activity to this service
+        scheduleClient = new ScheduleClient(this);
+        scheduleClient.doBindService();
+
+
     }
 
     private void openNewEvent() {
@@ -266,7 +269,9 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
 
             datesDialog.setArguments(args);
             datesDialog.show(fm, getResources().getResourceName(R.id.fragment_event_list));
-        }
+        }/*else{
+            utilityClass.getInstance().showToast(R.string.no_events,0,new Object[]{});
+        }*/
 
 
     }
@@ -302,8 +307,7 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
         // get events
         int lastDayOfMonth = Calendar.getInstance().getActualMaximum(Calendar.DAY_OF_MONTH);
 
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(getResources().getString(R.string.zone)));
-
+        Calendar cal = Calendar.getInstance();
         List<VolEvent> events = new ArrayList<>();
 
         events = ManagerDB.getInstance().readEventsForUserByMonth(month, userID);
@@ -319,23 +323,20 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
         });
 
         //group events by day
-        for (int i = 1; i < lastDayOfMonth; i++) {
+        for (int i = 1; i <= lastDayOfMonth; i++) {
             List<VolEvent> eventsOfDay = new ArrayList<>();
-
             Date date = null;
             for (VolEvent e : events) {
                 cal.setTime(e.getStartTime());
-                int d = cal.get(Calendar.DATE);
+                int d = cal.get(Calendar.DAY_OF_MONTH);
                 if (d == i) {
                     if (date == null)
                         date = e.getStartTime();
                     eventsOfDay.add(e);
                 }
             }
-
             if (date != null)
                 monthEvents.put(date, eventsOfDay);
-
         }
     }
 
@@ -343,6 +344,22 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
     public void onEventItemSelected(Bundle bundle) {
 
 
+    }
+
+    private void setNotification(VolEvent theEvent){
+
+        Calendar c = Calendar.getInstance();
+        c.setTime(theEvent.getStartTime());
+        Bundle args = new Bundle();
+
+        args.putInt("eventID", theEvent.getVolEventID());
+
+
+        /*c.set(Calendar.HOUR_OF_DAY, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);*/
+        // Ask our service to set an alarm for that date, this activity talks to the client that talks to the service
+        scheduleClient.setAlarmForNotification(c,args );
     }
 
     /**
@@ -361,15 +378,6 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
             if (intId > 0) {
                 // get the event created or updated
                 e = ManagerDB.getInstance().readEvent(intId);
-/*
-                if(e != null){
-
-                    fillEventsInCalendar();
-
-                    caldroidFragment.refreshView();
-                    utilityClass.getInstance().showToast(R.string.successOnSave,new Object[]{});
-
-                }*/
             }
 
             //update the list_event_dialog for changes
@@ -406,6 +414,9 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
                     c.set(e.getStartTime().getYear(),(e.getStartTime().getMonth()+1),1);
                     fillEventsInCalendar(c);
                     caldroidFragment.refreshView();
+
+                    //set a notification for this event
+                    setNotification(e);
                 }
 
             }else{

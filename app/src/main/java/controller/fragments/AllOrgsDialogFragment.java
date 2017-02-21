@@ -33,6 +33,7 @@ import model.VolAtOrg;
 import model.VolEvent;
 import utils.utilityClass;
 
+import static android.R.attr.dial;
 
 
 /**
@@ -215,7 +216,7 @@ public class AllOrgsDialogFragment extends DialogFragment {
             return false;
 
         if(start.after(end)) {
-            utilityClass.getInstance().showToast(R.string.checkDates, new Object[]{});
+            utilityClass.getInstance().showToast(R.string.checkDates,0, new Object[]{});
             return false;
         }
     return  true;
@@ -232,7 +233,6 @@ public class AllOrgsDialogFragment extends DialogFragment {
                     // on read mode - remove item
                     //  show the alert - the remove will be done in the Ask... method
                     alert.show();
-                    utilityClass.getInstance().showToast(R.string.successOnDelete,new Object[]{});
 
                 }else {
                     // on edit mode
@@ -276,7 +276,7 @@ public class AllOrgsDialogFragment extends DialogFragment {
                    // on edit mode save changes and switch to read mode
                    //check if dates are ok
                    if (!checkDates()) {
-                       utilityClass.getInstance().showToast(R.string.checkDates, new Object[]{});
+                       utilityClass.getInstance().showToast(R.string.checkDates,0, new Object[]{});
                        return;
                    }
 
@@ -288,12 +288,12 @@ public class AllOrgsDialogFragment extends DialogFragment {
                            long r = ManagerDB.getInstance().addOrgToVolunteer(userId, selectedOrg.getId(), startDate, endDate);
                            if (r > 0) {
                                isEditState = false;
-                               utilityClass.getInstance().showToast(R.string.successOnSave, new Object[]{});
+                               utilityClass.getInstance().showToast(R.string.successOnSave,0, new Object[]{});
                                dialog.dismiss();
                                notifyActivity();
 
                            } else {
-                               utilityClass.getInstance().showToast(R.string.errorOnSave, new Object[]{});
+                               utilityClass.getInstance().showToast(R.string.errorOnSave,0, new Object[]{});
                            }
 
                        }
@@ -308,12 +308,12 @@ public class AllOrgsDialogFragment extends DialogFragment {
                                btnSave.setText(getResources().getString(R.string.btnEdit));
                                isEditState = false;
                                dialog.dismiss();
-                               utilityClass.getInstance().showToast(R.string.successOnSave, new Object[]{});
+                               utilityClass.getInstance().showToast(R.string.successOnSave,0, new Object[]{});
 
                                notifyActivity();
 
                            } else {
-                               utilityClass.getInstance().showToast(R.string.errorOnSave, new Object[]{});
+                               utilityClass.getInstance().showToast(R.string.errorOnSave,0, new Object[]{});
                            }
                    }
 
@@ -411,8 +411,10 @@ public class AllOrgsDialogFragment extends DialogFragment {
         result = ManagerDB.getInstance().getVolAtOrg(userId, orgToShow);
         Organization org = ManagerDB.getInstance().readOrganization(result.getOrgID());
         txtOrgName.setText(org.getName());
-        if (result != null) {
 
+        if (result != null) {
+            start = result.getStartDate();
+            end = result.getEndDate();
             txtDate_s.setText(utilityClass.getInstance().getSortStringFromDateTime(result.getStartDate()));
             txtDate_e.setText(utilityClass.getInstance().getSortStringFromDateTime(result.getEndDate()));
 
@@ -425,8 +427,10 @@ public class AllOrgsDialogFragment extends DialogFragment {
            int r= ManagerDB.getInstance().deleteVolAtOrg(result);
             if(r!= -1)
             {
-                //Toast delete was successfull
+                //Toast delete was successfully
+                dialog.dismiss();
                 notifyActivity();
+                utilityClass.getInstance().showToast(R.string.successOnDelete,0,new Object[]{});
             }
         }
     }
