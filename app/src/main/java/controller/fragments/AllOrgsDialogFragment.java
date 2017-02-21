@@ -242,14 +242,18 @@ public class AllOrgsDialogFragment extends DialogFragment {
      * all listeners in dialog
      */
     private void setListener() {
-
+/**
+ * on click te button the vol can see information about his org.
+ */
         btnShowOrg.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 Bundle args = new Bundle();
                 Fragment orgFrag = new OrgProfileFragment()  ;
+                // send the two parameters so the orgProfile will know this is vol
                 args.putInt("orgID", orgToShow);
                 args.putInt("volID",userId );
                 orgFrag.setArguments(args);
+                //close the dialog
                 dialog.dismiss();
                 if(parentAct instanceof MainActivity){
                     android.support.v4.app.FragmentTransaction fragmentTransaction = ((MainActivity)parentAct).getSupportFragmentManager().beginTransaction();
