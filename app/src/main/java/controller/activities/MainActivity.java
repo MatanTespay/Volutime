@@ -87,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
         setContentView(R.layout.activity_main);
         ManagerDB.getInstance().openDataBase(this);
 
+
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         utilityClass.getInstance().setContext(getApplicationContext());
@@ -329,7 +330,7 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
                 }else {
                     // user is vol
                     frag = new ProfileFragment();
-                    args.putInt("volID", this.org.getId());
+                    args.putInt("volID", this.vol.getId());
                 }
                 frag.setArguments(args);
                 return frag;

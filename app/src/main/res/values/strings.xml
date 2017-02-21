@@ -103,5 +103,7 @@
     <string name="alertPopTitle">Delete</string>
     <string name="alertLblPositive">Delete</string>
     <string name="alertLblNegative">Cancel</string>
+    <string name="org_profile">org_profile</string>
+    <string name="show_org">Show details</string>
 
 </resources>

@@ -942,8 +942,31 @@ public class VolutimeDB extends SQLiteOpenHelper {
                             new String[]{String.valueOf(email),String.valueOf(password) }, null, null,
                             null, null);
 
+            cursor.moveToFirst();
+          while (!cursor.isAfterLast()) {
+                //vol = new Volunteer();
+                vol.setId(Integer.parseInt(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_ID))));
+                vol.setfName(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_FNAME)));
+                vol.setlName(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_LNAME)));
+                vol.setAddress(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_ADDRESS)));
+                vol.setBirthDate(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_DATEOFBIRTH)));
+                vol.setEmail(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_EMAIL)));
+                vol.setPassword(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_PASSWORD)));
+
+
+                //images
+                byte[] imgByte = cursor.getBlob(cursor.getColumnIndex(VOLUNTEER_COLUMN_VOLUPIC));
+                if (imgByte != null && imgByte.length > 0) {
+                    Bitmap image = BitmapFactory.decodeByteArray(imgByte, 0, imgByte.length);
+                    if (image != null) {
+                        vol.setProfilePic(image);
+                    }
+                }
+
+              cursor.moveToNext();
+            }
             // if results !=null, parse the first one
-            if (cursor != null || cursor.getCount() != 0) {
+         /*   if (cursor != null || cursor.getCount() != 0) {
 
                 cursor.moveToFirst();
 
@@ -966,7 +989,7 @@ public class VolutimeDB extends SQLiteOpenHelper {
                     }
                 }
 
-            }
+            }*/
 
         } catch (Throwable t) {
             t.printStackTrace();
@@ -989,7 +1012,9 @@ public class VolutimeDB extends SQLiteOpenHelper {
 
     public void open() {
         try {
+            if(db == null || (db != null && !db.isOpen()))
             db = getWritableDatabase();
+
         } catch (Throwable t) {
             t.printStackTrace();
         }

@@ -49,7 +49,10 @@ public class ManagerDB {
     public void openDataBase(Context context) {
         this.context = context;
         if (context != null) {
-            db = new VolutimeDB(context);
+            if(db == null){
+                db = new VolutimeDB(context);
+            }
+
             db.open();
         }
     }
