@@ -12,16 +12,35 @@
         android:layout_height="wrap_content"
         >
 
-        <TextView
-
-            android:layout_marginTop="5dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/orgName"
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:hapticFeedbackEnabled="false"
-            android:height="30dp"
-            tools:textSize="18sp"
-            android:layout_weight="0.8" />
+            android:layout_height="wrap_content"
+            android:id="@+id/nameLayout">
+
+            <TextView
+
+                android:layout_marginTop="5dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/orgName"
+                android:layout_width="wrap_content"
+                android:hapticFeedbackEnabled="false"
+                android:height="30dp"
+
+                tools:textSize="18sp"
+
+                android:gravity="center"
+                tools:text="Organization"
+                android:layout_weight="1" />
+
+            <Button
+                android:text="@string/show_org"
+                android:layout_width="169dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/btnShowOrg"
+                android:layout_weight="0.25"
+                android:onClick="onClick_btnShowOrg" />
+        </LinearLayout>
 
     </LinearLayout>
 

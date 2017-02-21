@@ -87,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
         setContentView(R.layout.activity_main);
         ManagerDB.getInstance().openDataBase(this);
 
+
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         utilityClass.getInstance().setContext(getApplicationContext());

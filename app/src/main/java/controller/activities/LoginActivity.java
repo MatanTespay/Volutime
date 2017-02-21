@@ -72,8 +72,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         setContentView(R.layout.activity_login);
         ManagerDB.getInstance().openDataBase(this);
 
-       //Long r=  ManagerDB.getInstance().addVolunteer(new Volunteer("Faina", "Bursh", "2001/10/10", "Rupin 5 K-ata", "fb@gmail.com", "1234", null));
-       //r=  ManagerDB.getInstance().addOrganization(new Organization("TLV-Org", "TLV", "o@gmail.com", "1234",null));
+//       Long r=  ManagerDB.getInstance().addVolunteer(new Volunteer("Faina", "Bursh", "2001/10/10", "Rupin 5 K-ata", "fb@gmail.com", "1234", null));
+  //     r=  ManagerDB.getInstance().addOrganization(new Organization("MADA", "TLV", "o@gmail.com", "1234",null));
+
 
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(email);

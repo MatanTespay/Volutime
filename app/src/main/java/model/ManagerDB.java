@@ -49,7 +49,10 @@ public class ManagerDB {
     public void openDataBase(Context context) {
         this.context = context;
         if (context != null) {
-            db = new VolutimeDB(context);
+            if(db == null){
+                db = new VolutimeDB(context);
+            }
+
             db.open();
         }
     }
@@ -147,6 +150,18 @@ public class ManagerDB {
     public int updateVolAtOrg(VolAtOrg volAtOrg){
         if(db!=null){
             return  db.updateVolAtOrg(volAtOrg);
+        }
+        return  -1;
+    }
+
+    /**
+     *
+     * @param org
+     * @return
+     */
+    public  long updateOrg(Organization org){
+        if(db!=null){
+            return  db.updateOrg(org);
         }
         return  -1;
     }

@@ -4,9 +4,13 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.DatePickerDialog;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +31,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import controller.activities.MainActivity;
+import controller.adapters.OrganizationListAdapter;
 import model.ManagerDB;
 import model.Organization;
 import model.VolAtOrg;
@@ -45,6 +51,8 @@ public class AllOrgsDialogFragment extends DialogFragment {
     private int e_Year, e_Month, e_Day; // end  date values
     public  int userId ;
     TextView txtOrgName;
+
+
     int orgToShow = -1;
     Date start, end;
     VolAtOrg result=null;
@@ -55,12 +63,13 @@ public class AllOrgsDialogFragment extends DialogFragment {
     List<String> orgsLables = new ArrayList<>();
     AllOrgsDialogFragment dialog;
     private Spinner orgSpin;
-    Button btnSave,btnRemove, btnDate_s, btnDate_e;
+    Button btnSave,btnRemove, btnDate_s, btnDate_e , btnShowOrg;
     EditText txtDate_s, txtDate_e;
     boolean isNew = true;
     Boolean isEditState = false;
     List<Organization> orgs = new ArrayList<>();
     private View orgLayout;
+    private View nameLayout;
     TextView lblSpinner;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -80,10 +89,12 @@ public class AllOrgsDialogFragment extends DialogFragment {
         txtDate_e  = (EditText) view.findViewById(R.id.in_date_e);
         txtDate_s  = (EditText) view.findViewById(R.id.in_date_s);
         orgSpin =(Spinner) view.findViewById(R.id.orgSpin);
+        btnShowOrg = (Button) view.findViewById(R.id.btnShowOrg);
         lblSpinner = (TextView) view.findViewById(R.id.lblOrg);
         orgLayout = view.findViewById(R.id.OrgLayout);
+        nameLayout = view.findViewById(R.id.nameLayout);
         Bundle args = getArguments();
-        setListener();
+       // setListener();
         if(args != null) {
             userId = args.getInt("volID");
             isEditState = args.getBoolean("isEditState");
@@ -111,6 +122,8 @@ public class AllOrgsDialogFragment extends DialogFragment {
                     orgSpin.setVisibility(View.GONE);
                     orgLayout.setVisibility(View.GONE);
                     txtOrgName.setVisibility(View.VISIBLE);
+                    nameLayout.setVisibility(View.VISIBLE);
+                    btnShowOrg.setVisibility(View.VISIBLE);
                 // the name of the org is not updated
                     txtOrgName.setEnabled(false);
                     // get All data from db and show it on the Dialog frag.
@@ -127,8 +140,9 @@ public class AllOrgsDialogFragment extends DialogFragment {
                 lblSpinner.setVisibility(View.VISIBLE);
                 //hide the edit
                 orgLayout.setVisibility(View.VISIBLE);
-
+                btnShowOrg.setVisibility(View.GONE);
                 txtOrgName.setVisibility(View.GONE);
+                nameLayout.setVisibility(View.GONE);
                 //fill the spinner data
                 orgs = getAllOrgs();
                 orgs.removeAll(getOrgsOfVol());
@@ -174,6 +188,9 @@ public class AllOrgsDialogFragment extends DialogFragment {
      */
     public AllOrgsDialogFragment(){
     }
+
+
+
 
     /**
      * gets all organization from db
@@ -226,6 +243,31 @@ public class AllOrgsDialogFragment extends DialogFragment {
      * all listeners in dialog
      */
     private void setListener() {
+/**
+ * on click te button the vol can see information about his org.
+ */
+        btnShowOrg.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View view) {
+                Bundle args = new Bundle();
+                Fragment orgFrag = new OrgProfileFragment()  ;
+                // send the two parameters so the orgProfile will know this is vol
+                args.putInt("orgID", orgToShow);
+                args.putInt("volID",userId );
+                orgFrag.setArguments(args);
+                //close the dialog
+                dialog.dismiss();
+                if(parentAct instanceof MainActivity){
+                    android.support.v4.app.FragmentTransaction fragmentTransaction = ((MainActivity)parentAct).getSupportFragmentManager().beginTransaction();
+                    fragmentTransaction.setCustomAnimations(android.R.anim.fade_in,
+                            android.R.anim.fade_out);
+                    fragmentTransaction.replace(R.id.frame, orgFrag, getResources().getString(R.string.org_profile));
+                    fragmentTransaction.commit();
+
+                }
+
+            }
+        });
+
         btnRemove.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
 
@@ -475,7 +517,7 @@ public class AllOrgsDialogFragment extends DialogFragment {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         //delete
                         removeVolAtOrgObj();
-                        //toast
+
                    }
 
                 })
@@ -490,6 +532,7 @@ public class AllOrgsDialogFragment extends DialogFragment {
         return myQuittingDialogBox;
 
     }
+
 
 }
 

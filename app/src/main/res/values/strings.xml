@@ -89,6 +89,7 @@
     <string name="end_date">end date</string>
     <string name="end_time">end time</string>
     <string name="checkDates">Invalid Dates , check date and time</string>
+
     <string name="checkDatesOnly">Start date should be earlier then end date, Check again!</string>
     <string name="select_start">Choose start date</string>
     <string name="select_end">Choose end date</string>
@@ -108,5 +109,7 @@
     <string name="notify_Title">New Notification</string>
     <string name="notify_Text">You have new event coming up</string>
 
+    <string name="org_profile">org_profile</string>
+    <string name="show_org">Show details</string>
 
 </resources>
