@@ -14,6 +14,8 @@ import java.util.List;
 
 import utils.utilityClass;
 
+import static android.R.attr.id;
+
 /**
  * Created by Faina0502 on 21/01/2017.
  */
@@ -223,7 +225,6 @@ public class VolutimeDB extends SQLiteOpenHelper {
         }
     }
 
-
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // TODO Auto-generated method stub
@@ -238,7 +239,21 @@ public class VolutimeDB extends SQLiteOpenHelper {
 
     public void resetDB(){
         try {
-            db.execSQL("DELETE FROM "+EVENT_TABLE_NAME);
+            //db.execSQL("DELETE FROM "+VOLUNTEER_TABLE_NAME );
+            //reset auto_inc
+            //db.execSQL("delete from sqlite_sequence where name = "+ VOLUNTEER_TABLE_NAME );
+
+            db.execSQL("DELETE FROM "+ORGANIZATION_TABLE_NAME );
+            //reset auto_inc
+            //db.execSQL("delete from sqlite_sequence where name = "+ ORGANIZATION_TABLE_NAME );
+
+            db.execSQL("DELETE FROM "+EVENT_TABLE_NAME );
+            //reset auto_inc
+            //db.execSQL("delete from sqlite_sequence where name = "+ EVENT_TABLE_NAME );
+
+            db.execSQL("DELETE FROM "+VOL_AT_ORG_TABLE_NAME );
+            //reset auto_inc
+            //db.execSQL("delete from sqlite_sequence where name = "+ VOL_AT_ORG_TABLE_NAME );
 
         } catch (Throwable t) {
             t.printStackTrace();
@@ -257,7 +272,7 @@ public class VolutimeDB extends SQLiteOpenHelper {
             values.put(VOLUNTEER_COLUMN_FNAME, volunteer.getfName());
             values.put(VOLUNTEER_COLUMN_LNAME, volunteer.getlName());
             values.put(VOLUNTEER_COLUMN_ADDRESS, volunteer.getAddress());
-            values.put(VOLUNTEER_COLUMN_DATEOFBIRTH, volunteer.getBirthDate());
+            values.put(VOLUNTEER_COLUMN_DATEOFBIRTH, utilityClass.getInstance().getStringFromDateTime(volunteer.getBirthDate()) );
 
             //turn bitmap to blob
             Bitmap image = volunteer.getProfilePic();
@@ -269,8 +284,7 @@ public class VolutimeDB extends SQLiteOpenHelper {
             }
 
             // insert item
-          result=  db.insert(VOLUNTEER_TABLE_NAME, null, values);
-
+          result =  db.insert(VOLUNTEER_TABLE_NAME, null, values);
 
         } catch (Throwable t) {
             t.printStackTrace();
@@ -408,17 +422,21 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return outputStream.toByteArray();
     }
 
-    public Volunteer readVolunteer(int id) {
-        //select the volunteer
+    /**
+     * read volunteer my email
+     * @param email
+     * @return
+     */
+    public Volunteer readVolunteer(String email){
+
         Volunteer vol = null ;
         Cursor cursor = null;
+        String where = VOLUNTEER_COLUMN_EMAIL + "=" + "'" + email + "'";
         try {
-            cursor = db
-                    .query(VOLUNTEER_TABLE_NAME,
-                            TABLE_VOLUNTEER_COLUMNS, VOLUNTEER_COLUMN_ID + " = ?",
-                            new String[]{String.valueOf(id)}, null, null,
+            cursor = db.query(VOLUNTEER_TABLE_NAME,
+                            TABLE_VOLUNTEER_COLUMNS, where,
+                            null, null, null,
                             null, null);
-
 
             // if results !=null, parse the first one
             if (cursor != null && cursor.getCount() > 0) {
@@ -430,7 +448,7 @@ public class VolutimeDB extends SQLiteOpenHelper {
                 vol.setfName(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_FNAME)));
                 vol.setlName(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_LNAME)));
                 vol.setAddress(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_ADDRESS)));
-                vol.setBirthDate(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_DATEOFBIRTH)));
+                vol.setBirthDate(utilityClass.getInstance().getDateTimeFromString(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_DATEOFBIRTH))));
                 vol.setEmail(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_EMAIL)));
                 vol.setPassword(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_PASSWORD)));
 
@@ -455,6 +473,109 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return vol;
     }
 
+    public Volunteer readVolunteer(int volId) {
+        //select the volunteer
+        Volunteer vol = null ;
+        Cursor cursor = null;
+        try {
+            cursor = db
+                    .query(VOLUNTEER_TABLE_NAME,
+                            TABLE_VOLUNTEER_COLUMNS, VOLUNTEER_COLUMN_ID + " = ?",
+                            new String[]{String.valueOf(volId)}, null, null,
+                            null, null);
+
+
+            // if results !=null, parse the first one
+            if (cursor != null && cursor.getCount() > 0) {
+
+                cursor.moveToFirst();
+
+                vol = new Volunteer();
+                vol.setId(Integer.parseInt(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_ID))));
+                vol.setfName(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_FNAME)));
+                vol.setlName(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_LNAME)));
+                vol.setAddress(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_ADDRESS)));
+                vol.setBirthDate(utilityClass.getInstance().getDateTimeFromString(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_DATEOFBIRTH))));
+                vol.setEmail(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_EMAIL)));
+                vol.setPassword(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_PASSWORD)));
+
+
+                //images
+                byte[] imgByte = cursor.getBlob(cursor.getColumnIndex(VOLUNTEER_COLUMN_VOLUPIC));
+                if (imgByte != null && imgByte.length > 0) {
+                    Bitmap image = BitmapFactory.decodeByteArray(imgByte, 0, imgByte.length);
+                    if (image != null) {
+                        vol.setProfilePic(image);
+                    }
+                }
+
+            }
+        } catch (Throwable t) {
+            t.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return vol;
+    }
+
+    private Volunteer cursorToVolunteer(Cursor cursor) {
+        Volunteer vol = null ;
+        try {
+
+            vol = new Volunteer();
+            vol.setId(Integer.parseInt(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_ID))));
+            vol.setfName(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_FNAME)));
+            vol.setlName(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_LNAME)));
+            vol.setAddress(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_ADDRESS)));
+            vol.setBirthDate(utilityClass.getInstance().getDateTimeFromString(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_DATEOFBIRTH))));
+            vol.setEmail(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_EMAIL)));
+            vol.setPassword(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_PASSWORD)));
+
+
+            //images
+            byte[] imgByte = cursor.getBlob(cursor.getColumnIndex(VOLUNTEER_COLUMN_VOLUPIC));
+            if (imgByte != null && imgByte.length > 0) {
+                Bitmap image = BitmapFactory.decodeByteArray(imgByte, 0, imgByte.length);
+                if (image != null) {
+                    vol.setProfilePic(image);
+                }
+            }
+
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
+        return vol;
+    }
+
+    public ArrayList<Volunteer> readAllVolunteers() {
+        ArrayList<Volunteer> result = new ArrayList<Volunteer>();
+        Cursor cursor = null;
+        try {
+            cursor = db.query(VOLUNTEER_TABLE_NAME, TABLE_VOLUNTEER_COLUMNS, null, null,
+                    null, null, null);
+
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                Volunteer vol = cursorToVolunteer(cursor);
+                result.add(vol);
+                cursor.moveToNext();
+            }
+
+        } catch (Throwable t) {
+            t.printStackTrace();
+        } finally {
+            // make sure to close the cursor
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return result;
+    }
+
     public Organization readOrganization(int id) {
         //select the ORG
         Organization org = null;
@@ -464,6 +585,51 @@ public class VolutimeDB extends SQLiteOpenHelper {
                     .query(ORGANIZATION_TABLE_NAME,
                             TABLE_ORGANIZATION_COLUMNS, ORGANIZATION_COLUMN_ID + " = ?",
                             new String[]{String.valueOf(id)}, null, null,
+                            null, null);
+
+
+            // if results !=null, parse the first one
+            if (cursor != null && cursor.getCount() > 0) {
+
+                cursor.moveToFirst();
+
+                org = new Organization();
+                org.setId(Integer.parseInt(cursor.getString(cursor.getColumnIndex(ORGANIZATION_COLUMN_ID))));
+                org.setName(cursor.getString(cursor.getColumnIndex(ORGANIZATION_COLUMN_NAME)));
+                org.setAddress(cursor.getString(cursor.getColumnIndex(ORGANIZATION_COLUMN_ADDRESS)));
+                org.setEmail(cursor.getString(cursor.getColumnIndex(ORGANIZATION_COLUMN_EMAIL)));
+                org.setPassword(cursor.getString(cursor.getColumnIndex(ORGANIZATION_COLUMN_PASSWORD)));
+
+
+                //images
+                byte[] imgByte = cursor.getBlob(cursor.getColumnIndex(ORGANIZATION_COLUMN_PIC));
+                if (imgByte != null && imgByte.length > 0) {
+                    Bitmap image = BitmapFactory.decodeByteArray(imgByte, 0, imgByte.length);
+                    if (image != null) {
+                        org.setProfilePic(image);
+                    }
+                }
+
+            }
+        } catch (Throwable t) {
+            t.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return org;
+    }
+
+    public Organization readOrganization(String email) {
+        //select the ORG
+        Organization org = null;
+        Cursor cursor = null;
+        try {
+            cursor = db
+                    .query(ORGANIZATION_TABLE_NAME,
+                            TABLE_ORGANIZATION_COLUMNS, ORGANIZATION_COLUMN_EMAIL + " = ?",
+                            new String[]{ email }, null, null,
                             null, null);
 
 
@@ -775,7 +941,7 @@ public class VolutimeDB extends SQLiteOpenHelper {
             values.put(VOLUNTEER_COLUMN_FNAME, volunteer.getfName());
             values.put(VOLUNTEER_COLUMN_LNAME, volunteer.getlName());
             values.put(VOLUNTEER_COLUMN_ADDRESS, volunteer.getAddress());
-            values.put(VOLUNTEER_COLUMN_DATEOFBIRTH, volunteer.getBirthDate());
+            values.put(VOLUNTEER_COLUMN_DATEOFBIRTH, utilityClass.getInstance().getStringFromDateTime(volunteer.getBirthDate()));
             values.put(VOLUNTEER_COLUMN_EMAIL, volunteer.getEmail());
             values.put(VOLUNTEER_COLUMN_PASSWORD, volunteer.getPassword());
             //images
@@ -941,18 +1107,16 @@ public class VolutimeDB extends SQLiteOpenHelper {
                             TABLE_VOLUNTEER_COLUMNS,where ,
                             new String[]{String.valueOf(email),String.valueOf(password) }, null, null,
                             null, null);
-
-            cursor.moveToFirst();
+          cursor.moveToFirst();
           while (!cursor.isAfterLast()) {
                 //vol = new Volunteer();
                 vol.setId(Integer.parseInt(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_ID))));
                 vol.setfName(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_FNAME)));
                 vol.setlName(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_LNAME)));
                 vol.setAddress(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_ADDRESS)));
-                vol.setBirthDate(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_DATEOFBIRTH)));
+                vol.setBirthDate(utilityClass.getInstance().getDateTimeFromString(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_DATEOFBIRTH))));
                 vol.setEmail(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_EMAIL)));
                 vol.setPassword(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_PASSWORD)));
-
 
                 //images
                 byte[] imgByte = cursor.getBlob(cursor.getColumnIndex(VOLUNTEER_COLUMN_VOLUPIC));
@@ -965,31 +1129,6 @@ public class VolutimeDB extends SQLiteOpenHelper {
 
               cursor.moveToNext();
             }
-            // if results !=null, parse the first one
-         /*   if (cursor != null || cursor.getCount() != 0) {
-
-                cursor.moveToFirst();
-
-                //vol = new Volunteer();
-                vol.setId(Integer.parseInt(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_ID))));
-                vol.setfName(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_FNAME)));
-                vol.setlName(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_LNAME)));
-                vol.setAddress(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_ADDRESS)));
-                vol.setBirthDate(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_DATEOFBIRTH)));
-                vol.setEmail(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_EMAIL)));
-                vol.setPassword(cursor.getString(cursor.getColumnIndex(VOLUNTEER_COLUMN_PASSWORD)));
-
-
-                //images
-                byte[] imgByte = cursor.getBlob(cursor.getColumnIndex(VOLUNTEER_COLUMN_VOLUPIC));
-                if (imgByte != null && imgByte.length > 0) {
-                    Bitmap image = BitmapFactory.decodeByteArray(imgByte, 0, imgByte.length);
-                    if (image != null) {
-                        vol.setProfilePic(image);
-                    }
-                }
-
-            }*/
 
         } catch (Throwable t) {
             t.printStackTrace();
@@ -1000,7 +1139,6 @@ public class VolutimeDB extends SQLiteOpenHelper {
         }
         return vol;
     }
-
 
     public void close() {
         try {

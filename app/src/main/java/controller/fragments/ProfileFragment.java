@@ -17,17 +17,54 @@ import android.widget.TextView;
 
 import com.caldroidsample.R;
 
+import model.ManagerDB;
+import model.Volunteer;
+import utils.RoundedImageView;
+
 /**
  * A simple {@link Fragment} subclass.
  */
 public class ProfileFragment extends Fragment {
 
-
+    private int userID = 0;
+    private Volunteer vol;
     public ProfileFragment() {
         // Required empty public constructor
     }
 
+    private void fillUserData(View v){
 
+        Bundle args = getArguments();
+        if(args != null) {
+            userID = args.getInt("volID");
+            this.vol = ManagerDB.getInstance().readVolunteer(this.userID);
+            if(this.vol != null){
+
+                // Set Collapsing Toolbar layout to the screen
+                CollapsingToolbarLayout collapsingToolbar =
+                        (CollapsingToolbarLayout) v.findViewById(R.id.collapsing_toolbar);
+                collapsingToolbar.setTitle(vol.getfName() +  " " + vol.getlName());
+
+                if(vol.getProfilePic() != null){
+                    Bitmap roundBitmap = RoundedImageView.getCroppedBitmap(vol.getProfilePic(),300);
+                    ImageView iamge = (ImageView) v.findViewById(R.id.image);
+                    iamge.setImageBitmap(roundBitmap);
+                }
+
+                TextView user_address = (TextView) v.findViewById(R.id.user_address);
+                user_address.setText(vol.getAddress());
+
+                TextView user_email = (TextView) v.findViewById(R.id.user_email);
+                user_email.setText(vol.getEmail());
+
+
+                //set imgage of profile
+
+            }
+
+        }
+
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -37,24 +74,8 @@ public class ProfileFragment extends Fragment {
         //act.setSupportActionBar((Toolbar) v.findViewById(R.id.toolbar));
         //act.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        // Set Collapsing Toolbar layout to the screen
-        CollapsingToolbarLayout collapsingToolbar =
-                (CollapsingToolbarLayout) v.findViewById(R.id.collapsing_toolbar);
-        collapsingToolbar.setTitle("Test the view");
+        fillUserData(v);
 
-        // get image from dbb insted.
-        Bitmap picture = BitmapFactory.decodeResource(this.getResources(), R.drawable.profile);
-
-        TextView placeVal = (TextView) v.findViewById(R.id.place_detail);
-        placeVal.setText("Some Some Some Some Some Some Some Some Some Some Some Some Some Some Some ");
-
-        TextView locVal = (TextView) v.findViewById(R.id.place_location);
-        locVal.setText("Some Some Some Some Some !!!!");
-
-
-        //set imgage of profile
-        ImageView placePicutre = (ImageView) v.findViewById(R.id.image);
-        placePicutre.setImageBitmap(picture);
         return v;
 
     }

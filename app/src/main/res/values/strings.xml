@@ -104,12 +104,23 @@
     <string name="alertLblPositive">Delete</string>
     <string name="alertLblNegative">Cancel</string>
     <string name="zone">Israel</string>
-    <string name="no_orgs">Please add organization to you profile before continuing.</string>
+    <string name="no_orgs_for_user">Please add organization to you profile before continuing.</string>
+    <string name="no_orgs_in_sys">There are  no organization in the system.</string>
     <string name="no_events">No events for this day</string>
     <string name="notify_Title">New Notification</string>
     <string name="notify_Text">You have new event coming up</string>
 
     <string name="org_profile">org_profile</string>
     <string name="show_org">Show details</string>
+    <string name="welcome">welcome</string>
+
+    <string name="preUpdate">Updating : %1$s</string>
+    <string name="postUpdate">Finished updating : %1$s</string>
+    <string name="updateMsg">Please wait…</string>
+
+    <string name="orgs">Organizations</string>
+    <string name="vols">Volunteers</string>
+    <string name="events">Events</string>
+    <string name="message">Messages</string>
 
 </resources>

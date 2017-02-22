@@ -4,19 +4,12 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.DatePickerDialog;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.DialogInterface;
-import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -32,14 +25,12 @@ import java.util.Date;
 import java.util.List;
 
 import controller.activities.MainActivity;
-import controller.adapters.OrganizationListAdapter;
 import model.ManagerDB;
 import model.Organization;
 import model.VolAtOrg;
-import model.VolEvent;
 import utils.utilityClass;
 
-import static android.R.attr.dial;
+import static com.caldroidsample.R.string.btnEdit;
 
 
 /**
@@ -104,7 +95,7 @@ public class AllOrgsDialogFragment extends DialogFragment {
 
                 // read mode no org to show
                 btnRemove.setText(getResources().getString(R.string.btnRemove));
-                btnSave.setText(getResources().getString(R.string.btnEdit));
+                btnSave.setText(getResources().getString(btnEdit));
                 btnDate_e.setEnabled(false);
                 btnDate_s.setEnabled(false);
             }
@@ -171,6 +162,17 @@ public class AllOrgsDialogFragment extends DialogFragment {
 
                         });
                     }
+                }
+                else{
+                    //no orgs to select.
+                    // the user dosent have organization - need to add organization in OrganizationFragment
+                    utilityClass.getInstance().showToast(R.string.no_orgs_in_sys,1,new Object[]{});
+
+                    btnRemove.setEnabled(true);
+                    btnSave.setEnabled(false);
+                    btnDate_e.setEnabled(false);
+                    btnDate_s.setEnabled(false);
+
                 }
             }
 
@@ -286,7 +288,7 @@ public class AllOrgsDialogFragment extends DialogFragment {
                     else{
                         //discard changes and reset to old values
                         btnRemove.setText(getResources().getString(R.string.btnRemove));
-                        btnSave.setText(getResources().getString(R.string.btnEdit));
+                        btnSave.setText(getResources().getString(btnEdit));
                         btnDate_e.setEnabled(false);
                         btnDate_s.setEnabled(false);
                         isEditState = false;
@@ -347,7 +349,7 @@ public class AllOrgsDialogFragment extends DialogFragment {
                            if (effectedRows > 0) {
                                // change dialogFrag state
                                btnRemove.setText(getResources().getString(R.string.btnRemove));
-                               btnSave.setText(getResources().getString(R.string.btnEdit));
+                               btnSave.setText(getResources().getString(btnEdit));
                                isEditState = false;
                                dialog.dismiss();
                                utilityClass.getInstance().showToast(R.string.successOnSave,0, new Object[]{});

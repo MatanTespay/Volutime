@@ -63,8 +63,8 @@ public class OrgProfileFragment extends Fragment {
             if(getActivity() instanceof  MainActivity) {
                 act = (MainActivity) getActivity();
                 type = ((MainActivity) act).getUserType();
-                if (type.equals(UserType.orgType)) {
-                }
+               /* if (type.equals(UserType.orgType)) {
+                }*/
                 int volId = 0;
                 Bundle args = getArguments();
                 if (args != null) {
@@ -104,7 +104,7 @@ public class OrgProfileFragment extends Fragment {
                                     long r = ManagerDB.getInstance().updateOrg(thisOrg);
                                     if (r > 0) {
                                         flag = false;
-                                        utilityClass.getInstance().showToast(R.string.successOnSave, new Object[]{});
+                                        utilityClass.getInstance().showToast(R.string.successOnSave, 0,new Object[]{});
                                         ((MainActivity) act).toggleFab(true, android.R.drawable.ic_menu_edit);
 
                                         password.setVisibility(View.GONE);
@@ -114,7 +114,7 @@ public class OrgProfileFragment extends Fragment {
                                         pic.setEnabled(false);
                                         password.setEnabled(false);
                                     } else
-                                        utilityClass.getInstance().showToast(R.string.errorOnSave, new Object[]{});
+                                        utilityClass.getInstance().showToast(R.string.errorOnSave, 0,new Object[]{});
                                 }
 
 

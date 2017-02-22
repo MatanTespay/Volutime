@@ -164,7 +164,7 @@ public class EventFragment extends DialogFragment {
                     }
                 }else{
                     // the user dosent have organization - need to add organization in OrganizationFragment
-                    utilityClass.getInstance().showToast(R.string.no_orgs,1,new Object[]{});
+                    utilityClass.getInstance().showToast(R.string.no_orgs_for_user,1,new Object[]{});
                     SetFieldsState(false);
                     btnEdit.setEnabled(false);
                 }

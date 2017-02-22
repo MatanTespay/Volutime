@@ -92,6 +92,7 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_caldroid);
+        ManagerDB.getInstance().openDataBase(this);
         monthEvents = new HashMap<>();
         formatter = utilityClass.getInstance().getSortformatter();
 
@@ -213,6 +214,28 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
 
 
     }
+
+    @Override
+    protected void onStop() {
+        // When our activity is stopped ensure we also stop the connection to the service
+        // this stops us leaking our activity into the system *bad*
+        if(scheduleClient != null)
+            scheduleClient.doUnbindService();
+        super.onStop();
+    }
+
+    @Override
+    protected void onPause() {
+        ManagerDB.getInstance().closeDataBase();
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        ManagerDB.getInstance().openDataBase(this);
+        super.onResume();
+    }
+
 
     private void openNewEvent() {
         android.app.FragmentManager fm = this.getFragmentManager();

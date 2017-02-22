@@ -24,6 +24,7 @@ public class utilityClass {
 
     private static utilityClass instance = null;
     private SimpleDateFormat longformatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private SimpleDateFormat sortformat = new SimpleDateFormat("yyyy-MM-dd");
     private SimpleDateFormat sortformatter = new SimpleDateFormat("dd-MM-yyyy");
     static private Context context;
 
@@ -52,6 +53,30 @@ public class utilityClass {
         try {
                 if(dateString != null && !dateString.equals(""))
                 date = longformatter.parse(dateString);
+        }catch(Throwable t) {
+            t.printStackTrace();
+        }
+
+        return  date;
+    }
+
+    public Date getSortDateTimeFromString(String dateString){
+        Date date = null;
+        try {
+            if(dateString != null && !dateString.equals(""))
+                date = sortformatter.parse(dateString);
+        }catch(Throwable t) {
+            t.printStackTrace();
+        }
+
+        return  date;
+    }
+
+    public Date getDateFromString(String dateString){
+        Date date = null;
+        try {
+            if(dateString != null && !dateString.equals(""))
+                date = sortformat.parse(dateString);
         }catch(Throwable t) {
             t.printStackTrace();
         }

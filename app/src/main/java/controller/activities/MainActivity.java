@@ -1,5 +1,8 @@
 package controller.activities;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -36,19 +39,26 @@ import model.ManagerDB;
 import model.Organization;
 import model.UserType;
 import model.Volunteer;
+import network.utils.NetworkConnector;
+import network.utils.NetworkResListener;
+import network.utils.ResStatus;
 import utils.RoundedImageView;
 import utils.utilityClass;
 
 import com.caldroidsample.R;
 
+import java.util.ArrayList;
+
 import static android.R.attr.handle;
 import static android.R.attr.id;
+import static android.R.attr.type;
 import static android.R.id.icon2;
 import static com.caldroidsample.R.id.fab;
 import static com.caldroidsample.R.id.image;
 
+@SuppressWarnings("ALL")
 public class MainActivity extends AppCompatActivity implements OrganizationFragment.OnFragmentInteractionListener,
-         AllOrgsDialogFragment.OnVolAtOrgInteractionListener{
+         AllOrgsDialogFragment.OnVolAtOrgInteractionListener, NetworkResListener {
 
     private NavigationView navigationView;
     private DrawerLayout drawer;
@@ -60,6 +70,11 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
     private UserType userType;
     private Organization org;
     private Volunteer vol;
+    private ProgressDialog progressDialog = null;
+    private boolean doVolGet = true;
+    private boolean doOrgGet = true;
+    private boolean doMsgGet = true;
+    private boolean doEventGet = true;
 
     // index to identify current nav menu item
     public static int navItemIndex = 0;
@@ -80,19 +95,25 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
     // flag to load home fragment when user presses back key
     private boolean shouldLoadHomeFragOnBackPress = true;
     private Handler mHandler;
+    Bundle savedInstanceState;
+    private int userId = 0;
+    private void loadApp(Bundle savedInstanceState){
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        ManagerDB.getInstance().openDataBase(this);
+        Intent intent = getIntent();
+        Bundle bd = intent.getExtras();
+        userId = 0;
+        if(bd != null)
+        {
+            UserType type = (UserType) bd.get("userType");
+            userId =  bd.getInt("userId");
+            //set the activity user type
+            setUserType(type);
+
+        }
 
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        utilityClass.getInstance().setContext(getApplicationContext());
-        utilityClass.getInstance().setFormatter();
-
         mHandler = new Handler();
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -108,23 +129,6 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
 
         // load toolbar titles from string resources
         activityTitles = getResources().getStringArray(R.array.nav_item_activity_titles);
-
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                //if the Fragment is OrganizationFragment
-                //Add organization to Volunteer
-
-
-                //if the Fragment is OrgProfileFragment
-                //Edit profile
-
-
-                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                //        .setAction("Action", null).show();
-            }
-        });
 
         // load nav menu header data
         loadNavHeader();
@@ -142,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
         // initializing navigation menu
         setUpNavigationView();
 
-        if (savedInstanceState == null) {
+        if (this.savedInstanceState == null) {
             if(getUserType() != null){
                 if( getUserType().equals(UserType.volType)){
                     navItemIndex = 0;
@@ -158,6 +162,84 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
         }
     }
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        this.savedInstanceState = savedInstanceState;
+
+        ManagerDB.getInstance().openDataBase(this);
+        ArrayList<Volunteer> result = new ArrayList<Volunteer>();
+        result = ManagerDB.getInstance().readAllVolunteers();
+
+        utilityClass.getInstance().setContext(getApplicationContext());
+        utilityClass.getInstance().setFormatter();
+        NetworkConnector.getInstance().setContext(this);
+
+        loadDataFromServer(8); // volunteers
+
+        setContentView(R.layout.activity_main);
+    }
+
+    @Override
+    public void onPreUpdate(String resource) {
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("Updating resources : " + resource);
+        progressDialog.setMessage("");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+    }
+
+    public void loadDataFromServer(int req){
+
+        if(req == 8){
+            //sync volunteers
+            NetworkConnector.getInstance().registerListener(this);
+            NetworkConnector.getInstance().getVolunteers();
+        }
+        else if(req == 9){
+            NetworkConnector.getInstance().registerListener(this);
+            NetworkConnector.getInstance().getOrganizations();
+        }
+        else if(req == 10){
+
+        }
+    }
+
+    @Override
+    public void onPostUpdate(byte[] res, ResStatus status, String type) {
+
+
+        NetworkConnector.getInstance().unregisterListener(this);
+
+        if(status == ResStatus.SUCCESS){
+            if(type.equals("8")) { //volunteers
+                String s = getResources().getString(R.string.vols);
+                utilityClass.getInstance().showToast(R.string.preUpdate,1,s);
+                ManagerDB.getInstance().updateVolunteers(res);
+                doVolGet = false;
+                progressDialog.dismiss();
+                loadApp(this.savedInstanceState);
+            }
+            else if(type.equals("9")){ // organizations
+                String s = getResources().getString(R.string.orgs);
+                utilityClass.getInstance().showToast(R.string.preUpdate,1,s);
+                ManagerDB.getInstance().updateOrganization(res);
+                doOrgGet = false;
+                progressDialog.dismiss();
+            }
+            else if(type.equals("10")){ //events
+                String s = getResources().getString(R.string.events);
+                utilityClass.getInstance().showToast(R.string.preUpdate,1,s);
+                doEventGet = false;
+                progressDialog.dismiss();
+               // ManagerDB.getInstance().updateOrganization(res);
+            }
+
+        }
+        else{
+            Toast.makeText(this,"download failed...",Toast.LENGTH_LONG).show();
+        }
+    }
 
     public FloatingActionButton getFab() {
         return fab;
@@ -175,47 +257,49 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
     private void loadNavHeader() {
 
         //GET USER DATA AND TYPE
-        Intent intent = getIntent();
+/*        Intent intent = getIntent();
         Bundle bd = intent.getExtras();
+        int id = 0;
         if(bd != null)
         {
             UserType type = (UserType) bd.get("userType");
-            int id =  bd.getInt("userId");
+            id =  bd.getInt("userId");
             //set the activity user type
-            setUserType(type);
+            setUserType(type);*/
 
             if(getUserType().equals(UserType.volType)){
                 //get vol data
-                this.vol = ManagerDB.getInstance().readVolunteer(id);
-                // name, email
-                txtName.setText(vol.getfName()+" "+vol.getlName());
-                txtWebsite.setText(vol.getEmail());
-                if(vol.getProfilePic() != null){
-                    Bitmap roundBitmap = RoundedImageView.getCroppedBitmap(vol.getProfilePic(),300);
-                    imgProfile.setImageBitmap(roundBitmap);
+                this.vol = ManagerDB.getInstance().readVolunteer(this.userId);
+                if(this.vol != null){
+                    txtName.setText(vol.getfName()+" "+vol.getlName());
+                    txtWebsite.setText(vol.getEmail());
+                    if(vol.getProfilePic() != null){
+                        Bitmap roundBitmap = RoundedImageView.getCroppedBitmap(vol.getProfilePic(),300);
+                        imgProfile.setImageBitmap(roundBitmap);
+                    }
                 }
-
 
             }
             else{
                 //get org data
-                navigationView.getMenu().getItem(0).setVisible(false);
-                navigationView.getMenu().getItem(1).setVisible(false);
-                this.org = ManagerDB.getInstance().readOrganization(id);
-                txtName.setText(org.getName());
-                txtWebsite.setText(org.getEmail());
-                // set temp profile from drawable - need to patch from server
-                if(org.getProfilePic() != null){
-                    Bitmap roundBitmap = RoundedImageView.getCroppedBitmap(org.getProfilePic(),300);
-                    imgProfile.setImageBitmap(roundBitmap);
+                if(this.navigationView != null){
+                    navigationView.getMenu().getItem(0).setVisible(false);
+                    navigationView.getMenu().getItem(1).setVisible(false);
                 }
 
+                this.org = ManagerDB.getInstance().readOrganization(this.userId);
+                if(this.org != null){
+                    txtName.setText(org.getName());
+                    txtWebsite.setText(org.getEmail());
+                    // set temp profile from drawable - need to patch from server
+                    if(org.getProfilePic() != null){
+                        Bitmap roundBitmap = RoundedImageView.getCroppedBitmap(org.getProfilePic(),300);
+                        imgProfile.setImageBitmap(roundBitmap);
+                    }
+                }
             }
 
-        }
-
-
-
+        //}
 
         //set image of nav menu background
         imgNavHeaderBg.setImageResource(R.drawable.nav_menu_header_bg);
@@ -317,6 +401,15 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
             case 2:
                 // fragment -- msg
                 MessagesFragment messagesFragment = new MessagesFragment();
+                Bundle args2 = new Bundle();
+                if(getOrg() != null){
+                    args2.putInt("orgID", this.org.getId());
+                    args2.putSerializable("userType",userType.orgType);
+                }else if(getVol() != null) {
+                    args2.putInt("volID", this.vol.getId());
+                    args2.putSerializable("userType",userType.volType);
+                }
+                messagesFragment.setArguments(args2);
                 return messagesFragment;
             case 3:
                 // notifications fragment --
@@ -327,13 +420,15 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
                     // user is org.
                     frag = new OrgProfileFragment();
                     args.putInt("orgID", this.org.getId());
-                }else {
+                    frag.setArguments(args);
+                    return frag;
+                }else if(getVol() != null) {
                     // user is vol
                     frag = new ProfileFragment();
                     args.putInt("volID", this.vol.getId());
+                    frag.setArguments(args);
+                    return frag;
                 }
-                frag.setArguments(args);
-                return frag;
 
 /*            case 4:
                 // settings fragment
@@ -345,10 +440,12 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
     }
 
     private void setToolbarTitle() {
+        if(getSupportActionBar() != null)
         getSupportActionBar().setTitle(activityTitles[navItemIndex]);
     }
 
     private void selectNavMenu() {
+        if(navigationView != null)
         navigationView.getMenu().getItem(navItemIndex).setChecked(true);
     }
 
@@ -435,6 +532,7 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
             return;
         }
 
+        boolean checkExit = false;
         // This code loads home fragment when back key is pressed
         // when user is in other fragment than home
         if (shouldLoadHomeFragOnBackPress) {
@@ -449,6 +547,17 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
                         loadHomeFragment();
                         return;
                     }
+                    else{
+                        checkExit = true;
+                        //check if viewing orgProfile and switch back to organizations fragment
+                        Fragment orgProfileFrag = getSupportFragmentManager().findFragmentByTag(getResources().getString(R.string.org_profile));
+                        if(orgProfileFrag != null && orgProfileFrag.isVisible()){
+                            navItemIndex = 0;
+                            CURRENT_TAG = TAG_ORG;
+                            loadHomeFragment();
+                            return;
+                        }
+                    }
                 }else{
                     //home fragment for org
                     if (navItemIndex != 2) {
@@ -456,12 +565,33 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
                         CURRENT_TAG = TAG_MESSAGES;
                         loadHomeFragment();
                         return;
+                    }else{
+                        checkExit = true;
                     }
                 }
             }
         }
 
-        super.onBackPressed();
+        if(checkExit){
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Are you sure you want to exit?")
+                    .setCancelable(false)
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            MainActivity.this.finish();
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                        }
+                    });
+            AlertDialog alert = builder.create();
+            alert.show();
+        }
+
+
+        //super.onBackPressed();
     }
 
     @Override
@@ -469,7 +599,7 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
         // Inflate the menu; this adds items to the action bar if it is present.
 
         // show menu only when home fragment is selected
-        if (navItemIndex == 0) {
+        if (navItemIndex == 3) {
             getMenuInflater().inflate(R.menu.main, menu);
         }
 
@@ -489,6 +619,7 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_logout) {
+            finish();
             Toast.makeText(getApplicationContext(), "Logout user!", Toast.LENGTH_LONG).show();
             return true;
         }
@@ -534,11 +665,13 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
 
     @Override
     protected void onPause() {
+        ManagerDB.getInstance().closeDataBase();
         super.onPause();
     }
 
     @Override
     protected void onResume() {
+        ManagerDB.getInstance().openDataBase(this);
         selectNavMenu();
         super.onResume();
     }
@@ -587,5 +720,37 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
 
     public void setVol(Volunteer vol) {
         this.vol = vol;
+    }
+
+    public boolean isDoVolGet() {
+        return doVolGet;
+    }
+
+    public void setDoVolGet(boolean doVolGet) {
+        this.doVolGet = doVolGet;
+    }
+
+    public boolean isDoOrgGet() {
+        return doOrgGet;
+    }
+
+    public void setDoOrgGet(boolean doOrgGet) {
+        this.doOrgGet = doOrgGet;
+    }
+
+    public boolean isDoMsgGet() {
+        return doMsgGet;
+    }
+
+    public void setDoMsgGet(boolean doMsgGet) {
+        this.doMsgGet = doMsgGet;
+    }
+
+    public boolean isDoEventGet() {
+        return doEventGet;
+    }
+
+    public void setDoEventGet(boolean doEventGet) {
+        this.doEventGet = doEventGet;
     }
 }

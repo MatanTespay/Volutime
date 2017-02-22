@@ -1,8 +1,18 @@
 package model;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import utils.utilityClass;
 
 /**
  * Created by Faina0502 on 21/01/2017.
@@ -12,14 +22,14 @@ public class Volunteer {
     private int id;
     private String fName;
     private String lName;
-    private String birthDate;
+    private Date birthDate;
     private String address;
     private String email;
     private String password;
     private Bitmap profilePic;
     private ArrayList<VolEvent> volEvents;
 
-    public Volunteer(String fName, String lName, String birthDate, String address, String email , String password,Bitmap profilePic){
+    public Volunteer(String fName, String lName, Date birthDate, String address, String email , String password,Bitmap profilePic){
         this.fName = fName;
         this.lName =lName;
         this.birthDate =birthDate;
@@ -33,7 +43,7 @@ public class Volunteer {
     public Volunteer() {
     }
 
-    public  Volunteer (int id , String fName, String lName, String birthDate, String address, String email, String password, Bitmap profilePic ){
+    public  Volunteer (int id , String fName, String lName, Date birthDate, String address, String email, String password, Bitmap profilePic ){
         this.id =id;
         this.fName = fName;
         this.lName =lName;
@@ -58,7 +68,7 @@ public class Volunteer {
         this.password = password;
     }
 
-    public String getBirthDate() {
+    public Date getBirthDate() {
         return birthDate;
     }
 
@@ -82,7 +92,7 @@ public class Volunteer {
         this.address = address;
     }
 
-    public void setBirthDate(String birthDate) {
+    public void setBirthDate(Date birthDate) {
         this.birthDate = birthDate;
     }
 
@@ -116,5 +126,59 @@ public class Volunteer {
 
     public void setProfilePic(Bitmap profilePic) {
         this.profilePic = profilePic;
+    }
+
+    public static List<Volunteer> parseJson(String content) {
+
+        List<Volunteer> list = null;
+        try {
+
+            JSONTokener jsonTokener = new JSONTokener(content);
+
+            JSONObject json = (JSONObject) jsonTokener.nextValue();
+
+            list = new ArrayList<>();
+
+            JSONArray volunteersJsonArr = json.getJSONArray("volunteers");
+
+            for (int i = 0; i < volunteersJsonArr.length(); i++) {
+                try {
+                    JSONObject fObj = volunteersJsonArr.getJSONObject(i);
+                    Volunteer v = new Volunteer();
+                    if(v.fromJson(fObj)){
+                        list.add(v);
+                    }
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
+            }
+
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    private boolean fromJson(JSONObject fObj) {
+        boolean res = false;
+        try {
+            setId(fObj.getInt("volID"));
+            setfName(fObj.getString("fname"));
+            setlName(fObj.getString("lname"));
+            setBirthDate(utilityClass.getInstance().getDateFromString(fObj.getString("birthDate")));
+            setAddress(fObj.getString("address"));
+            setEmail(fObj.getString("email"));
+            setPassword(fObj.getString("password"));
+            // get image encoded string
+            byte[] decodedString = Base64.decode(fObj.getString("ProfilePic"), Base64.DEFAULT);
+            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+            setProfilePic(decodedByte);
+
+            res = true;
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+        return res;
     }
 }

@@ -29,6 +29,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.caldroidsample.R;
@@ -71,10 +72,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ManagerDB.getInstance().openDataBase(this);
-
-//       Long r=  ManagerDB.getInstance().addVolunteer(new Volunteer("Faina", "Bursh", "2001/10/10", "Rupin 5 K-ata", "fb@gmail.com", "1234", null));
-  //     r=  ManagerDB.getInstance().addOrganization(new Organization("MADA", "TLV", "o@gmail.com", "1234",null));
-
 
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(email);
@@ -351,7 +348,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(false);
 
             if (success) {
-                //finish();
+
                 //set user
                 //LoginActivity.this.type = this.type;
                 Intent myIntent = new Intent(LoginActivity.this,MainActivity.class);

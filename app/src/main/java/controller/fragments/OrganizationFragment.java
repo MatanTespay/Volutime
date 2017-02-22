@@ -101,6 +101,14 @@ public class OrganizationFragment extends Fragment  {
 
         }
 
+        // load orgs data from server
+        if(getActivity() instanceof  MainActivity){
+            MainActivity activity = ((MainActivity)getActivity());
+            if(activity.isDoOrgGet()){
+                activity.loadDataFromServer(9);
+            }
+        }
+
          recyclerView = (RecyclerView) view.findViewById(R.id.recyclerview);
         /*OrganizationAdapter orgAdapter = new OrganizationAdapter(context, items);
         recyclerView.setAdapter(orgAdapter);*/
@@ -113,7 +121,6 @@ public class OrganizationFragment extends Fragment  {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
 
-
         RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
         itemAnimator.setAddDuration(1000);
         itemAnimator.setRemoveDuration(1000);
@@ -122,14 +129,17 @@ public class OrganizationFragment extends Fragment  {
        //  Set Action listener for click fab button to add organization
         Activity act = this.getActivity();
         if(act instanceof  MainActivity) {
-            ((MainActivity) act).getFab().setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+            MainActivity activity = ((MainActivity) act);
+            if(activity.getFab() != null){
+                activity.getFab().setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
 
-                    openDialogFragment();
+                        openDialogFragment();
 
-                }
-            });
+                    }
+                });
+            }
         }
 
 
@@ -140,6 +150,8 @@ public class OrganizationFragment extends Fragment  {
      *
      */
     public void loadDataToAdapter(){
+
+        ManagerDB.getInstance().openDataBase(context);
         items = fill_with_data();
         adapter = new OrganizationListAdapter( getActivity(), null);
         adapter.setList(items);
@@ -217,17 +229,18 @@ public class OrganizationFragment extends Fragment  {
     public List<Organization> fill_with_data() {
         List<Organization> data = new ArrayList<>();
         MainActivity act  = (MainActivity) getActivity();
-        if(act != null){
-            int id = act.getVol().getId();
+
+        //if(act != null && act.getVol() != null ) {
+            //id = act.getVol().getId();
            // int id = 1;
-            if(id > 0){
-                List<Integer> orgsIds = ManagerDB.getInstance().getOrgIdsOfVol(id);
+            if(userID > 0){
+                List<Integer> orgsIds = ManagerDB.getInstance().getOrgIdsOfVol(userID);
                 for (Integer i :orgsIds) {
                     Organization o = ManagerDB.getInstance().readOrganization(i);
                     data.add(o);
                 }
             }
-        }
+        //}
 
         return data;
     }

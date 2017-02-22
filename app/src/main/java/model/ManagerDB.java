@@ -1,9 +1,14 @@
 package model;
 
 import android.content.Context;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import network.utils.NetworkConnector;
+import network.utils.NetworkResListener;
+import network.utils.ResStatus;
 
 import static android.R.attr.id;
 import static com.caldroidsample.R.id.email;
@@ -13,7 +18,7 @@ import static model.UserType.volType;
  * Created by Faina0502 on 31/01/2017.
  */
 
-public class ManagerDB {
+public class ManagerDB implements NetworkResListener {
     //
     private static ManagerDB instance = null;
     private Context context = null;
@@ -26,6 +31,7 @@ public class ManagerDB {
     public static ManagerDB getInstance(){
         if(instance== null){
             instance = new ManagerDB();
+            NetworkConnector.getInstance().registerListener(instance);
         }
 
         return instance;
@@ -40,7 +46,6 @@ public class ManagerDB {
     private void clean() {
 
     }
-
 
     public Context getContext() {
         return context;
@@ -63,6 +68,45 @@ public class ManagerDB {
         }
     }
 
+    private boolean syncUpdateVolunteer(Volunteer vol) {
+        boolean res = false;
+        if (db != null) {
+            Volunteer v = readVolunteer(vol.getEmail());
+            if( v != null){
+                //update
+                vol.setId(v.getId());
+                int cnt  = db.updateVolunteer(vol);
+                res = true;
+            }else{
+                //insert
+                long id = db.addVolunteer(vol);
+                if(id != -1)
+                    res = true;
+            }
+        }
+        return res;
+    }
+
+    private boolean syncUpdateOrganization(Organization org) {
+        boolean res = false;
+        if (db != null) {
+            Organization o = readOrganization(org.getEmail());
+            if( o != null){
+                //update
+                org.setId(o.getId());
+                int cnt  = db.updateOrg(org);
+                if(cnt > 0)
+                    res = true;
+            }else{
+                //insert
+                long id = db.addOrganization(org);
+                if(id != -1)
+                    res = true;
+            }
+        }
+        return res;
+    }
+
     public long addVolunteer(Volunteer volunteer){
         return  db.addVolunteer(volunteer);
     }
@@ -80,9 +124,24 @@ public class ManagerDB {
         return db.addOrganization(organization);
     }
 
-    public Volunteer readVolunteer(int id){
+    public Volunteer readVolunteer(int volId){
         if(db!=null){
-            return  db.readVolunteer(id);
+            return  db.readVolunteer(volId);
+        }
+        return  null;
+    }
+
+    //read vol
+    public Volunteer readVolunteer(String email) {
+        if(db!=null){
+            return  db.readVolunteer(email);
+        }
+        return  null;
+    }
+
+    public ArrayList<Volunteer> readAllVolunteers() {
+        if(db!=null){
+            return  db.readAllVolunteers();
         }
         return  null;
     }
@@ -90,6 +149,13 @@ public class ManagerDB {
     public Organization readOrganization(int id){
         if(db!=null){
             return  db.readOrganization(id);
+        }
+        return  null;
+    }
+
+    public Organization readOrganization(String email){
+        if(db!=null){
+            return  db.readOrganization(email);
         }
         return  null;
     }
@@ -211,5 +277,54 @@ public class ManagerDB {
         if(db!=null){
             db.resetDB();
         }
+    }
+
+    @Override
+    public void onPreUpdate(String type) {
+        Toast.makeText(context,"Sync stated...",Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onPostUpdate(byte[] res, ResStatus status, String type) {
+        Toast.makeText(context,"Sync finished...status " + status.toString(),Toast.LENGTH_SHORT).show();
+
+    }
+
+    public void updateVolunteers(byte[] res) {
+        if(res == null){
+            return;
+        }
+        try {
+            String content = new String(res, "UTF-8");
+            List<Volunteer> list = Volunteer.parseJson(content);
+            if(list!=null && list.size()>0){
+                for(Volunteer vol :list){
+                    syncUpdateVolunteer(vol);
+                }
+            }
+        }
+        catch(Throwable t){
+            t.printStackTrace();
+        }
+
+    }
+
+    public void updateOrganization(byte[] res) {
+        if(res == null){
+            return;
+        }
+        try {
+            String content = new String(res, "UTF-8");
+            List<Organization> list = Organization.parseJson(content);
+            if(list!=null && list.size()>0){
+                for(Organization vol :list){
+                    syncUpdateOrganization(vol);
+                }
+            }
+        }
+        catch(Throwable t){
+            t.printStackTrace();
+        }
+
     }
 }
