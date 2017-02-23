@@ -342,6 +342,7 @@ public class ManagerDB implements NetworkResListener {
 
     /**
      * update all organization petch from server
+     *
      * @param res
      */
     public void updateOrganization(byte[] res) {
