@@ -2,10 +2,13 @@ package utils;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.util.Base64;
 import android.widget.Toast;
 
 import com.caldroidsample.R;
 
+import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -14,6 +17,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import static android.os.Build.VERSION_CODES.M;
+import static model.VolutimeDB.VOLUNTEER_COLUMN_VOLUPIC;
 
 /**
  * helper class to preform custom help function
@@ -129,6 +133,26 @@ public class utilityClass {
         Toast.makeText(this.context ,text , length).show();
 
     }
+
+    private static byte[] getBitmapAsByteArray(Bitmap bitmap) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
+        return outputStream.toByteArray();
+    }
+
+    public String imgToBase64String(Bitmap imgByte){
+        String base64 = null;
+        if (imgByte != null) {
+            byte[] data = getBitmapAsByteArray(imgByte);
+            if (data != null && data.length > 0) {
+                base64 =  Base64.encodeToString(data, Base64.DEFAULT);
+
+            }
+        }
+
+        return base64;
+    }
+
 
     public Date dateTime(Date date, int H, int M, int S) {
         Calendar calendarA = Calendar.getInstance();

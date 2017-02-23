@@ -1,6 +1,11 @@
 package model;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.Date;
+
+import utils.utilityClass;
 
 /**
  * Created by Faina0502 on 28/01/2017.
@@ -94,5 +99,26 @@ public class VolEvent {
 
     public void setOrgID(int orgID) {
         this.orgID = orgID;
+    }
+
+    public static JSONObject toJson(VolEvent obj){
+        JSONObject iObj = new JSONObject();
+
+        try {
+
+            iObj.put("eventID", obj.getVolEventID());
+            iObj.put("volunteerID", obj.getVolID());
+            iObj.put("organizationID", obj.getOrgID());
+            iObj.put("date", (obj.getDate() != null ) ? utilityClass.getInstance().getStringFromDateTime(obj.getDate()) : "");
+            iObj.put("startTime", (obj.getStartTime() != null ) ? utilityClass.getInstance().getStringFromDateTime(obj.getStartTime()) : "");
+            iObj.put("endTime",  (obj.getEndTime() != null ) ? utilityClass.getInstance().getStringFromDateTime(obj.getEndTime()) : "");
+            iObj.put("details", obj.getDetails());
+            iObj.put("title", obj.getTitle());
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return iObj;
     }
 }
