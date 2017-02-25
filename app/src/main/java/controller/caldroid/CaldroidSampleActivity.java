@@ -3,6 +3,7 @@ package controller.caldroid;
 import android.annotation.SuppressLint;
 
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -33,13 +34,17 @@ import controller.fragments.EventListFragment;
 import controller.notification.ScheduleClient;
 import model.ManagerDB;
 import model.VolEvent;
+import network.utils.NetworkConnector;
+import network.utils.NetworkResListener;
+import network.utils.ResStatus;
 import utils.utilityClass;
 
 import static android.media.CamcorderProfile.get;
 
 @SuppressLint("SimpleDateFormat")
 public class CaldroidSampleActivity extends AppCompatActivity implements EventListFragment.OnFragmentInteractionListener ,
-         EventFragment.OnEventInteractionListener {
+         EventFragment.OnEventInteractionListener, NetworkResListener {
+
     private boolean undo = false;
     private CaldroidFragment caldroidFragment;
     private CaldroidFragment dialogCaldroidFragment;
@@ -49,7 +54,8 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
     private FloatingActionButton btnNewEvent;
     private Date selectedDate;
     private ScheduleClient scheduleClient;
-
+    private boolean doEventGet; // if true then loadData
+    private ProgressDialog progressDialog = null;
     // set color to specific dates
     private void fillEventsInCalendar(Calendar cal) {
 
@@ -80,8 +86,6 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
                 }
             }
 
-
-            //map.put(entry.getKey(), bgColor);
 
         }
 
@@ -117,7 +121,13 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
         else {
             Intent intent = getIntent();
             userID = intent.getIntExtra("userID",0);
+            doEventGet = intent.getBooleanExtra("doEventGet", false);
 
+            // if true loadData from server
+            if(!doEventGet) {
+                NetworkConnector.getInstance().registerListener(this);
+                NetworkConnector.getInstance().getVolevents();
+            }
             Bundle args = new Bundle();
             Calendar cal = Calendar.getInstance();
             args.putInt(CaldroidFragment.MONTH, cal.get(Calendar.MONTH) + 1);
@@ -178,6 +188,7 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
 
             }
 
+
             @Override
             public void onCaldroidViewCreated() {
                 if (caldroidFragment.getLeftArrowButton() != null) {
@@ -236,7 +247,9 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
         super.onResume();
     }
 
-
+    /**
+     * Show dialog fragmen with all the events according to volunteer
+     */
     private void openNewEvent() {
         android.app.FragmentManager fm = this.getFragmentManager();
         EventFragment datesDialog = new EventFragment();
@@ -251,6 +264,10 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
         datesDialog.show(fm, getResources().getResourceName(R.layout.fragment_event_list));
     }
 
+    /**
+     * show event per user by the chosen date
+     * @param day
+     */
     private void showDialogDates(Date day) {
 
         String dateTitle="";
@@ -369,6 +386,10 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
 
     }
 
+    /**
+     * Create notification
+     * @param theEvent
+     */
     private void setNotification(VolEvent theEvent){
 
         Calendar c = Calendar.getInstance();
@@ -377,10 +398,6 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
 
         args.putInt("eventID", theEvent.getVolEventID());
 
-
-        /*c.set(Calendar.HOUR_OF_DAY, 0);
-        c.set(Calendar.MINUTE, 0);
-        c.set(Calendar.SECOND, 0);*/
         // Ask our service to set an alarm for that date, this activity talks to the client that talks to the service
         scheduleClient.setAlarmForNotification(c,args );
     }
@@ -452,6 +469,42 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
 
 
 
+        }
+    }
+
+    /**
+     *
+     * @param resource
+     */
+    @Override
+    public void onPreUpdate(String resource) {
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("Updating resources : " + resource);
+        progressDialog.setMessage("");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+    }
+
+    /**
+     *
+     * @param  res  - the data
+     * @param status - the status of the update process
+     * @param type
+     */
+    @Override
+    public void onPostUpdate(byte[] res, ResStatus status, String type) {
+
+        NetworkConnector.getInstance().unregisterListener(this);
+        if(type.equals("10")){ //events
+            String s = getResources().getString(R.string.events);
+            utilityClass.getInstance().showToast(R.string.preUpdate,1,s);
+            doEventGet = false;
+            progressDialog.dismiss();
+            ManagerDB.getInstance().updatVolEvent(res);
+
+        }
+        else{
+            Toast.makeText(this,"download failed...",Toast.LENGTH_LONG).show();
         }
     }
 }

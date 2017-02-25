@@ -34,7 +34,7 @@ import static android.R.attr.id;
  * {@link OrganizationFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  * Use the {@link OrganizationFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * create an instance of this fragment.f
  */
 public class OrganizationFragment extends Fragment  {
     // TODO: Rename parameter arguments, choose names that match
@@ -110,8 +110,7 @@ public class OrganizationFragment extends Fragment  {
         }
 
          recyclerView = (RecyclerView) view.findViewById(R.id.recyclerview);
-        /*OrganizationAdapter orgAdapter = new OrganizationAdapter(context, items);
-        recyclerView.setAdapter(orgAdapter);*/
+
 
        // adapter = new OrganizationListAdapter( getActivity(), null);
         // adapter.setList(items);

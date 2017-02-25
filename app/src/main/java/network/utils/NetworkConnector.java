@@ -21,13 +21,14 @@ import java.util.List;
  */
 
 public class NetworkConnector {
-    private  final String BASE_URL = "http://192.168.14.179:8080/projSrv/";
+    private  final String BASE_URL = "http://192.168.14.79:8080/projSrv/";
     private List<NetworkResListener> listeners = Collections.synchronizedList(new ArrayList<NetworkResListener>());
     private Context ctx;
     private static NetworkConnector instance;
 
     public static final String GET_VOLUNTEERS_REQ = "8";
     public static final String GET_ORGNIZATIONS_REQ = "9";
+    public static final String GET_VOLEVENTS_REQ = "10";
     public static final String REQ = "req";
     private final int RETRY_TIMES = 2;
     public static String CURRENT_REQ = "-1";
@@ -104,6 +105,10 @@ public class NetworkConnector {
         CURRENT_REQ = GET_ORGNIZATIONS_REQ;
         sendQuery();
     }
+    public void getVolevents(){
+        CURRENT_REQ = GET_VOLEVENTS_REQ;
+        sendQuery();
+    }
 
     private  void notifyPreUpdateListeners() {
 
@@ -120,7 +125,8 @@ public class NetworkConnector {
                         resource = "Volunteers";
                     else if(CURRENT_REQ.equals("9"))
                         resource = "organizations";
-
+                    else if(CURRENT_REQ.equals("10"))
+                        resource = "volevents";
                     for (NetworkResListener listener : listeners) {
                         listener.onPreUpdate(resource);
                     }

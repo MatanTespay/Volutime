@@ -69,6 +69,7 @@ public class AllOrgsDialogFragment extends DialogFragment {
 
         view = inflater.inflate(R.layout.dialog_fragment_all_orgs, container, false);
 
+        // get all the elements from XML to the global variables of the class
         dialog = this;
         alert = AskOption() ;
         parentAct = getActivity();
@@ -84,6 +85,7 @@ public class AllOrgsDialogFragment extends DialogFragment {
         lblSpinner = (TextView) view.findViewById(R.id.lblOrg);
         orgLayout = view.findViewById(R.id.OrgLayout);
         nameLayout = view.findViewById(R.id.nameLayout);
+        // get arguments
         Bundle args = getArguments();
        // setListener();
         if(args != null) {

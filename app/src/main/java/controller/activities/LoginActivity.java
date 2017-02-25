@@ -34,6 +34,8 @@ import java.util.List;
 
 import com.caldroidsample.R;
 
+import javax.net.ssl.ManagerFactoryParameters;
+
 import model.ManagerDB;
 import model.Organization;
 import model.UserType;
@@ -72,7 +74,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ManagerDB.getInstance().openDataBase(this);
+        Volunteer v=new Volunteer();
+        v.setfName("faina");
+        v.setlName("b");
+        v.setBirthDate(new Date(1991-05-02));
+        v.setEmail("fb@gmail.com");
 
+        ManagerDB.getInstance().addVolunteer(v);
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(email);
         populateAutoComplete();
@@ -163,12 +171,22 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
+    /**
+     *
+     * @param email
+     * @return
+     */
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
 
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
+    /**
+     *
+     * @param password
+     * @return
+     */
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
         return password.length() > 0;
@@ -210,6 +228,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
+    /**
+     *
+     * @param i
+     * @param bundle
+     * @return
+     */
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         return new CursorLoader(this,
@@ -227,6 +251,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
     }
 
+    /**
+     *
+     * @param cursorLoader
+     * @param cursor
+     */
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         List<String> emails = new ArrayList<>();
@@ -244,6 +273,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     }
 
+    /**
+     *
+     * @param emailAddressCollection
+     */
     private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
         //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
         ArrayAdapter<String> adapter =

@@ -107,6 +107,25 @@ public class ManagerDB implements NetworkResListener {
         return res;
     }
 
+    private boolean syncUpdateVolEvent(VolEvent volEvent) {
+        boolean res = false;
+        if (db != null) {
+            VolEvent event = readEvent(volEvent.getVolEventID());
+            if( event != null){
+                //update
+                int cnt  = db.updateEvent(volEvent);
+                if(cnt > 0)
+                    res = true;
+            }else{
+                //insert
+                long id = db.addEvent(volEvent);
+                if(id != -1)
+                    res = true;
+            }
+        }
+        return res;
+    }
+
     public long addVolunteer(Volunteer volunteer){
         return  db.addVolunteer(volunteer);
     }
@@ -319,6 +338,24 @@ public class ManagerDB implements NetworkResListener {
             if(list!=null && list.size()>0){
                 for(Organization vol :list){
                     syncUpdateOrganization(vol);
+                }
+            }
+        }
+        catch(Throwable t){
+            t.printStackTrace();
+        }
+
+    }
+    public void updatVolEvent(byte[] res) {
+        if(res == null){
+            return;
+        }
+        try {
+            String content = new String(res, "UTF-8");
+            List<VolEvent> list = VolEvent.parseJson(content);
+            if(list!=null && list.size()>0){
+                for(VolEvent volEvent :list){
+                    syncUpdateVolEvent(volEvent);
                 }
             }
         }

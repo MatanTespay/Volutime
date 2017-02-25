@@ -36,6 +36,10 @@ public class AdFragment extends Fragment {
 
     }
 
+    /**
+     *Switch images of ads
+     * @param savedInstanceState
+     */
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);

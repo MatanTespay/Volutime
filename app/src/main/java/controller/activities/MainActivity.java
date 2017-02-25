@@ -3,20 +3,19 @@ package controller.activities;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.content.Intent;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,16 +24,18 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.caldroidsample.R;
+
+import java.util.ArrayList;
 
 import controller.caldroid.CaldroidSampleActivity;
 import controller.fragments.AdFragment;
 import controller.fragments.AllOrgsDialogFragment;
-import controller.fragments.EventFragment;
+import controller.fragments.MessagesFragment;
 import controller.fragments.OrgProfileFragment;
 import controller.fragments.OrganizationFragment;
-import controller.fragments.MessagesFragment;
-import controller.fragments.ProfileFragment;
 import controller.fragments.PhotosFragment;
+import controller.fragments.ProfileFragment;
 import model.ManagerDB;
 import model.Organization;
 import model.UserType;
@@ -44,17 +45,6 @@ import network.utils.NetworkResListener;
 import network.utils.ResStatus;
 import utils.RoundedImageView;
 import utils.utilityClass;
-
-import com.caldroidsample.R;
-
-import java.util.ArrayList;
-
-import static android.R.attr.handle;
-import static android.R.attr.id;
-import static android.R.attr.type;
-import static android.R.id.icon2;
-import static com.caldroidsample.R.id.fab;
-import static com.caldroidsample.R.id.image;
 
 @SuppressWarnings("ALL")
 public class MainActivity extends AppCompatActivity implements OrganizationFragment.OnFragmentInteractionListener,
@@ -71,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
     private Organization org;
     private Volunteer vol;
     private ProgressDialog progressDialog = null;
+    // if the db needs to update from server
     private boolean doVolGet = true;
     private boolean doOrgGet = true;
     private boolean doMsgGet = true;
@@ -97,6 +88,11 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
     private Handler mHandler;
     Bundle savedInstanceState;
     private int userId = 0;
+
+    /**
+     * continue to load activity after getting server data of vol
+     * @param savedInstanceState
+     */
     private void loadApp(Bundle savedInstanceState){
 
         Intent intent = getIntent();
@@ -115,9 +111,10 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         mHandler = new Handler();
-
+        //the drawer at the corner
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
+        // the icon at the right down corner
         fab = (FloatingActionButton) findViewById(R.id.fab);
 
         // Navigation view header
@@ -168,8 +165,8 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
         this.savedInstanceState = savedInstanceState;
 
         ManagerDB.getInstance().openDataBase(this);
-        ArrayList<Volunteer> result = new ArrayList<Volunteer>();
-        result = ManagerDB.getInstance().readAllVolunteers();
+       /* ArrayList<Volunteer> result = new ArrayList<Volunteer>();
+        result = ManagerDB.getInstance().readAllVolunteers();*/
 
         utilityClass.getInstance().setContext(getApplicationContext());
         utilityClass.getInstance().setFormatter();
@@ -180,6 +177,10 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
         setContentView(R.layout.activity_main);
     }
 
+    /**
+     *
+     * @param resource
+     */
     @Override
     public void onPreUpdate(String resource) {
         progressDialog = new ProgressDialog(this);
@@ -189,6 +190,10 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
         progressDialog.show();
     }
 
+    /**
+     * method get req. and returns result from server
+     * @param req
+     */
     public void loadDataFromServer(int req){
 
         if(req == 8){
@@ -201,10 +206,17 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
             NetworkConnector.getInstance().getOrganizations();
         }
         else if(req == 10){
-
+            NetworkConnector.getInstance().registerListener(this);
+            NetworkConnector.getInstance().getVolevents();
         }
     }
 
+    /**
+     *
+     * @param  res  - the data
+     * @param status - the status of the update process
+     * @param type
+     */
     @Override
     public void onPostUpdate(byte[] res, ResStatus status, String type) {
 
@@ -232,7 +244,7 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
                 utilityClass.getInstance().showToast(R.string.preUpdate,1,s);
                 doEventGet = false;
                 progressDialog.dismiss();
-               // ManagerDB.getInstance().updateOrganization(res);
+                ManagerDB.getInstance().updatVolEvent(res);
             }
 
         }
@@ -241,10 +253,18 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
         }
     }
 
+    /**
+     * get the fab
+     * @return
+     */
     public FloatingActionButton getFab() {
         return fab;
     }
 
+    /**
+     * set a new fab
+     * @param fab
+     */
     public void setFab(FloatingActionButton fab) {
         this.fab = fab;
     }
@@ -256,19 +276,11 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
      */
     private void loadNavHeader() {
 
-        //GET USER DATA AND TYPE
-/*        Intent intent = getIntent();
-        Bundle bd = intent.getExtras();
-        int id = 0;
-        if(bd != null)
-        {
-            UserType type = (UserType) bd.get("userType");
-            id =  bd.getInt("userId");
-            //set the activity user type
-            setUserType(type);*/
+        //GET USER DATA AND TYPE FROM DB
 
+        //CHECKS USER TYPE
             if(getUserType().equals(UserType.volType)){
-                //get vol data
+                //IF THE USER IS VOLUNTEER
                 this.vol = ManagerDB.getInstance().readVolunteer(this.userId);
                 if(this.vol != null){
                     txtName.setText(vol.getfName()+" "+vol.getlName());
@@ -281,12 +293,12 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
 
             }
             else{
-                //get org data
+                // IF THE USRR IS ORG
                 if(this.navigationView != null){
                     navigationView.getMenu().getItem(0).setVisible(false);
                     navigationView.getMenu().getItem(1).setVisible(false);
                 }
-
+                //get the organization data from db
                 this.org = ManagerDB.getInstance().readOrganization(this.userId);
                 if(this.org != null){
                     txtName.setText(org.getName());
@@ -379,6 +391,7 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
     }
 
     /**
+     * shows the right frag. on the fragment layout acording to index
      * get the current Fragment by navItemIndex
      * @return Fragment
      */
@@ -439,17 +452,25 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
         }
     }
 
+    /**
+     * set the setToolbarTitle
+     */
     private void setToolbarTitle() {
         if(getSupportActionBar() != null)
         getSupportActionBar().setTitle(activityTitles[navItemIndex]);
     }
 
+    /**
+     *
+     */
     private void selectNavMenu() {
         if(navigationView != null)
         navigationView.getMenu().getItem(navItemIndex).setChecked(true);
     }
 
-    // set the select item of navigation
+    /**
+     *  set the select item of navigation
+     */
     private void setUpNavigationView() {
         //Setting Navigation View Item Selected Listener to handle the item click of the navigation menu
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -471,6 +492,7 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
                         Intent cal = new Intent(new Intent(MainActivity.this, CaldroidSampleActivity.class));
                         if(getVol() != null){
                             cal.putExtra("userID",getVol().getId());
+                            cal.putExtra("doEventGet", doEventGet);
                             startActivity(cal);
                         }
                         drawer.closeDrawers();
@@ -525,6 +547,9 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
         actionBarDrawerToggle.syncState();
     }
 
+    /**
+     * on click at back button the drawer will return to the first index
+     */
     @Override
     public void onBackPressed() {
         if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -594,6 +619,11 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
         //super.onBackPressed();
     }
 
+    /**
+     *
+     * @param menu
+     * @return
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -610,6 +640,11 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
         return true;
     }
 
+    /**
+     *
+     * @param item
+     * @return
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -697,7 +732,7 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
             }
         }
     }
-
+// getters and setters
     public UserType getUserType() {
         return userType;
     }

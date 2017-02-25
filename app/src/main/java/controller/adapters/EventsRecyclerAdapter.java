@@ -76,6 +76,12 @@ public class EventsRecyclerAdapter extends GenericRecyclerViewAdapter<VolEvent> 
         return view;
     }
 
+    /**
+     * Shows the details of one event by the position param.
+     * @param item
+     * @param viewHolder
+     * @param position
+     */
     @Override
     protected void bindView(VolEvent item, ViewHolder viewHolder, int position) {
         if (item != null) {
@@ -99,6 +105,9 @@ public class EventsRecyclerAdapter extends GenericRecyclerViewAdapter<VolEvent> 
         }
     }
 
+    /**
+     * removes the event by it's position
+     */
     public void removeItem(){
         super.remove(getList().get(selectedPosition));
     }

@@ -38,17 +38,22 @@ public class EventListFragment extends DialogFragment {
         //ManagerDB.getInstance().resetDB();
 
         if (getArguments() != null) {
-
+            //get argument of the class
             items = (List<VolEvent>) getArguments().getSerializable("events");
             title = getArguments().getString("dateTitle");
+            // get th elements of the XML
             RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_events);
             TextView titleTextView = (TextView) view.findViewById(R.id.titleOfDay);
+
             titleTextView.setText(title);
+            // create adapter to show  the list
             adapter = new EventsRecyclerAdapter( getActivity(), null);
             adapter.setList(items);
             recyclerView.setAdapter(adapter);
+
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
             RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
+            //
             itemAnimator.setAddDuration(1000);
             itemAnimator.setRemoveDuration(1000);
             recyclerView.setItemAnimator(itemAnimator);
@@ -59,12 +64,19 @@ public class EventListFragment extends DialogFragment {
         return view;
     }
 
+    /**
+     *
+     */
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
     }
 
+    /**
+     *
+     * @param context
+     */
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);

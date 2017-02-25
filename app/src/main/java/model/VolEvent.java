@@ -1,6 +1,18 @@
 package model;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
+import utils.utilityClass;
 
 /**
  * Created by Faina0502 on 28/01/2017.
@@ -95,4 +107,57 @@ public class VolEvent {
     public void setOrgID(int orgID) {
         this.orgID = orgID;
     }
+
+
+    public static List<VolEvent> parseJson(String content) {
+
+        List<VolEvent> list = null;
+        try {
+
+            JSONTokener jsonTokener = new JSONTokener(content);
+
+            JSONObject json = (JSONObject) jsonTokener.nextValue();
+
+            list = new ArrayList<>();
+
+            JSONArray VolEventsJsonArr = json.getJSONArray("VolEvent");
+
+            for (int i = 0; i < VolEventsJsonArr.length(); i++) {
+                try {
+                    JSONObject fObj = VolEventsJsonArr.getJSONObject(i);
+                    VolEvent o = new VolEvent();
+                    if(o.fromJson(fObj)){
+                        list.add(o);
+                    }
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
+            }
+
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    private boolean fromJson(JSONObject fObj) {
+        boolean res = false;
+        try {
+            setVolEventID(fObj.getInt("eventID"));
+            setVolID(fObj.getInt("volunteerID"));
+            setOrgID(fObj.getInt("organizationID"));
+            setDate(utilityClass.getInstance().getDateFromString(fObj.getString("date")));
+            setStartTime(utilityClass.getInstance().getDateTimeFromString(fObj.getString("startTime")));
+            setEndTime(utilityClass.getInstance().getDateTimeFromString(fObj.getString("endTime")));
+            setDetails(fObj.getString("details"));
+            setTitle(fObj.getString("title"));
+
+           res = true;
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+        return res;
+    }
+
 }

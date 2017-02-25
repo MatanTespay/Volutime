@@ -52,7 +52,7 @@ public class OrganizationListAdapter extends GenericRecyclerViewAdapter<Organiza
                             //get volunteer from activity
                             MainActivity act = (MainActivity) OrganizationListAdapter.this.getContext();
                             Volunteer vol = act.getVol();
-                            //get selected orgnization
+                            //get selected organization
                             Organization selectedOrg = getItem(position);
 
                             //get the FragmentManager from the context (the activity that extends FragmentActivity)
@@ -62,18 +62,14 @@ public class OrganizationListAdapter extends GenericRecyclerViewAdapter<Organiza
                             //Fragment orgFrag= new OrgProfileFragment();
                             //give some params for the dialog and Show it
                             Bundle args = new Bundle();
+                            // send orgId to allOrgsFrag.
                             args.putInt("orgID", selectedOrg.getId());
-                            //orgFrag.setArguments(args);
-                        /*FragmentTransaction fragmentTransaction = fm.beginTransaction();
-                        fragmentTransaction.setCustomAnimations(android.R.anim.fade_in,
-                                android.R.anim.fade_out);
-                        fragmentTransaction.replace(R.id.frame, orgFrag, "PROFILE");
-                        fragmentTransaction.commitAllowingStateLoss();*/
                             AllOrgsDialogFragment orgsDialog = new AllOrgsDialogFragment();
                             args.putInt("volID", vol.getId());
                             args.putBoolean("isEditState", false);
                             args.putBoolean("isNew", false);
                             args.putInt("OrgID",selectedOrg.getId() );
+
                             orgsDialog.setArguments(args);
 
                             orgsDialog.show(fm, "orgsDialog");
@@ -107,6 +103,12 @@ public class OrganizationListAdapter extends GenericRecyclerViewAdapter<Organiza
         return view;
     }
 
+    /**
+     * Show thw details of the chosen organization
+     * @param item - the Arraylist of organizations
+     * @param viewHolder generic Adapters
+     * @param position - the chosen organization.
+     */
     @Override
     protected void bindView(Organization item, GenericRecyclerViewAdapter.ViewHolder viewHolder, int position) {
         if (item != null) {
