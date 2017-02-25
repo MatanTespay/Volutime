@@ -9,10 +9,12 @@ import android.graphics.BitmapFactory;
 import android.util.Base64;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import utils.utilityClass;
@@ -144,6 +146,26 @@ public class Organization {
             t.printStackTrace();
         }
         return res;
+    }
+
+    public static JSONObject toJson(Organization obj){
+        JSONObject json = new JSONObject();
+
+        try {
+            json.put("organizationID",obj.getId() );
+            json.put("organizationName",obj.getName() );
+            //json.put("lname",obj.getlName() );
+            json.put("Address",obj.getAddress() );
+            json.put("Email",obj.getEmail() );
+            json.put("Password",obj.getPassword() );
+            String s = utilityClass.getInstance().imgToBase64String(obj.getProfilePic());
+            json.put("ProfilePic",(s != null) ? s : "" );
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return json;
     }
 }
 

@@ -3,6 +3,8 @@ package model;
 import android.content.Context;
 import android.widget.Toast;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -225,6 +227,7 @@ public class ManagerDB implements NetworkResListener {
         }
         return null;
     }
+
     public int deleteVolAtOrg(VolAtOrg volAtOrg){
         if(db!=null)
         {
@@ -232,6 +235,7 @@ public class ManagerDB implements NetworkResListener {
         }
         return -1;
     }
+
     public int updateVolAtOrg(VolAtOrg volAtOrg){
         if(db!=null){
             return  db.updateVolAtOrg(volAtOrg);
@@ -246,16 +250,28 @@ public class ManagerDB implements NetworkResListener {
      */
     public  long updateOrg(Organization org){
         if(db!=null){
-            return  db.updateOrg(org);
+            long result = db.updateOrg(org);
+            if(result > 0){
+                JSONObject jObj = Organization.toJson(org);
+                NetworkConnector.getInstance().sendRequestToServer(NetworkConnector.UPDATE_ORG_REQ,jObj );
+            }
+            return   result;
         }
         return  -1;
     }
 
 
-    public Long addEvent(VolEvent event){
-        if(db!=null)
-            return db.addEvent(event);
-        return -1L;
+    public long addEvent(VolEvent event){
+        if(db!=null){
+            long result = db.addEvent(event);
+            if(result > 0){
+                JSONObject jObj = VolEvent.toJson(event);
+                NetworkConnector.getInstance().sendRequestToServer(NetworkConnector.INSERT_EVENT_REQ,jObj );
+            }
+            return   result;
+        }
+
+        return -1;
     }
 
     public VolEvent readEvent(int id){
@@ -273,13 +289,24 @@ public class ManagerDB implements NetworkResListener {
 
     public int updateEvent(VolEvent event){
         if(db!=null){
-            return  db.updateEvent(event);
+            int result = db.updateEvent(event);
+            if(result > 0){
+                JSONObject jObj = VolEvent.toJson(event);
+                NetworkConnector.getInstance().sendRequestToServer(NetworkConnector.UPDATE_EVENT_REQ,jObj );
+            }
+            return  result;
         }
         return  -1;
     }
+
     public int deleteEvent(VolEvent event){
         if(db!=null){
-           return db.deleteEvent(event);
+            int result = db.deleteEvent(event);
+            if(result > 0){
+                JSONObject jObj = VolEvent.toJson(event);
+                NetworkConnector.getInstance().sendRequestToServer(NetworkConnector.DELETE_EVENT_REQ,jObj );
+            }
+            return  result;
         }
         return  -1;
     }
@@ -309,6 +336,10 @@ public class ManagerDB implements NetworkResListener {
 
     }
 
+    /**
+     * update all volunteers petch from server
+     * @param res
+     */
     public void updateVolunteers(byte[] res) {
         if(res == null){
             return;
@@ -328,6 +359,11 @@ public class ManagerDB implements NetworkResListener {
 
     }
 
+    /**
+     * update all organization petch from server
+     *
+     * @param res
+     */
     public void updateOrganization(byte[] res) {
         if(res == null){
             return;

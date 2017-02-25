@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.util.Base64;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -158,6 +159,28 @@ public class Volunteer {
         }
 
         return list;
+    }
+
+    public static JSONObject toJson(Volunteer obj){
+        JSONObject json = null;
+
+        try {
+            json.put("volID",obj.getId() );
+            json.put("fname",obj.getfName() );
+            json.put("lname",obj.getlName() );
+            Date d = obj.getBirthDate();
+            json.put("birthDate",(d != null ) ? utilityClass.getInstance().getSortStringFromDateTime(obj.getBirthDate()) : "");
+            json.put("address",obj.getAddress() );
+            json.put("email",obj.getEmail() );
+            json.put("password",obj.getPassword() );
+            String s = utilityClass.getInstance().imgToBase64String(obj.getProfilePic());
+            json.put("ProfilePic",s );
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return json;
     }
 
     private boolean fromJson(JSONObject fObj) {
