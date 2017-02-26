@@ -270,7 +270,7 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
     }
 
     /**
-     * Show dialog fragmen with all the events according to volunteer
+     * Show dialog fragment with all the events according to volunteer
      */
     private void openNewEvent() {
         android.app.FragmentManager fm = this.getFragmentManager();
@@ -495,7 +495,7 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
     }
 
     /**
-     *
+     * method to update ui before dong task
      * @param resource
      */
     @Override

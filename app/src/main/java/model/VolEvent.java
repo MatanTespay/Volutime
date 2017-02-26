@@ -46,6 +46,7 @@ public class VolEvent {
 
     }
 
+    // setters and getters
     public int getVolEventID() {
         return volEventID;
     }
@@ -111,6 +112,11 @@ public class VolEvent {
         this.orgID = orgID;
     }
 
+    /**
+     * Create a json object from volevent
+     * @param obj
+     * @return
+     */
     public static JSONObject toJson(VolEvent obj){
         JSONObject iObj = new JSONObject();
 
@@ -132,7 +138,11 @@ public class VolEvent {
         return iObj;
     }
 
-
+    /**
+     * create a list of volevents
+     * @param content
+     * @return
+     */
     public static List<VolEvent> parseJson(String content) {
 
         List<VolEvent> list = null;
@@ -165,6 +175,11 @@ public class VolEvent {
         return list;
     }
 
+    /**
+     * read volevent field from json object
+     * @param fObj
+     * @return
+     */
     private boolean fromJson(JSONObject fObj) {
         boolean res = false;
         try {

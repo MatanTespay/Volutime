@@ -25,7 +25,7 @@ public class VolAtOrg {
     public VolAtOrg() {
 
     }
-
+// setters and getters
     public int getOrgID() {
         return orgID;
     }

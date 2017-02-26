@@ -29,6 +29,10 @@ public class RoundedImageView extends ImageView {
 		super(context, attrs, defStyle);
 	}
 
+    /**
+     *
+     * @param canvas
+     */
 	@Override
 	protected void onDraw(Canvas canvas) {
 
@@ -50,7 +54,12 @@ public class RoundedImageView extends ImageView {
 		canvas.drawBitmap(roundBitmap, 0, 0, null);
 
 	}
-
+	/**
+     * to change the image to be round in the corners
+	 * @param bmp
+	 * @param radius
+     * @return
+     */
 	public static Bitmap getCroppedBitmap(Bitmap bmp, int radius) {
 		Bitmap sbmp;
 		if (bmp.getWidth() != radius || bmp.getHeight() != radius)

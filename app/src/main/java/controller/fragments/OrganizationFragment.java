@@ -146,7 +146,7 @@ public class OrganizationFragment extends Fragment  {
     }
 
     /**
-     *
+     *load data to the adapter
      */
     public void loadDataToAdapter(){
 
@@ -225,6 +225,10 @@ public class OrganizationFragment extends Fragment  {
         void onFragmentInteraction(Bundle bundle);
     }
 
+    /**
+     * fill data of organizations
+     * @return
+     */
     public List<Organization> fill_with_data() {
         List<Organization> data = new ArrayList<>();
         MainActivity act  = (MainActivity) getActivity();

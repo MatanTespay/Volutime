@@ -45,7 +45,7 @@ public class Organization {
         this.password = password;
         this.profilePic =profilePic;
     }
-
+// setters and getters
     public Organization() {
 
     }
@@ -128,6 +128,11 @@ public class Organization {
         return list;
     }
 
+    /**
+     *
+     * @param fObj
+     * @return
+     */
     private boolean fromJson(JSONObject fObj) {
         boolean res = false;
         try {
@@ -148,6 +153,11 @@ public class Organization {
         return res;
     }
 
+    /**
+     * create a json object with organization fields
+     * @param obj
+     * @return
+     */
     public static JSONObject toJson(Organization obj){
         JSONObject json = new JSONObject();
 

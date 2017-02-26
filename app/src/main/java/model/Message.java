@@ -26,7 +26,7 @@ public class Message {
     public Message() {
 
     }
-
+// setters and getters
     public int getMessageID() {
         return messageID;
     }

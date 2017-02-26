@@ -453,7 +453,7 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
     }
 
     /**
-     *
+     *select Nav Menu
      */
     private void selectNavMenu() {
         if(navigationView != null)

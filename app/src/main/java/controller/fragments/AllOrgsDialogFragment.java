@@ -302,7 +302,9 @@ public class AllOrgsDialogFragment extends DialogFragment {
             }
         });
 
-
+/**
+ * set the listeners at the fragment
+ */
         btnSave.setOnClickListener(new View.OnClickListener() {
            @Override
            public void onClick(View view) {
@@ -453,6 +455,10 @@ public class AllOrgsDialogFragment extends DialogFragment {
 
         }
     }
+
+    /**
+     * fill the data at db about volunteers' organizations
+     */
     private void fillDataOfVolAtOrg() {
         result = ManagerDB.getInstance().getVolAtOrg(userId, orgToShow);
         Organization org = ManagerDB.getInstance().readOrganization(result.getOrgID());
@@ -467,7 +473,9 @@ public class AllOrgsDialogFragment extends DialogFragment {
         }
     }
 
-
+    /**
+     * remove this organization from volunteering organiztions
+     */
     private void removeVolAtOrgObj() {
         if(result!=null){
            int r= ManagerDB.getInstance().deleteVolAtOrg(result);
@@ -481,6 +489,12 @@ public class AllOrgsDialogFragment extends DialogFragment {
         }
     }
 
+    /**
+     * set the date that the volunteer starts volunteering at the org
+     * @param year
+     * @param monthOfYear
+     * @param dayOfMonth
+     */
 
     private void setDateStart(int year, int monthOfYear, int dayOfMonth) {
         Calendar c = Calendar.getInstance();
@@ -491,6 +505,13 @@ public class AllOrgsDialogFragment extends DialogFragment {
         this.start = c.getTime();
 
     }
+
+    /**
+     * set the date that the volunteer stop volunteering at the org
+     * @param year
+     * @param monthOfYear
+     * @param dayOfMonth
+     */
     private void setDateEnd(int year, int monthOfYear, int dayOfMonth)
     {
         Calendar c = Calendar.getInstance();
@@ -502,6 +523,10 @@ public class AllOrgsDialogFragment extends DialogFragment {
 
     }
 
+    /**
+     * set selected position
+     * @param selectedPos
+     */
     public void setSelectedPos(int selectedPos) {
         this.selectedPos = selectedPos;
     }

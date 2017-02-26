@@ -171,11 +171,14 @@ public class VolutimeDB extends SQLiteOpenHelper {
             ")";
     // endregion
 
-
     public VolutimeDB(Context context) {
         super(context, DATABASE_NAME, null, 1);
     }
 
+    /**
+     * Creates all the tables of the DB
+     * @param db
+     */
     @Override
     public void onCreate(SQLiteDatabase db) {
         // TODO Auto-generated method stub
@@ -225,6 +228,12 @@ public class VolutimeDB extends SQLiteOpenHelper {
         }
     }
 
+    /**
+     * upgrade the db
+     * @param db
+     * @param oldVersion
+     * @param newVersion
+     */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // TODO Auto-generated method stub
@@ -237,6 +246,9 @@ public class VolutimeDB extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+    /**
+     * reset the db
+     */
     public void resetDB(){
         try {
             db.execSQL("DELETE FROM " + VOL_AT_ORG_TABLE_NAME );
@@ -253,6 +265,11 @@ public class VolutimeDB extends SQLiteOpenHelper {
         }
     }
 
+    /**
+     *  The method recieves volunteer object and insert it to the db
+     * @param volunteer
+     * @return
+     */
     public long addVolunteer(Volunteer volunteer) {
        // Add Volunteer To DB
         long result=-1;
@@ -286,6 +303,11 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return result;
     }
 
+    /**
+     * The method recieves organization object and insert it to the db
+     * @param org
+     * @return
+     */
     public long addOrganization(Organization org) {
        // Add Organization To DB
         long result=-1;
@@ -317,6 +339,11 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return result;
    }
 
+    /**
+     * The method recieves VolEvent object and insert it to the db
+     * @param event
+     * @return
+     */
     public Long addEvent(VolEvent event) {
         // Add Activity To DB
     Long result = -1L;
@@ -343,6 +370,15 @@ public class VolutimeDB extends SQLiteOpenHelper {
 
     }
 
+    /**
+     * The method receives a volunteer id , organiztion id and other params for the db,
+     * to connect between organization and volunteer.
+     * @param volID
+     * @param orgID
+     * @param startDate
+     * @param endDate
+     * @return
+     */
     public Long addOrgToVolunteer(int volID ,int orgID, String startDate, String endDate) {
         // Add Organization To volunteer
         Long result = -1L;
@@ -367,6 +403,10 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return result;
     }
 
+    /**
+     * add more types of user like volunteer and organization
+     * @param userType
+     */
     public void addType(String userType) {
         // Add Type To DB
 
@@ -385,6 +425,16 @@ public class VolutimeDB extends SQLiteOpenHelper {
 
     }
 
+    /**
+     * Add a message fields to the db.
+     * @param senderID
+     * @param receiverID
+     * @param parentID
+     * @param content
+     * @param date
+     * @param time
+     * @param userType
+     */
     public void addMessage(int senderID ,int receiverID,int parentID, String content, String date, String time, int userType) {
         // Add message To DB
 
@@ -409,6 +459,11 @@ public class VolutimeDB extends SQLiteOpenHelper {
 
     }
 
+    /**
+     * convert bitmap to byte array
+     * @param bitmap
+     * @return
+     */
     private byte[] getBitmapAsByteArray(Bitmap bitmap) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
@@ -416,7 +471,7 @@ public class VolutimeDB extends SQLiteOpenHelper {
     }
 
     /**
-     * read volunteer my email
+     * get volunteer by email
      * @param email
      * @return
      */
@@ -466,6 +521,11 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return vol;
     }
 
+    /**
+     * get volunteer by id
+     * @param volId
+     * @return
+     */
     public Volunteer readVolunteer(int volId) {
         //select the volunteer
         Volunteer vol = null ;
@@ -513,6 +573,11 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return vol;
     }
 
+    /**
+     * get volunteer with cursor
+     * @param cursor
+     * @return
+     */
     private Volunteer cursorToVolunteer(Cursor cursor) {
         Volunteer vol = null ;
         try {
@@ -543,6 +608,10 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return vol;
     }
 
+    /**
+     * get all volunteers in db
+     * @return
+     */
     public ArrayList<Volunteer> readAllVolunteers() {
         ArrayList<Volunteer> result = new ArrayList<Volunteer>();
         Cursor cursor = null;
@@ -569,6 +638,11 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return result;
     }
 
+    /**
+     * get organization by id
+     * @param id
+     * @return
+     */
     public Organization readOrganization(int id) {
         //select the ORG
         Organization org = null;
@@ -614,6 +688,11 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return org;
     }
 
+    /**
+     * get organization by Email
+     * @param email
+     * @return
+     */
     public Organization readOrganization(String email) {
         //select the ORG
         Organization org = null;
@@ -659,6 +738,12 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return org;
     }
 
+    /**
+     * get details about an the volunteering in the organization
+     * @param vol
+     * @param org
+     * @return
+     */
     public VolAtOrg getVolAtOrg(int vol,int org) {
         VolAtOrg details = null;
         Cursor cursor = null;
@@ -695,6 +780,12 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return details;
     }
 
+    /**
+     * get a user (organization type) by email and password
+     * @param email
+     * @param password
+     * @return
+     */
     public Organization getOrgUser(String email, String password) {
         //select the volunteer
         //TODO check again
@@ -742,6 +833,11 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return org;
     }
 
+    /**
+     * get message by id
+     * @param id
+     * @return
+     */
     public Message readMessage(int id) {
 
         Message msg = null;
@@ -781,6 +877,12 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return msg;
     }
 
+    /**
+     * get events by the last month for volunteer user
+     * @param month
+     * @param userId
+     * @return
+     */
     public List<VolEvent> readEventsForUserByMonth(int month , int userId){
 
         List<VolEvent> events = new ArrayList<>();
@@ -835,6 +937,11 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return  events;
     }
 
+    /**
+     * get volEvent by id
+     * @param id
+     * @return
+     */
     public VolEvent readEvent(int id) {
 
         VolEvent event = null ;
@@ -874,6 +981,10 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return event;
     }
 
+    /**
+     * get all orgs in db
+     * @return
+     */
     public ArrayList<Organization> getAllOrgs() {
         ArrayList<Organization> result = new ArrayList<Organization>();
         Cursor cursor = null;
@@ -900,6 +1011,11 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return result;
     }
 
+    /**
+     * helper method to get all orgs
+     * @param cursor
+     * @return
+     */
     private Organization cursorToOrganization(Cursor cursor) {
         Organization result = new Organization();
         try {
@@ -925,6 +1041,11 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return result;
     }
 
+    /**
+     * updates a volunteer in db
+     * @param volunteer
+     * @return
+     */
     public int updateVolunteer(Volunteer volunteer) {
         int cnt = 0;
         try {
@@ -959,6 +1080,11 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return cnt;
     }
 
+    /**
+     *  updates a organizations in db
+     * @param org
+     * @return
+     */
     public int updateOrg(Organization org) {
         int cnt = 0;
         try {
@@ -991,6 +1117,11 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return cnt;
     }
 
+    /***
+     * get all id's of all volunteers
+     * @param userID
+     * @return
+     */
     public ArrayList<Integer> getOrgIdsOfVol(int userID){
         ArrayList<Integer> orgsInt=new ArrayList<>();
         Cursor cursor = null;
@@ -1020,6 +1151,11 @@ public class VolutimeDB extends SQLiteOpenHelper {
 
     }
 
+    /**
+     * update volevent in db
+     * @param event
+     * @return
+     */
     public int updateEvent(VolEvent event) {
         int cnt = 0;
         try {
@@ -1042,6 +1178,11 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return cnt;
     }
 
+    /**
+     * update volunteer to organization
+     * @param volAtOrg
+     * @return
+     */
     public int updateVolAtOrg(VolAtOrg volAtOrg) {
         int cnt = 0;
        try {
@@ -1062,6 +1203,11 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return cnt;
     }
 
+    /**
+     * erase event from db
+     * @param event
+     * @return
+     */
     public int deleteEvent(VolEvent event) {
         int count = -1;
         try {
@@ -1075,6 +1221,11 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return  count;
     }
 
+    /**
+     * delete connection between org and vol
+     * @param volAtOrg
+     * @return
+     */
     public int deleteVolAtOrg(VolAtOrg volAtOrg) {
 
         try {
@@ -1087,6 +1238,12 @@ public class VolutimeDB extends SQLiteOpenHelper {
         return -1;
     }
 
+    /**
+     * get the user i volunteer type
+     * @param email
+     * @param password
+     * @return Volunteer object
+     */
     public Volunteer getVolunteerUser(String email, String password) {
         //select the volunteer
         //TODO check again

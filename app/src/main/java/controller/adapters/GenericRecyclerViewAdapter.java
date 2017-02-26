@@ -25,10 +25,16 @@ public abstract class GenericRecyclerViewAdapter<T> extends RecyclerView.Adapter
     private Context mContext;
     private OnViewHolderClick mListener;
 
+    /**
+     * interface to implements click on Adapter items
+     */
     public interface OnViewHolderClick {
         void onClick(View view, int position);
     }
 
+    /**
+     * build the view for the object data
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private Map<Integer, View> mMapView;
         private OnViewHolderClick mListener;
@@ -48,12 +54,12 @@ public abstract class GenericRecyclerViewAdapter<T> extends RecyclerView.Adapter
             if (mListener != null)
                 mListener.onClick(view, getAdapterPosition());
         }
-
+// initialize view List
         public void initViewList(int[] idList) {
             for (int id : idList)
                 initViewById(id);
         }
-
+// initialize view by Id
         public void initViewById(int id) {
             View view = (getView() != null ? getView().findViewById(id) : null);
 
@@ -71,12 +77,25 @@ public abstract class GenericRecyclerViewAdapter<T> extends RecyclerView.Adapter
             else
                 initViewById(id);
 
-            return mMapView.get(id);
-        }
-    }
+    return mMapView.get(id);
+}
+}
 
+    /**
+     * create data to the view holder
+     * @param context
+     * @param viewGroup
+     * @param viewType
+     * @return
+     */
     protected abstract View createView(Context context, ViewGroup viewGroup, int viewType);
 
+    /**
+     * bind the data to the view holder
+     * @param item
+     * @param viewHolder
+     * @param position
+     */
     protected abstract void bindView(T item, ViewHolder viewHolder,int position);
 
     public GenericRecyclerViewAdapter(Context context) {

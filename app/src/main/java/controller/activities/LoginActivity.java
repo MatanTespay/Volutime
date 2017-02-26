@@ -48,7 +48,7 @@ import static com.caldroidsample.R.id.email;
  * A login screen that offers login via email/password.
  */
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
-
+// user can be or volunteer or organization
     private UserType type;
 
     /**
@@ -167,7 +167,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     /**
-     *
+     * checks if the input email is a valid email string
      * @param email
      * @return
      */
@@ -247,7 +247,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     /**
-     *
+     * preform after finish load
      * @param cursorLoader
      * @param cursor
      */
@@ -269,7 +269,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     /**
-     *
+     *add emails to auto Complete
      * @param emailAddressCollection
      */
     private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
@@ -277,7 +277,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         ArrayAdapter<String> adapter =
                 new ArrayAdapter<>(LoginActivity.this,
                         android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
-
+//set the adapter
         mEmailView.setAdapter(adapter);
     }
 

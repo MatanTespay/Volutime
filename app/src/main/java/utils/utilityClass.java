@@ -39,19 +39,35 @@ public class utilityClass {
         return instance;
     }
 
+    /**
+     *
+     * @return the long format of date
+     */
     public  SimpleDateFormat getLongformatter() {
         return longformatter;
     }
 
+    /**
+     *
+     * @return the short format of date
+     */
     public  SimpleDateFormat getSortformatter() {
         return sortformatter;
     }
 
+    /**
+     * set the formats
+     */
     public void setFormatter(){
         longformatter = new SimpleDateFormat(context.getResources().getString(R.string.LongDateStringFormat));
         sortformatter = new SimpleDateFormat(context.getResources().getString(R.string.DateStringFormat));
     }
 
+    /**
+     * convert String to long formatted date
+     * @param dateString
+     * @return
+     */
     public Date getDateTimeFromString(String dateString){
         Date date = null;
         try {
@@ -64,6 +80,11 @@ public class utilityClass {
         return  date;
     }
 
+    /**
+     * convert String to short formatted date
+     * @param dateString
+     * @return
+     */
     public Date getSortDateTimeFromString(String dateString){
         Date date = null;
         try {
@@ -76,6 +97,11 @@ public class utilityClass {
         return  date;
     }
 
+    /**
+     * convert String to short formatted date (other format the the above method)
+     * @param dateString
+     * @return
+     */
     public Date getDateFromString(String dateString){
         Date date = null;
         try {
@@ -88,6 +114,11 @@ public class utilityClass {
         return  date;
     }
 
+    /**
+     * convert date to string of long formatted date
+     * @param date
+     * @return
+     */
     public String getStringFromDateTime(Date date){
         String str= "";
         try {
@@ -100,6 +131,11 @@ public class utilityClass {
         return  str;
     }
 
+    /**
+     *  convert date to string of short formatted date
+     * @param date
+     * @return
+     */
     public String getSortStringFromDateTime(Date date){
         String str= "";
         try {
@@ -134,12 +170,22 @@ public class utilityClass {
 
     }
 
+    /**
+     * convert bitmap type to an array of byets
+     * @param bitmap
+     * @return
+     */
     private static byte[] getBitmapAsByteArray(Bitmap bitmap) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
         return outputStream.toByteArray();
     }
 
+    /**
+     * convert a bitmap object to string
+     * @param imgByte
+     * @return
+     */
     public String imgToBase64String(Bitmap imgByte){
         String base64 = null;
         if (imgByte != null) {
@@ -153,7 +199,14 @@ public class utilityClass {
         return base64;
     }
 
-
+    /**
+     * gets a date , m,h,s and creates a long formatted Date with the input params.
+     * @param date
+     * @param H - hours
+     * @param M - minutes
+     * @param S - seconds
+     * @return Date object
+     */
     public Date dateTime(Date date, int H, int M, int S) {
         Calendar calendarA = Calendar.getInstance();
         calendarA.setTime(date);
@@ -165,6 +218,12 @@ public class utilityClass {
         return  result;
     }
 
+    /**
+     *
+     * @param startdate - the date that the event starts
+     * @param enddate - the date that the event ends
+     * @return a list of all the days between the given params to update the calendar
+     */
     public static List<Date> getDaysBetweenDates(Date startdate, Date enddate)
     {
         List<Date> dates = new ArrayList<Date>();

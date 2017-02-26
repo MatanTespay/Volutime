@@ -64,19 +64,14 @@ public class EventListFragment extends DialogFragment {
         return view;
     }
 
-    /**
-     *
-     */
+
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
     }
 
-    /**
-     *
-     * @param context
-     */
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);

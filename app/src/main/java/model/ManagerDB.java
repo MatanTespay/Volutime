@@ -28,7 +28,6 @@ public class ManagerDB implements NetworkResListener {
 
     public ManagerDB() {
     }
-
     //singelton
     public static ManagerDB getInstance(){
         if(instance== null){
@@ -38,6 +37,10 @@ public class ManagerDB implements NetworkResListener {
 
         return instance;
     }
+
+    /**
+     * release instance
+     */
     public static void releaseInstance() {
         if (instance != null) {
             instance.clean();
@@ -70,6 +73,11 @@ public class ManagerDB implements NetworkResListener {
         }
     }
 
+    /**
+     *
+     * @param vol
+     * @return
+     */
     private boolean syncUpdateVolunteer(Volunteer vol) {
         boolean res = false;
         if (db != null) {
@@ -89,6 +97,11 @@ public class ManagerDB implements NetworkResListener {
         return res;
     }
 
+    /**
+     *
+     * @param org
+     * @return
+     */
     private boolean syncUpdateOrganization(Organization org) {
         boolean res = false;
         if (db != null) {
@@ -109,6 +122,11 @@ public class ManagerDB implements NetworkResListener {
         return res;
     }
 
+    /**
+     *
+     * @param volEvent
+     * @return
+     */
     private boolean syncUpdateVolEvent(VolEvent volEvent) {
         boolean res = false;
         if (db != null) {
@@ -128,10 +146,20 @@ public class ManagerDB implements NetworkResListener {
         return res;
     }
 
+    /**
+     *
+     * @param volunteer
+     * @return
+     */
     public long addVolunteer(Volunteer volunteer){
         return  db.addVolunteer(volunteer);
     }
 
+    /**
+     *
+     * @param volunteer
+     * @return
+     */
     public boolean registerVolunteerUser(Volunteer volunteer){
         if(db!=null && volunteer!=null) {
           if(db.addVolunteer(volunteer) != -1)
@@ -141,10 +169,20 @@ public class ManagerDB implements NetworkResListener {
         return false;
     }
 
+    /**
+     *
+     * @param organization
+     * @return
+     */
     public long addOrganization(Organization organization){
         return db.addOrganization(organization);
     }
 
+    /**
+     *
+     * @param volId
+     * @return
+     */
     public Volunteer readVolunteer(int volId){
         if(db!=null){
             return  db.readVolunteer(volId);
@@ -160,6 +198,10 @@ public class ManagerDB implements NetworkResListener {
         return  null;
     }
 
+    /**
+     *
+     * @return
+     */
     public ArrayList<Volunteer> readAllVolunteers() {
         if(db!=null){
             return  db.readAllVolunteers();
@@ -167,6 +209,11 @@ public class ManagerDB implements NetworkResListener {
         return  null;
     }
 
+    /**
+     *
+     * @param id
+     * @return organization that is in the db otherwise null
+     */
     public Organization readOrganization(int id){
         if(db!=null){
             return  db.readOrganization(id);
@@ -174,6 +221,11 @@ public class ManagerDB implements NetworkResListener {
         return  null;
     }
 
+    /**
+     * get organization by email
+     * @param email
+     * @return
+     */
     public Organization readOrganization(String email){
         if(db!=null){
             return  db.readOrganization(email);
@@ -181,6 +233,12 @@ public class ManagerDB implements NetworkResListener {
         return  null;
     }
 
+    /**
+     * get organization by pass and email
+     * @param email
+     * @param password
+     * @return
+     */
     public Organization getOrgUser(String email, String password) {
         Organization org = null;
         if(db!=null && email!=null&& password!=null){
@@ -189,6 +247,14 @@ public class ManagerDB implements NetworkResListener {
         return org;
     }
 
+    /**
+     * add the new organization user volunteer at
+     * @param volID
+     * @param orgID
+     * @param startDate
+     * @param endDate
+     * @return
+     */
     public Long addOrgToVolunteer(int volID ,int orgID, String startDate, String endDate){
 
         if(db != null){
@@ -198,12 +264,22 @@ public class ManagerDB implements NetworkResListener {
         return -1L;
     }
 
+    /**
+     * get all id's of organization
+     * @param userID
+     * @return
+     */
     public ArrayList<Integer> getOrgIdsOfVol(int userID){
         if(db!=null){
             return  db.getOrgIdsOfVol(userID);
         }
         return null;
     }
+
+    /**
+     *
+     * @returns all orgs in db
+     */
     public List<Organization> getAllOrgs(){
         if(db!=null)
         {
@@ -228,6 +304,11 @@ public class ManagerDB implements NetworkResListener {
         return null;
     }
 
+    /**
+     * delete connection from org ti vol
+     * @param volAtOrg
+     * @return
+     */
     public int deleteVolAtOrg(VolAtOrg volAtOrg){
         if(db!=null)
         {
@@ -337,7 +418,7 @@ public class ManagerDB implements NetworkResListener {
     }
 
     /**
-     * update all volunteers petch from server
+     * update all volunteers from server
      * @param res
      */
     public void updateVolunteers(byte[] res) {
@@ -383,6 +464,10 @@ public class ManagerDB implements NetworkResListener {
 
     }
 
+    /**
+     * update event
+     * @param res
+     */
     public void updatVolEvent(byte[] res) {
         if(res == null){
             return;

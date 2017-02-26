@@ -28,7 +28,7 @@ import static android.R.attr.data;
 
 public class NetworkConnector {
 
-    private  final String BASE_URL = "http://192.168.14.179:8080/projSrv/";
+    private  final String BASE_URL = "http://192.168.14.179:8080/projSrv/"; // ip address
     public static final String GET_VOLUNTEERS_REQ = "8";
     public static final String GET_VOLEVENTS_REQ = "10";
     public static final String GET_ORGANIZATIONS_REQ = "9";
@@ -75,10 +75,18 @@ public class NetworkConnector {
         }
     }
 
+    /**
+     * clean the resource
+     */
     private void clean() {
         listeners.clear();
     }
 
+    /**
+     * un register Listener
+     * @param listener
+     * @return
+     */
     public boolean unregisterListener(NetworkResListener listener){
         boolean result = false;
         if(listener!=null){
@@ -89,6 +97,10 @@ public class NetworkConnector {
         return result;
     }
 
+    /**
+     * register Listener
+     * @param listener
+     */
     public void registerListener(NetworkResListener listener) {
         if(listener!=null){
             if(!listeners.contains(listener)){
@@ -97,6 +109,9 @@ public class NetworkConnector {
         }
     }
 
+    /**
+     * Start the Async task with the query to the server
+     */
     private void sendQuery(){
         NetworkTask networkTask = new NetworkTask();
         Uri.Builder builder = new Uri.Builder();
@@ -105,6 +120,9 @@ public class NetworkConnector {
         networkTask.execute(query);
     }
 
+    /**
+     * get the volunteers from server
+     */
     public void getVolunteers(){
         CURRENT_REQ = GET_VOLUNTEERS_REQ;
         sendQuery();
@@ -117,22 +135,34 @@ public class NetworkConnector {
         networkTask.execute(query);*/
     }
 
+    /**
+     * get the organizations from server
+     */
     public void getOrganizations(){
         CURRENT_REQ = GET_ORGANIZATIONS_REQ;
         sendQuery();
     }
+
+    /**
+     * get volunteer events from server
+     */
     public void getVolevents(){
         CURRENT_REQ = GET_VOLEVENTS_REQ;
         sendQuery();
     }
 
+    /**
+     * notify Pre-Update Listeners
+     */
     private  void notifyPreUpdateListeners() {
 
         Handler handler = new Handler(ctx.getMainLooper());
 
 
         Runnable myRunnable = new Runnable() {
-
+            /**
+             * run the thread
+             */
             @Override
             public void run() {
                 try{
@@ -156,6 +186,11 @@ public class NetworkConnector {
 
     }
 
+    /**
+     * notify Post-Update Listeners
+     * @param res
+     * @param status
+     */
     private  void notifyPostUpdateListeners(final byte[] res, final ResStatus status) {
 
         Handler handler = new Handler(ctx.getMainLooper());
@@ -178,6 +213,12 @@ public class NetworkConnector {
 
     }
 
+    /**
+     * get Response From Server
+     * @param query
+     * @param retry
+     * @return
+     */
     private byte[] getResFromServer(String query, int retry){
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -242,6 +283,11 @@ public class NetworkConnector {
 
     }
 
+    /**
+     * send Request To Server
+     * @param requestCode
+     * @param data
+     */
     public void sendRequestToServer(String requestCode, JSONObject data) {
         if(data==null){
             return;
@@ -266,6 +312,10 @@ public class NetworkConnector {
 
 
     }
+
+    /**
+     *  This method updates the data from server to the App
+     */
     private class NetworkTask extends AsyncTask<String, Void, byte[]> {
 
         @Override
@@ -301,6 +351,9 @@ public class NetworkConnector {
 
     }
 
+    /**
+     *This method sends data to the server to be updated
+     */
     private class NetworkUploadTask extends AsyncTask<JSONObject, Void, byte[]> {
 
         private String reqCode;
@@ -341,6 +394,12 @@ public class NetworkConnector {
 
     }
 
+    /**
+     * upload the data to server
+     * @param objData
+     * @param reqCode
+     * @return
+     */
     private byte[] saveDataToServer(JSONObject objData, String reqCode) {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();

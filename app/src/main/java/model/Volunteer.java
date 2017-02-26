@@ -28,7 +28,6 @@ public class Volunteer {
     private String email;
     private String password;
     private Bitmap profilePic;
-    private ArrayList<VolEvent> volEvents;
 
     public Volunteer(String fName, String lName, Date birthDate, String address, String email , String password,Bitmap profilePic){
         this.fName = fName;
@@ -38,7 +37,7 @@ public class Volunteer {
         this.email = email;
         this.password = password;
         this.profilePic =profilePic;
-        this.volEvents=new ArrayList<>();
+
     }
 
     public Volunteer() {
@@ -54,7 +53,7 @@ public class Volunteer {
         this.email = email;
         this.profilePic = profilePic;
         this.password = password;
-        this.volEvents=new ArrayList<>();
+
     }
 
     public int getId() {
@@ -113,14 +112,6 @@ public class Volunteer {
         this.lName = lName;
     }
 
-    public ArrayList<VolEvent> getVolEvents() {
-        return volEvents;
-    }
-
-    public void setVolEvents(ArrayList<VolEvent> volEvents) {
-        this.volEvents = volEvents;
-    }
-
     public Bitmap getProfilePic() {
         return profilePic;
     }
@@ -129,6 +120,11 @@ public class Volunteer {
         this.profilePic = profilePic;
     }
 
+    /**
+     *
+     * @param content
+     * @return list of volunteers
+     */
     public static List<Volunteer> parseJson(String content) {
 
         List<Volunteer> list = null;
@@ -161,6 +157,11 @@ public class Volunteer {
         return list;
     }
 
+    /**
+     * Convert volunteer object to json
+     * @param obj
+     * @return
+     */
     public static JSONObject toJson(Volunteer obj){
         JSONObject json = null;
 
@@ -183,6 +184,11 @@ public class Volunteer {
         return json;
     }
 
+    /**
+     * Read from json object and updates VoutimeDB volunteers
+     * @param fObj
+     * @return
+     */
     private boolean fromJson(JSONObject fObj) {
         boolean res = false;
         try {
