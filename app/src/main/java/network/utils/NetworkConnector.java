@@ -27,6 +27,7 @@ import static android.R.attr.data;
  */
 
 public class NetworkConnector {
+    //private  final String BASE_URL = "http://10.0.0.5:8080/projSrv/";
     private  final String BASE_URL = "http://192.168.14.79:8080/projSrv/";
     public static final String UPDATE_ORG_REQ = "12";
 
@@ -38,7 +39,7 @@ public class NetworkConnector {
     public static final String WEB_VOL_SERVLET = "web_vol_manage";
     public static final String WEB_VOLEVENT_SERVLET = "web_volevent_manage";
 
-    private  final String BASE_URL = "http://192.168.14.179:8080/projSrv/";
+  //  private  final String BASE_URL = "http://192.168.0.1:8080/projSrv/";
     private List<NetworkResListener> listeners = Collections.synchronizedList(new ArrayList<NetworkResListener>());
     private Context ctx;
     private static NetworkConnector instance;
@@ -141,9 +142,9 @@ public class NetworkConnector {
                     if(CURRENT_REQ.equals("8"))
                         resource = "Volunteers";
                     else if(CURRENT_REQ.equals("9"))
-                        resource = "organizations";
+                        resource = "Organizations";
                     else if(CURRENT_REQ.equals("10"))
-                        resource = "volevents";
+                        resource = "Events";
                     for (NetworkResListener listener : listeners) {
                         listener.onPreUpdate(resource);
                     }

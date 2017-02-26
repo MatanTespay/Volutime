@@ -205,10 +205,10 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
             NetworkConnector.getInstance().registerListener(this);
             NetworkConnector.getInstance().getOrganizations();
         }
-        else if(req == 10){
+      /*  else if(req == 10){
             NetworkConnector.getInstance().registerListener(this);
             NetworkConnector.getInstance().getVolevents();
-        }
+        }*/
     }
 
     /**
