@@ -382,6 +382,7 @@ public class ManagerDB implements NetworkResListener {
         }
 
     }
+
     public void updatVolEvent(byte[] res) {
         if(res == null){
             return;

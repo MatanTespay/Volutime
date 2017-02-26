@@ -114,7 +114,7 @@
     <string name="show_org">Show details</string>
     <string name="welcome">welcome</string>
 
-    <string name="preUpdate">Updating : %1$s</string>
+    <string name="preUpdate">Getting : %1$s</string>
     <string name="postUpdate">Finished updating : %1$s</string>
     <string name="updateMsg">Please wait…</string>
 

@@ -27,10 +27,12 @@ import static android.R.attr.data;
  */
 
 public class NetworkConnector {
-    //private  final String BASE_URL = "http://10.0.0.5:8080/projSrv/";
-    private  final String BASE_URL = "http://192.168.14.79:8080/projSrv/";
-    public static final String UPDATE_ORG_REQ = "12";
 
+    private  final String BASE_URL = "http://192.168.14.179:8080/projSrv/";
+    public static final String GET_VOLUNTEERS_REQ = "8";
+    public static final String GET_VOLEVENTS_REQ = "10";
+    public static final String GET_ORGANIZATIONS_REQ = "9";
+    public static final String UPDATE_ORG_REQ = "12";
     public static final String UPDATE_EVENT_REQ = "13";
     public static final String INSERT_EVENT_REQ = "14";
     public static final String DELETE_EVENT_REQ = "15";
@@ -39,14 +41,10 @@ public class NetworkConnector {
     public static final String WEB_VOL_SERVLET = "web_vol_manage";
     public static final String WEB_VOLEVENT_SERVLET = "web_volevent_manage";
 
-  //  private  final String BASE_URL = "http://192.168.0.1:8080/projSrv/";
     private List<NetworkResListener> listeners = Collections.synchronizedList(new ArrayList<NetworkResListener>());
     private Context ctx;
     private static NetworkConnector instance;
-    public static final String GET_VOLUNTEERS_REQ = "8";
-    public static final String GET_ORGNIZATIONS_REQ = "9";
-    public static final String GET_VOLEVENTS_REQ = "10";
-    public static final String GET_ORGANIZATIONS_REQ = "9";
+
     public static final String REQ = "req";
     private final int RETRY_TIMES = 2;
     public static String CURRENT_REQ = "-1";

@@ -144,7 +144,7 @@ public class VolEvent {
 
             list = new ArrayList<>();
 
-            JSONArray VolEventsJsonArr = json.getJSONArray("VolEvent");
+            JSONArray VolEventsJsonArr = json.getJSONArray("VolEvents");
 
             for (int i = 0; i < VolEventsJsonArr.length(); i++) {
                 try {

@@ -239,7 +239,15 @@ public class VolutimeDB extends SQLiteOpenHelper {
 
     public void resetDB(){
         try {
+            db.execSQL("DELETE FROM " + VOL_AT_ORG_TABLE_NAME );
+            db.execSQL("DELETE FROM " + EVENT_TABLE_NAME );
+            db.execSQL("DELETE FROM " + ORGANIZATION_TABLE_NAME );
+            db.execSQL("DELETE FROM " + VOLUNTEER_TABLE_NAME );
 
+            db.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" + VOL_AT_ORG_TABLE_NAME + "'");
+            db.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" + EVENT_TABLE_NAME + "'");
+            db.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" + ORGANIZATION_TABLE_NAME + "'");
+            db.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" + VOLUNTEER_TABLE_NAME + "'");
         } catch (Throwable t) {
             t.printStackTrace();
         }

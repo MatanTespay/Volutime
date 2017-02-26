@@ -15,6 +15,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import controller.activities.MainActivity;
 import controller.caldroid.CaldroidSampleActivity;
 
 /**
@@ -85,7 +86,7 @@ public class NotifyService extends Service {
         PendingIntent mContentIntent;
 
         // create the intent for notification
-        mNotificationIntent = new Intent(getApplicationContext(), CaldroidSampleActivity.class);
+        mNotificationIntent = new Intent(getApplicationContext(), MainActivity.class);
 
         mContentIntent = PendingIntent.getActivity(getApplicationContext(), 0, mNotificationIntent,
                 Intent.FILL_IN_ACTION);

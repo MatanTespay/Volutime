@@ -56,6 +56,7 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
     private ScheduleClient scheduleClient;
     private boolean doEventGet; // if true then loadData
     private ProgressDialog progressDialog = null;
+    Bundle savedInstanceState;
     // set color to specific dates
     private void fillEventsInCalendar(Calendar cal) {
 
@@ -92,26 +93,13 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
         caldroidFragment.setBackgroundDrawableForDates(map);
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_caldroid);
-        ManagerDB.getInstance().openDataBase(this);
-        monthEvents = new HashMap<>();
-        formatter = utilityClass.getInstance().getSortformatter();
-
-        // Setup caldroid fragment
-        // **** If you want normal CaldroidFragment, use below line ****
-        //caldroidFragment = new CaldroidFragment();
-
-        // //////////////////////////////////////////////////////////////////////
-        // **** This is to show customized fragment. If you want customized
-        // version, uncomment below line ****
-        caldroidFragment = new CaldroidSampleCustomFragment();
-
+    /**
+     * continue to load calander after getting data
+     * @param savedInstanceState
+     */
+    private void loadCalender(Bundle savedInstanceState){
 
         // Setup arguments
-
         // If Activity is created after rotation
         if (savedInstanceState != null) {
             caldroidFragment.restoreStatesFromKey(savedInstanceState,
@@ -123,11 +111,6 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
             userID = intent.getIntExtra("userID",0);
             doEventGet = intent.getBooleanExtra("doEventGet", false);
 
-            // if true loadData from server
-            if(!doEventGet) {
-                NetworkConnector.getInstance().registerListener(this);
-                NetworkConnector.getInstance().getVolevents();
-            }
             Bundle args = new Bundle();
             Calendar cal = Calendar.getInstance();
             args.putInt(CaldroidFragment.MONTH, cal.get(Calendar.MONTH) + 1);
@@ -149,8 +132,6 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
 
             //fillEventsInCalendar(cal);
         }
-
-
 
         // Attach to the activity
         FragmentTransaction t = getSupportFragmentManager().beginTransaction();
@@ -192,9 +173,9 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
             @Override
             public void onCaldroidViewCreated() {
                 if (caldroidFragment.getLeftArrowButton() != null) {
-                    Toast.makeText(getApplicationContext(),
+                   /* Toast.makeText(getApplicationContext(),
                             "Caldroid view is created", Toast.LENGTH_SHORT)
-                            .show();
+                            .show();*/
                 }
 
             }
@@ -223,6 +204,47 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
         scheduleClient = new ScheduleClient(this);
         scheduleClient.doBindService();
 
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_caldroid);
+        this.savedInstanceState = savedInstanceState;
+        ManagerDB.getInstance().openDataBase(this);
+        monthEvents = new HashMap<>();
+        formatter = utilityClass.getInstance().getSortformatter();
+
+        // Setup caldroid fragment
+        // **** If you want normal CaldroidFragment, use below line ****
+        //caldroidFragment = new CaldroidFragment();
+
+        // //////////////////////////////////////////////////////////////////////
+        // **** This is to show customized fragment. If you want customized
+        // version, uncomment below line ****
+        caldroidFragment = new CaldroidSampleCustomFragment();
+
+        //get params and load calendar
+        Intent intent = getIntent();
+        if(intent != null ){
+            userID = intent.getIntExtra("userID", 0);
+            doEventGet = intent.getBooleanExtra("doEventGet", false);
+
+            // if true loadData from server
+            if(doEventGet) {
+                NetworkConnector.getInstance().registerListener(this);
+                NetworkConnector.getInstance().getVolevents();
+                doEventGet =false;
+            }else{
+                loadCalender(savedInstanceState);
+            }
+
+        }
+        else{
+            //load default calendar if now params found
+            loadCalender(savedInstanceState);
+
+        }
 
     }
 
@@ -479,8 +501,9 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
     @Override
     public void onPreUpdate(String resource) {
         progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle("Updating resources : " + resource);
-        progressDialog.setMessage("");
+        String s = String.format(getResources().getString(R.string.preUpdate),resource );
+        progressDialog.setTitle(s);
+        progressDialog.setMessage(getResources().getString(R.string.updateMsg));
         progressDialog.setCancelable(false);
         progressDialog.show();
     }
@@ -501,7 +524,7 @@ public class CaldroidSampleActivity extends AppCompatActivity implements EventLi
             doEventGet = false;
             progressDialog.dismiss();
             ManagerDB.getInstance().updatVolEvent(res);
-
+            loadCalender(this.savedInstanceState);
         }
         else{
             Toast.makeText(this,"download failed...",Toast.LENGTH_LONG).show();

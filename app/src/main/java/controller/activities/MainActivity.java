@@ -46,6 +46,8 @@ import network.utils.ResStatus;
 import utils.RoundedImageView;
 import utils.utilityClass;
 
+import static com.caldroidsample.R.string.updateMsg;
+
 @SuppressWarnings("ALL")
 public class MainActivity extends AppCompatActivity implements OrganizationFragment.OnFragmentInteractionListener,
          AllOrgsDialogFragment.OnVolAtOrgInteractionListener, NetworkResListener {
@@ -184,8 +186,9 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
     @Override
     public void onPreUpdate(String resource) {
         progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle("Updating resources : " + resource);
-        progressDialog.setMessage("");
+        String s = String.format(getResources().getString(R.string.preUpdate),resource );
+        progressDialog.setTitle(s);
+        progressDialog.setMessage(getResources().getString(R.string.updateMsg));
         progressDialog.setCancelable(false);
         progressDialog.show();
     }
@@ -205,10 +208,6 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
             NetworkConnector.getInstance().registerListener(this);
             NetworkConnector.getInstance().getOrganizations();
         }
-      /*  else if(req == 10){
-            NetworkConnector.getInstance().registerListener(this);
-            NetworkConnector.getInstance().getVolevents();
-        }*/
     }
 
     /**
@@ -238,13 +237,6 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
                 ManagerDB.getInstance().updateOrganization(res);
                 doOrgGet = false;
                 progressDialog.dismiss();
-            }
-            else if(type.equals("10")){ //events
-                String s = getResources().getString(R.string.events);
-                utilityClass.getInstance().showToast(R.string.preUpdate,1,s);
-                doEventGet = false;
-                progressDialog.dismiss();
-                ManagerDB.getInstance().updatVolEvent(res);
             }
 
         }
@@ -495,6 +487,7 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
                             cal.putExtra("doEventGet", doEventGet);
                             startActivity(cal);
                         }
+                        doEventGet = false;
                         drawer.closeDrawers();
                         return true;
                     case R.id.nav_messages:
@@ -675,7 +668,6 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
     }
 
     // show or hide the fab
-
     /**
      * Method checks if show fab or not and which icon to show if state true
      * @param state
@@ -732,7 +724,8 @@ public class MainActivity extends AppCompatActivity implements OrganizationFragm
             }
         }
     }
-// getters and setters
+
+    // getters and setters
     public UserType getUserType() {
         return userType;
     }
